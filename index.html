@@ -1,0 +1,2308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Comissões - Gamificado</title>
+    <!-- 
+    CONFIGURAÇÃO IMPORTANTE:
+    1. Configure o Google Apps Script seguindo o tutorial
+    2. Substitua 'SEU_SCRIPT_ID_AQUI' pela URL do seu script
+    3. O sistema funcionará offline como backup se não configurar
+    -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h1 {
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+            overflow: hidden;
+            margin: 0 auto;
+            max-width: 100%;
+            display: none;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38a169, #68d391);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-details h3 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .user-level {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .nav-tabs {
+            background: #f8fafc;
+            padding: 0;
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-size: 14px;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+
+        .tab-button:hover {
+            background: #e6fffa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #38a169;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(56,161,105,0.1), rgba(104,211,145,0.1));
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            color: #38a169;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #38a169, #68d391);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .achievement-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .achievement-card.unlocked {
+            border: 2px solid #38a169;
+            background: linear-gradient(135deg, #f0fff4, #e6fffa);
+        }
+
+        .achievement-card.locked {
+            opacity: 0.6;
+            border: 2px solid #e2e8f0;
+        }
+
+        .achievement-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .achievement-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .achievement-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .missions-container {
+            padding: 20px;
+        }
+
+        .mission-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .mission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .mission-title {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .mission-reward {
+            background: #38a169;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .mission-progress {
+            margin-top: 10px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 20px;
+        }
+
+        .ranking-table th {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .ranking-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .ranking-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .rank-position {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #744210; }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e2e8f0); color: #2d3748; }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #ed8936); color: white; }
+        .rank-other { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+        .level-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .xp-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .admin-panel {
+            padding: 20px;
+        }
+
+        .user-management-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .user-management-table th {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .user-management-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .role-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .role-admin { background: #fed7d7; color: #742a2a; }
+        .role-vendedor { background: #c6f6d5; color: #22543d; }
+        .role-gerente { background: #bee3f8; color: #2c5282; }
+        .role-assistente { background: #fef5e7; color: #744210; }
+
+        .success-message, .error-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #38a169;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #e53e3e;
+        }
+
+        .daily-summary {
+            background: linear-gradient(135deg, #e6fffa, #f0fff4);
+            border: 2px solid #38a169;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px;
+        }
+
+        .bonus-alert {
+            background: linear-gradient(135deg, #fed7c2, #fef5e7);
+            border: 2px solid #ed8936;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .notification-badge {
+            background: #e53e3e;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                overflow-x: auto;
+            }
+            
+            .tab-button {
+                min-width: 120px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .page-header {
+                padding: 15px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <h1>🎯 Sistema de Comissões</h1>
+            <div class="form-group">
+                <label>👤 Usuário:</label>
+                <input type="text" id="loginUsername" placeholder="Digite seu usuário">
+            </div>
+            <div class="form-group">
+                <label>🔒 Senha:</label>
+                <input type="password" id="loginPassword" placeholder="Digite sua senha">
+            </div>
+            <button class="btn btn-primary" onclick="login()" style="width: 100%; margin-top: 20px;">
+                🚀 Entrar
+            </button>
+            <div id="loginError" class="error-message hidden">
+                Usuário ou senha incorretos!
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema Principal -->
+    <div id="mainSystem" class="main-container">
+        <!-- Header com Info do Usuário -->
+        <div class="page-header">
+            <div>
+                <h1 id="headerTitle">💰 Sistema de Comissões</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <h3 id="userName">Usuário</h3>
+                    <div class="user-level" id="userLevel">Nível 1 - Iniciante</div>
+                    <div id="connectionStatus" style="font-size: 10px; margin-top: 2px;">
+                        🟢 Online - Sincronizado
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 Sair</button>
+            </div>
+        </div>
+
+        <!-- Navegação (varia por tipo de usuário) -->
+        <div class="nav-tabs" id="navTabs">
+            <!-- Preenchido dinamicamente -->
+        </div>
+
+        <!-- Dashboard Pessoal -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid" id="dashboardGrid">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Conquistas -->
+        <div id="conquistas" class="tab-content">
+            <div class="achievements-grid" id="achievementsGrid">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Missões -->
+        <div id="missoes" class="tab-content">
+            <div class="missions-container" id="missionsContainer">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Ranking -->
+        <div id="ranking" class="tab-content">
+            <table class="ranking-table" id="rankingTable">
+                <thead>
+                    <tr>
+                        <th>🏆 Posição</th>
+                        <th>👤 Nome</th>
+                        <th>💼 Cargo</th>
+                        <th>📊 Matrículas</th>
+                        <th>💰 Total Ganho</th>
+                        <th>⭐ Nível</th>
+                        <th>🎯 XP</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingBody">
+                    <!-- Preenchido dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Painel Admin (apenas para admin) -->
+        <div id="admin" class="tab-content">
+            <div class="admin-panel">
+                <h2>👨‍💼 Painel Administrativo</h2>
+                
+                <!-- Adicionar Usuário -->
+                <div class="stat-card" style="max-width: 500px; margin: 20px 0;">
+                    <h3>➕ Adicionar Novo Usuário</h3>
+                    <div class="form-group">
+                        <label>Nome:</label>
+                        <input type="text" id="newUserName" placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Usuário:</label>
+                        <input type="text" id="newUserUsername" placeholder="nome.usuario">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <input type="password" id="newUserPassword" placeholder="senha123">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo:</label>
+                        <select id="newUserRole">
+                            <option value="vendedor">👨‍💼 Vendedor</option>
+                            <option value="gerente">👔 Gerente</option>
+                            <option value="assistente">👩‍💻 Assistente</option>
+                            <option value="admin">🔧 Admin</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="addUser()">➕ Adicionar Usuário</button>
+                </div>
+
+                <!-- Bônus Extras -->
+                <div class="stat-card" style="max-width: 500px; margin: 20px 0;">
+                    <h3>🎁 Dar Bônus Extra</h3>
+                    <div class="form-group">
+                        <label>Colaborador:</label>
+                        <select id="bonusUser">
+                            <option value="">Selecione um colaborador...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor do Bônus (R$):</label>
+                        <input type="number" id="bonusAmount" placeholder="100.00" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo:</label>
+                        <input type="text" id="bonusReason" placeholder="Ex: Meta extra atingida, performance excepcional...">
+                    </div>
+                    <button class="btn btn-warning" onclick="giveExtraBonus()">🎁 Dar Bônus</button>
+                </div>
+
+                <!-- Histórico de Bônus Extras -->
+                <div class="stat-card" style="margin: 20px 0;">
+                    <h3>📋 Histórico de Bônus Extras</h3>
+                    <div id="bonusHistory" style="max-height: 300px; overflow-y: auto;">
+                        <!-- Preenchido dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Lista de Usuários -->
+                <table class="user-management-table">
+                    <thead>
+                        <tr>
+                            <th>👤 Nome</th>
+                            <th>🔑 Usuário</th>
+                            <th>💼 Tipo</th>
+                            <th>⭐ Nível</th>
+                            <th>🎯 XP</th>
+                            <th>📊 Matrículas</th>
+                            <th>🔧 Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userManagementBody">
+                        <!-- Preenchido dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Matrículas (apenas para admin) -->
+        <div id="matriculas" class="tab-content">
+            <div style="padding: 20px;">
+                <div class="stat-card">
+                    <h3>➕ Adicionar Nova Matrícula</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>Data:</label>
+                            <input type="date" id="newData" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Aluno:</label>
+                            <input type="text" id="newNome" placeholder="Nome completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Curso:</label>
+                            <select id="newCurso" required>
+                                <option value="">Selecione...</option>
+                                <option value="Creators 2D">Creators 2D</option>
+                                <option value="Creators 3D">Creators 3D</option>
+                                <option value="Design Gráfico e Edição">Design Gráfico e Edição</option>
+                                <option value="Creators Dev">Creators Dev</option>
+                                <option value="Jogos Digitais Técnico">Jogos Digitais Técnico</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor da Matrícula (R$):</label>
+                            <input type="number" id="newMatricula" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor da 1ª Parcela (R$):</label>
+                            <input type="number" id="newParcela" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Venda:</label>
+                            <select id="newTipo" required>
+                                <option value="Convencional">Convencional</option>
+                                <option value="Blackin">Blackin</option>
+                                <option value="Black">Black</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Vendedor:</label>
+                            <select id="newVendedor" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Gerente:</label>
+                            <select id="newGerente" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Assistente:</label>
+                            <select id="newAssistente" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="addMatricula()" style="margin-top: 15px;">➕ Adicionar Matrícula</button>
+                </div>
+
+                <!-- Lista de Matrículas para Administração -->
+                <div class="stat-card" style="margin-top: 20px;">
+                    <h3>📋 Gerenciar Matrículas</h3>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table style="width: 100%; font-size: 12px;">
+                            <thead>
+                                <tr style="background: #f8fafc;">
+                                    <th style="padding: 8px; border: 1px solid #e2e8f0;">Data</th>
+                                    <th style="padding: 8px; border: 1px solid #e2e8f0;">Aluno</th>
+                                    <th style="padding: 8px; border: 1px solid #e2e8f0;">Vendedor</th>
+                                    <th style="padding: 8px; border: 1px solid #e2e8f0;">Valor</th>
+                                    <th style="padding: 8px; border: 1px solid #e2e8f0;">Status</th>
+                                    <th style="padding: 8px; border: 1px solid #e2e8f0;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matriculasManagementBody">
+                                <!-- Preenchido dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Usuário -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>✏️ Editar Usuário</h2>
+                <span class="close" onclick="closeEditUserModal()">&times;</span>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>Nome:</label>
+                    <input type="text" id="editUserName">
+                </div>
+                <div class="form-group">
+                    <label>Usuário/Email:</label>
+                    <input type="text" id="editUserUsername">
+                </div>
+                <div class="form-group">
+                    <label>Nova Senha:</label>
+                    <input type="password" id="editUserPassword" placeholder="Deixe em branco para manter atual">
+                </div>
+                <div class="form-group">
+                    <label>Tipo:</label>
+                    <select id="editUserRole">
+                        <option value="vendedor">👨‍💼 Vendedor</option>
+                        <option value="gerente">👔 Gerente</option>
+                        <option value="assistente">👩‍💻 Assistente</option>
+                        <option value="admin">🔧 Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nível:</label>
+                    <input type="number" id="editUserLevel" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label>XP:</label>
+                    <input type="number" id="editUserXP" min="0">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="saveUserEdit()">💾 Salvar</button>
+                    <button class="btn btn-danger" onclick="closeEditUserModal()">❌ Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Matrícula -->
+    <div id="editMatriculaModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>✏️ Editar Matrícula</h2>
+                <span class="close" onclick="closeEditMatriculaModal()">&times;</span>
+            </div>
+            <div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Data:</label>
+                        <input type="date" id="editMatriculaData">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Aluno:</label>
+                        <input type="text" id="editMatriculaNome">
+                    </div>
+                    <div class="form-group">
+                        <label>Curso:</label>
+                        <select id="editMatriculaCurso">
+                            <option value="Creators 2D">Creators 2D</option>
+                            <option value="Creators 3D">Creators 3D</option>
+                            <option value="Design Gráfico e Edição">Design Gráfico e Edição</option>
+                            <option value="Creators Dev">Creators Dev</option>
+                            <option value="Jogos Digitais Técnico">Jogos Digitais Técnico</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor Matrícula (R$):</label>
+                        <input type="number" id="editMatriculaValor" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor 1ª Parcela (R$):</label>
+                        <input type="number" id="editMatriculaParcela" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo:</label>
+                        <select id="editMatriculaTipo">
+                            <option value="Convencional">Convencional</option>
+                            <option value="Blackin">Blackin</option>
+                            <option value="Black">Black</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Vendedor:</label>
+                        <select id="editMatriculaVendedor"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Gerente:</label>
+                        <select id="editMatriculaGerente"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Assistente:</label>
+                        <select id="editMatriculaAssistente"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status:</label>
+                        <select id="editMatriculaStatus">
+                            <option value="Pago">✅ Pago</option>
+                            <option value="Pendente">⏳ Pendente</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="saveMatriculaEdit()">💾 Salvar</button>
+                    <button class="btn btn-danger" onclick="closeEditMatriculaModal()">❌ Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ CONFIGURE AQUI A URL DO SEU GOOGLE APPS SCRIPT
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec';
+        
+        // Dados globais
+        let currentUser = null;
+        let users = {};
+        let matriculas = [];
+        let userStats = {};
+        let extraBonuses = []; // Novo: bônus extras dados pelo admin
+        let isOnline = navigator.onLine;
+
+        // Usuários padrão
+        const defaultUsers = {
+            'gamecreatorsadm@gmail.com': { name: 'Administrador', username: 'gamecreatorsadm@gmail.com', password: '15212602', role: 'admin', level: 10, xp: 5000 }
+        };
+
+        // Conquistas disponíveis
+        const achievements = {
+            'first_sale': { icon: '🎯', title: 'Primeira Venda', desc: 'Realize sua primeira matrícula', xp: 50 },
+            'daily_double': { icon: '🔥', title: 'Double Kill', desc: '2 matrículas no mesmo dia', xp: 100 },
+            'daily_triple': { icon: '⚡', title: 'Triple Kill', desc: '3 matrículas no mesmo dia', xp: 200 },
+            'weekly_warrior': { icon: '👑', title: 'Guerreiro Semanal', desc: '10 matrículas em uma semana', xp: 300 },
+            'monthly_master': { icon: '🏆', title: 'Mestre Mensal', desc: '30 matrículas em um mês', xp: 500 },
+            'level_5': { icon: '⭐', title: 'Nível 5', desc: 'Alcance o nível 5', xp: 250 },
+            'level_10': { icon: '💎', title: 'Diamante', desc: 'Alcance o nível 10', xp: 500 },
+            'blackin_specialist': { icon: '🎖️', title: 'Especialista Blackin', desc: '5 vendas Blackin', xp: 150 },
+            'black_master': { icon: '🏅', title: 'Mestre Black', desc: '3 vendas Black', xp: 200 }
+        };
+
+        // Missões diárias/semanais
+        const missions = [
+            { id: 'daily_1', title: '🎯 Meta Diária', desc: 'Realize 2 matrículas hoje', reward: '50 XP', progress: 0, target: 2, type: 'daily' },
+            { id: 'daily_2', title: '💰 Faturamento', desc: 'Alcance R$ 1.000 em vendas hoje', reward: '75 XP', progress: 0, target: 1000, type: 'daily' },
+            { id: 'weekly_1', title: '🏆 Meta Semanal', desc: 'Realize 10 matrículas esta semana', reward: '200 XP', progress: 0, target: 10, type: 'weekly' },
+            { id: 'weekly_2', title: '🎖️ Especialista', desc: 'Realize 2 vendas Blackin/Black', reward: '150 XP', progress: 0, target: 2, type: 'weekly' }
+        ];
+
+        // Tabelas de comissões
+        const COMISSAO_VENDEDOR = [
+            { min: 10, max: 20, valor: 35 },
+            { min: 21, max: 30, valor: 50 },
+            { min: 31, max: 40, valor: 60 },
+            { min: 41, max: 999, valor: 70 }
+        ];
+
+        const COMISSAO_GERENTE = [
+            { min: 26, max: 52, valor: 50 },
+            { min: 53, max: 78, valor: 80 }
+        ];
+
+        const COMISSAO_ASSISTENTE = [
+            { min: 10, max: 20, valor: 10 },
+            { min: 21, max: 30, valor: 15 },
+            { min: 31, max: 40, valor: 25 },
+            { min: 41, max: 999, valor: 30 }
+        ];
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoadingMessage('Carregando dados...');
+            loadFromGoogleSheets().then(() => {
+                hideLoadingMessage();
+            }).catch(() => {
+                // Se falhar, carregar do localStorage como backup
+                loadDataFromLocal();
+                hideLoadingMessage();
+                showMessage('Carregado do backup local. Conecte-se à internet para sincronizar.', 'warning');
+            });
+        });
+
+        // Google Sheets Integration
+        async function saveToGoogleSheets() {
+            if (!isOnline) {
+                saveDataToLocal();
+                showMessage('Offline: dados salvos localmente. Sincronizará quando conectar.', 'warning');
+                return;
+            }
+
+            showLoadingMessage('Salvando dados...');
+            
+            try {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'save',
+                        users: users,
+                        matriculas: matriculas,
+                        userStats: userStats,
+                        extraBonuses: extraBonuses
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Também salvar local como backup
+                    saveDataToLocal();
+                    showMessage('✅ Dados salvos no Google Sheets!', 'success');
+                } else {
+                    throw new Error(result.error || 'Erro ao salvar');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar no Google Sheets:', error);
+                // Salvar local como fallback
+                saveDataToLocal();
+                showMessage('⚠️ Erro na sincronização. Dados salvos localmente.', 'warning');
+            }
+            
+            hideLoadingMessage();
+        }
+
+        async function loadFromGoogleSheets() {
+            if (!isOnline) {
+                throw new Error('Offline');
+            }
+
+            try {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'load'
+                    })
+                });
+
+                const data = await response.json();
+                
+                users = data.users || {};
+                matriculas = data.matriculas || [];
+                userStats = data.userStats || {};
+                extraBonuses = data.extraBonuses || [];
+
+                // Se não houver usuários, criar o admin padrão
+                if (Object.keys(users).length === 0) {
+                    users = {...defaultUsers};
+                }
+
+                // Garantir que todos os usuários tenham stats
+                Object.keys(users).forEach(username => {
+                    if (!userStats[username]) {
+                        userStats[username] = {
+                            achievements: [],
+                            totalSales: 0,
+                            totalEarnings: 0,
+                            currentStreak: 0,
+                            bestStreak: 0
+                        };
+                    }
+                });
+
+                // Salvar local como backup
+                saveDataToLocal();
+                
+            } catch (error) {
+                console.error('Erro ao carregar do Google Sheets:', error);
+                throw error;
+            }
+        }
+
+        // Gerenciamento de dados local (backup)
+        function saveDataToLocal() {
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('matriculas', JSON.stringify(matriculas));
+            localStorage.setItem('userStats', JSON.stringify(userStats));
+            localStorage.setItem('extraBonuses', JSON.stringify(extraBonuses));
+            localStorage.setItem('lastLocalSave', new Date().toISOString());
+        }
+
+        function loadDataFromLocal() {
+            const savedUsers = localStorage.getItem('users');
+            const savedMatriculas = localStorage.getItem('matriculas');
+            const savedUserStats = localStorage.getItem('userStats');
+            const savedExtraBonuses = localStorage.getItem('extraBonuses');
+
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            } else {
+                users = {...defaultUsers};
+            }
+
+            if (savedMatriculas) {
+                matriculas = JSON.parse(savedMatriculas);
+            }
+
+            if (savedUserStats) {
+                userStats = JSON.parse(savedUserStats);
+            }
+
+            if (savedExtraBonuses) {
+                extraBonuses = JSON.parse(savedExtraBonuses);
+            }
+
+            // Garantir que todos os usuários tenham stats
+            Object.keys(users).forEach(username => {
+                if (!userStats[username]) {
+                    userStats[username] = {
+                        achievements: [],
+                        totalSales: 0,
+                        totalEarnings: 0,
+                        currentStreak: 0,
+                        bestStreak: 0
+                    };
+                }
+            });
+        }
+
+        // Salvar dados (função principal)
+        function saveData() {
+            saveToGoogleSheets();
+        }
+
+        // Funções auxiliares de UI
+        function showLoadingMessage(message) {
+            const existingLoader = document.getElementById('loadingMessage');
+            if (existingLoader) {
+                existingLoader.textContent = message;
+                return;
+            }
+
+            const loader = document.createElement('div');
+            loader.id = 'loadingMessage';
+            loader.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 9999;
+                font-weight: bold;
+            `;
+            loader.textContent = message;
+            document.body.appendChild(loader);
+        }
+
+        function hideLoadingMessage() {
+            const loader = document.getElementById('loadingMessage');
+            if (loader) {
+                loader.remove();
+            }
+        }
+
+        // Monitor de conexão
+        window.addEventListener('online', function() {
+            isOnline = true;
+            showMessage('✅ Conectado! Sincronizando dados...', 'success');
+            saveToGoogleSheets(); // Sincronizar automaticamente
+        });
+
+        window.addEventListener('offline', function() {
+            isOnline = false;
+            showMessage('⚠️ Offline. Dados serão salvos localmente.', 'warning');
+        });
+
+        // Sistema de Login
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (users[username] && users[username].password === password) {
+                currentUser = users[username];
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainSystem').style.display = 'block';
+                setupUserInterface();
+                errorDiv.classList.add('hidden');
+            } else {
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainSystem').style.display = 'none';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        // Interface do usuário
+        function setupUserInterface() {
+            // Configurar header
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userLevel').textContent = `Nível ${currentUser.level} - ${getLevelTitle(currentUser.level)}`;
+
+            // Configurar navegação baseada no tipo de usuário
+            setupNavigation();
+            setupDashboard();
+            updateUserSelects();
+            updateSyncStatus();
+        }
+
+        function getLevelTitle(level) {
+            if (level >= 10) return 'Lenda';
+            if (level >= 8) return 'Mestre';
+            if (level >= 6) return 'Especialista';
+            if (level >= 4) return 'Experiente';
+            if (level >= 2) return 'Aprendiz';
+            return 'Iniciante';
+        }
+
+        function setupNavigation() {
+            const navTabs = document.getElementById('navTabs');
+            let tabs = '';
+
+            // Tabs comuns para todos
+            tabs += '<button class="tab-button active" onclick="showTab(\'dashboard\')">🏠 Meu Dashboard</button>';
+            tabs += '<button class="tab-button" onclick="showTab(\'conquistas\')">🏆 Conquistas</button>';
+            tabs += '<button class="tab-button" onclick="showTab(\'missoes\')">🎯 Missões</button>';
+            tabs += '<button class="tab-button" onclick="showTab(\'ranking\')">📊 Ranking</button>';
+
+            // Tabs específicas para admin
+            if (currentUser.role === 'admin') {
+                tabs += '<button class="tab-button" onclick="showTab(\'admin\')">👨‍💼 Admin</button>';
+                tabs += '<button class="tab-button" onclick="showTab(\'matriculas\')">➕ Matrículas</button>';
+            }
+
+            navTabs.innerHTML = tabs;
+        }
+
+        function setupDashboard() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            const userMatriculas = getUserMatriculas();
+            const monthData = getCurrentMonthData(userMatriculas);
+            const todayData = getTodayData(userMatriculas);
+            
+            let dashboardHTML = '';
+
+            // Card de Matrículas do Mês
+            const monthCount = monthData.length;
+            const monthTarget = getMonthTarget();
+            const monthProgress = monthTarget > 0 ? Math.min((monthCount / monthTarget) * 100, 100) : 0;
+
+            dashboardHTML += `
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">📊</span>
+                    </div>
+                    <div class="stat-value">${monthCount}</div>
+                    <div class="stat-label">Matrículas este Mês</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${monthProgress}%"></div>
+                    </div>
+                    <div class="progress-text">${monthCount} de ${monthTarget} (${monthProgress.toFixed(0)}%)</div>
+                </div>
+            `;
+
+            // Card de Matrículas Hoje
+            const todayCount = todayData.length;
+            dashboardHTML += `
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">🎯</span>
+                    </div>
+                    <div class="stat-value">${todayCount}</div>
+                    <div class="stat-label">Matrículas Hoje</div>
+                    ${todayCount >= 2 ? '<div class="bonus-alert">🎉 Bônus Diário Ativado!</div>' : ''}
+                </div>
+            `;
+
+            // Card de Comissão do Mês
+            const monthCommission = calculateUserMonthCommission();
+            dashboardHTML += `
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">💰</span>
+                    </div>
+                    <div class="stat-value">${formatCurrency(monthCommission.total)}</div>
+                    <div class="stat-label">Total a Receber</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Comissão: ${formatCurrency(monthCommission.commission)}<br>
+                        Bônus: ${formatCurrency(monthCommission.bonus - monthCommission.extraBonus)}<br>
+                        ${monthCommission.extraBonus > 0 ? `Bônus Extra: ${formatCurrency(monthCommission.extraBonus)}<br>` : ''}
+                    </div>
+                </div>
+            `;
+
+            // Card de Nível e XP
+            const xpForNext = (currentUser.level * 500) - (currentUser.xp % 500);
+            const xpProgress = ((currentUser.xp % 500) / 500) * 100;
+            dashboardHTML += `
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">⭐</span>
+                        <span class="level-badge">Nível ${currentUser.level}</span>
+                    </div>
+                    <div class="stat-value">${currentUser.xp}</div>
+                    <div class="stat-label">Pontos de Experiência</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${xpProgress}%"></div>
+                    </div>
+                    <div class="progress-text">${xpForNext} XP para próximo nível</div>
+                </div>
+            `;
+
+            // Resumo de hoje (se houver vendas)
+            if (todayCount > 0) {
+                const todayEarnings = calculateTodayEarnings(todayData);
+                dashboardHTML += `
+                    <div class="daily-summary">
+                        <h3>📅 Resumo de Hoje</h3>
+                        <p><strong>${todayCount}</strong> matrículas realizadas</p>
+                        <p><strong>${formatCurrency(todayEarnings)}</strong> em comissões</p>
+                        ${todayCount >= 3 ? '<p>🏆 Bônus TRIPLE KILL ativado!</p>' : 
+                          todayCount >= 2 ? '<p>🔥 Bônus DOUBLE KILL ativado!</p>' : ''}
+                    </div>
+                `;
+            }
+
+            dashboardGrid.innerHTML = dashboardHTML;
+            
+            // Atualizar outras seções
+            updateAchievements();
+            updateMissions();
+            updateRanking();
+            if (currentUser.role === 'admin') {
+                updateAdminPanel();
+            }
+        }
+
+        // Funções de cálculo
+        function getUserMatriculas() {
+            return matriculas.filter(m => {
+                if (currentUser.role === 'admin') return true;
+                return m.vendedor === currentUser.name || 
+                       m.gerente === currentUser.name || 
+                       m.assistente === currentUser.name;
+            });
+        }
+
+        function getCurrentMonthData(userMatriculas) {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            return userMatriculas.filter(m => {
+                const date = new Date(m.data);
+                return date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear && 
+                       !m.cancelado;
+            });
+        }
+
+        function getTodayData(userMatriculas) {
+            const today = new Date().toISOString().split('T')[0];
+            return userMatriculas.filter(m => m.data === today && !m.cancelado);
+        }
+
+        function getMonthTarget() {
+            if (currentUser.role === 'vendedor') return 30;
+            if (currentUser.role === 'gerente') return 50;
+            if (currentUser.role === 'assistente') return 25;
+            return 0;
+        }
+
+        function calculateUserMonthCommission() {
+            const monthData = getCurrentMonthData(getUserMatriculas());
+            let commission = 0;
+            let bonus = 0;
+
+            if (currentUser.role === 'vendedor') {
+                const myMatriculas = monthData.filter(m => m.vendedor === currentUser.name);
+                const count = myMatriculas.length;
+                
+                myMatriculas.forEach(m => {
+                    commission += getCommissionByBand(count, COMISSAO_VENDEDOR);
+                });
+                
+                bonus = calculateDailyBonus(monthData, currentUser.name, 'vendedor');
+                bonus += calculateSpecialBonus(monthData, currentUser.name, 'vendedor');
+            }
+
+            if (currentUser.role === 'gerente') {
+                const myMatriculas = monthData.filter(m => m.gerente === currentUser.name);
+                const count = myMatriculas.length;
+                
+                myMatriculas.forEach(m => {
+                    commission += getCommissionByBand(count, COMISSAO_GERENTE);
+                });
+                
+                bonus = calculateSpecialBonus(monthData, currentUser.name, 'gerente');
+            }
+
+            if (currentUser.role === 'assistente') {
+                const myMatriculas = monthData.filter(m => m.assistente === currentUser.name);
+                const count = myMatriculas.length;
+                
+                myMatriculas.forEach(m => {
+                    commission += getCommissionByBand(count, COMISSAO_ASSISTENTE);
+                });
+                
+                bonus = calculateDailyBonus(monthData, currentUser.name, 'assistente');
+            }
+
+            // Adicionar bônus extras do mês atual
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const monthlyExtraBonuses = extraBonuses.filter(b => {
+                const bonusDate = new Date(b.date);
+                return bonusDate.getMonth() === currentMonth && 
+                       bonusDate.getFullYear() === currentYear &&
+                       b.userName === currentUser.name;
+            });
+
+            const extraBonusTotal = monthlyExtraBonuses.reduce((sum, b) => sum + b.amount, 0);
+            bonus += extraBonusTotal;
+
+            return { commission, bonus, total: commission + bonus, extraBonus: extraBonusTotal };
+        }
+
+        function calculateTodayEarnings(todayData) {
+            let earnings = 0;
+            
+            todayData.forEach(m => {
+                if (currentUser.role === 'vendedor' && m.vendedor === currentUser.name) {
+                    const monthData = getCurrentMonthData(getUserMatriculas());
+                    const count = monthData.filter(mat => mat.vendedor === currentUser.name).length;
+                    earnings += getCommissionByBand(count, COMISSAO_VENDEDOR);
+                }
+                // Similar para gerente e assistente...
+            });
+
+            return earnings;
+        }
+
+        // Funções auxiliares de comissão (reutilizando do código anterior)
+        function getCommissionByBand(matriculasCount, table) {
+            for (let band of table) {
+                if (matriculasCount >= band.min && matriculasCount <= band.max) {
+                    return band.valor;
+                }
+            }
+            return 0;
+        }
+
+        function calculateDailyBonus(data, colaborador, tipo) {
+            const matriculasPorDia = {};
+            
+            data.filter(m => !m.cancelado).forEach(m => {
+                const colaboradorNome = tipo === 'vendedor' ? m.vendedor : 
+                                      tipo === 'assistente' ? m.assistente : null;
+                
+                if (colaboradorNome === colaborador) {
+                    const dia = m.data;
+                    if (!matriculasPorDia[dia]) matriculasPorDia[dia] = 0;
+                    matriculasPorDia[dia]++;
+                }
+            });
+
+            let bonusTotal = 0;
+            Object.values(matriculasPorDia).forEach(count => {
+                if (tipo === 'vendedor') {
+                    if (count >= 3) bonusTotal += 100;
+                    else if (count >= 2) bonusTotal += 50;
+                } else if (tipo === 'assistente') {
+                    if (count >= 3) bonusTotal += 40;
+                    else if (count >= 2) bonusTotal += 20;
+                }
+            });
+
+            return bonusTotal;
+        }
+
+        function calculateSpecialBonus(data, colaborador, tipo) {
+            let bonus = 0;
+            
+            data.filter(m => !m.cancelado).forEach(m => {
+                if (m.tipo === 'Blackin') {
+                    if (tipo === 'vendedor' && m.vendedor === colaborador) bonus += 25;
+                    if (tipo === 'gerente' && m.gerente === colaborador) bonus += 25;
+                }
+                if (m.tipo === 'Black') {
+                    if (tipo === 'vendedor' && m.vendedor === colaborador) bonus += 50;
+                    if (tipo === 'gerente' && m.gerente === colaborador) bonus += 50;
+                }
+            });
+
+            return bonus;
+        }
+
+        // Sistema de Conquistas
+        function updateAchievements() {
+            const achievementsGrid = document.getElementById('achievementsGrid');
+            const userAchievements = userStats[currentUser.username].achievements || [];
+            let html = '';
+
+            Object.entries(achievements).forEach(([id, achievement]) => {
+                const unlocked = userAchievements.includes(id);
+                html += `
+                    <div class="achievement-card ${unlocked ? 'unlocked' : 'locked'}">
+                        <div class="achievement-icon">${achievement.icon}</div>
+                        <div class="achievement-title">${achievement.title}</div>
+                        <div class="achievement-desc">${achievement.desc}</div>
+                        ${unlocked ? '<div style="color: #38a169; font-weight: bold; margin-top: 5px;">✓ Conquistado</div>' : ''}
+                    </div>
+                `;
+            });
+
+            achievementsGrid.innerHTML = html;
+        }
+
+        // Sistema de Missões
+        function updateMissions() {
+            const missionsContainer = document.getElementById('missionsContainer');
+            let html = '';
+
+            missions.forEach(mission => {
+                const progress = getMissionProgress(mission);
+                const completed = progress >= mission.target;
+                const progressPercent = Math.min((progress / mission.target) * 100, 100);
+
+                html += `
+                    <div class="mission-card">
+                        <div class="mission-header">
+                            <div class="mission-title">${mission.title}</div>
+                            <div class="mission-reward">${mission.reward}</div>
+                        </div>
+                        <div style="font-size: 14px; color: #666; margin-bottom: 10px;">${mission.desc}</div>
+                        <div class="mission-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <div class="progress-text">${progress} / ${mission.target} ${completed ? '✅ Completa!' : ''}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            missionsContainer.innerHTML = html;
+        }
+
+        function getMissionProgress(mission) {
+            const todayData = getTodayData(getUserMatriculas());
+            const monthData = getCurrentMonthData(getUserMatriculas());
+            
+            switch(mission.id) {
+                case 'daily_1':
+                    return todayData.length;
+                case 'daily_2':
+                    return todayData.reduce((sum, m) => sum + m.matricula + m.parcela, 0);
+                case 'weekly_1':
+                    // Simplificado: usar dados do mês
+                    return monthData.length;
+                case 'weekly_2':
+                    return monthData.filter(m => m.tipo === 'Blackin' || m.tipo === 'Black').length;
+                default:
+                    return 0;
+            }
+        }
+
+        // Sistema de Ranking
+        function updateRanking() {
+            const rankingBody = document.getElementById('rankingBody');
+            const rankings = calculateRankings();
+            let html = '';
+
+            rankings.forEach((user, index) => {
+                const position = index + 1;
+                const rankClass = position === 1 ? 'rank-1' : 
+                                position === 2 ? 'rank-2' : 
+                                position === 3 ? 'rank-3' : 'rank-other';
+
+                html += `
+                    <tr>
+                        <td>
+                            <div class="rank-position ${rankClass}">${position}</div>
+                        </td>
+                        <td>${user.name}</td>
+                        <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                        <td>${user.matriculas}</td>
+                        <td>${formatCurrency(user.earnings)}</td>
+                        <td><span class="level-badge">Nível ${user.level}</span></td>
+                        <td>
+                            ${user.xp}
+                            <div class="xp-bar">
+                                <div class="xp-fill" style="width: ${(user.xp % 500) / 500 * 100}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            rankingBody.innerHTML = html;
+        }
+
+        function calculateRankings() {
+            const rankings = [];
+            
+            Object.entries(users).forEach(([username, user]) => {
+                if (user.role !== 'admin') {
+                    const userMatriculas = matriculas.filter(m => 
+                        m.vendedor === user.name || 
+                        m.gerente === user.name || 
+                        m.assistente === user.name
+                    );
+                    
+                    const monthData = getCurrentMonthData(userMatriculas);
+                    const earnings = calculateUserTotalEarnings(user, monthData);
+
+                    rankings.push({
+                        name: user.name,
+                        role: user.role,
+                        level: user.level,
+                        xp: user.xp,
+                        matriculas: monthData.length,
+                        earnings: earnings
+                    });
+                }
+            });
+
+            return rankings.sort((a, b) => b.earnings - a.earnings);
+        }
+
+        function calculateUserTotalEarnings(user, monthData) {
+            // Implementar cálculo de ganhos totais
+            return monthData.length * 50; // Simplificado
+        }
+
+        // Painel Admin
+        function updateAdminPanel() {
+            const userManagementBody = document.getElementById('userManagementBody');
+            let html = '';
+
+            Object.entries(users).forEach(([username, user]) => {
+                const userMatriculas = matriculas.filter(m => 
+                    m.vendedor === user.name || 
+                    m.gerente === user.name || 
+                    m.assistente === user.name
+                );
+
+                html += `
+                    <tr>
+                        <td>${user.name}</td>
+                        <td>${user.username}</td>
+                        <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                        <td><span class="level-badge">Nível ${user.level}</span></td>
+                        <td>${user.xp} XP</td>
+                        <td>${userMatriculas.length}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="editUser('${username}')" style="font-size: 10px; padding: 6px 10px; margin: 2px;">
+                                ✏️ Editar
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteUser('${username}')" ${username === 'gamecreatorsadm@gmail.com' ? 'disabled' : ''} style="font-size: 10px; padding: 6px 10px; margin: 2px;">
+                                🗑️ Excluir
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            userManagementBody.innerHTML = html;
+            updateBonusUserSelect();
+            updateBonusHistory();
+            updateMatriculasManagement();
+        }
+
+        function updateMatriculasManagement() {
+            const matriculasManagementBody = document.getElementById('matriculasManagementBody');
+            if (!matriculasManagementBody) return;
+
+            let html = '';
+            
+            // Mostrar últimas 50 matrículas (ordenadas por data desc)
+            const sortedMatriculas = [...matriculas].sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 50);
+            
+            sortedMatriculas.forEach(matricula => {
+                html += `
+                    <tr ${matricula.cancelado ? 'style="opacity: 0.6; background: #fed7d7;"' : ''}>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;">${formatDate(matricula.data)}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;">${matricula.nome}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;">${matricula.vendedor}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;">${formatCurrency(matricula.matricula)}</td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                            <span class="status-${matricula.cancelado ? 'cancelled' : 'active'}" style="font-size: 10px;">
+                                ${matricula.cancelado ? 'Cancelada' : matricula.statusPagamento}
+                            </span>
+                        </td>
+                        <td style="padding: 8px; border: 1px solid #e2e8f0;">
+                            <button class="btn btn-primary" onclick="editMatricula(${matricula.id})" style="font-size: 9px; padding: 4px 8px; margin: 1px;">
+                                ✏️
+                            </button>
+                            <button class="btn btn-warning" onclick="toggleMatriculaCancelamento(${matricula.id})" style="font-size: 9px; padding: 4px 8px; margin: 1px;">
+                                ${matricula.cancelado ? '✅' : '❌'}
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteMatricula(${matricula.id})" style="font-size: 9px; padding: 4px 8px; margin: 1px;">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            matriculasManagementBody.innerHTML = html;
+        }
+
+        function updateBonusUserSelect() {
+            const bonusUserSelect = document.getElementById('bonusUser');
+            if (bonusUserSelect) {
+                bonusUserSelect.innerHTML = '<option value="">Selecione um colaborador...</option>';
+                
+                Object.entries(users).forEach(([username, user]) => {
+                    if (user.role !== 'admin') {
+                        bonusUserSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.role})</option>`;
+                    }
+                });
+            }
+        }
+
+        function updateBonusHistory() {
+            const bonusHistory = document.getElementById('bonusHistory');
+            if (bonusHistory) {
+                let html = '';
+                
+                if (extraBonuses.length === 0) {
+                    html = '<p style="color: #666; text-align: center; padding: 20px;">Nenhum bônus extra dado ainda.</p>';
+                } else {
+                    // Ordenar por data (mais recente primeiro)
+                    const sortedBonuses = [...extraBonuses].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    sortedBonuses.forEach(bonus => {
+                        html += `
+                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; background: #f8fafc;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <strong>${bonus.userName}</strong>
+                                    <span style="color: #38a169; font-weight: bold;">${formatCurrency(bonus.amount)}</span>
+                                </div>
+                                <div style="font-size: 12px; color: #666;">
+                                    ${bonus.reason}
+                                </div>
+                                <div style="font-size: 11px; color: #999; margin-top: 5px;">
+                                    ${formatDate(bonus.date)} por ${bonus.givenBy}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                bonusHistory.innerHTML = html;
+            }
+        }
+
+        function giveExtraBonus() {
+            const userName = document.getElementById('bonusUser').value;
+            const amount = parseFloat(document.getElementById('bonusAmount').value);
+            const reason = document.getElementById('bonusReason').value;
+
+            if (!userName || !amount || !reason) {
+                showMessage('Preencha todos os campos!', 'error');
+                return;
+            }
+
+            if (amount <= 0) {
+                showMessage('O valor deve ser maior que zero!', 'error');
+                return;
+            }
+
+            const extraBonus = {
+                id: Date.now(),
+                userName: userName,
+                amount: amount,
+                reason: reason,
+                date: new Date().toISOString().split('T')[0],
+                givenBy: currentUser.name
+            };
+
+            extraBonuses.push(extraBonus);
+            
+            // Dar XP bônus para o usuário
+            giveXP(userName, Math.min(amount / 2, 100)); // XP baseado no valor, máximo 100
+            
+            saveData();
+            updateBonusHistory();
+            showMessage(`Bônus de ${formatCurrency(amount)} dado para ${userName}!`, 'success');
+
+            // Limpar formulário
+            document.getElementById('bonusUser').value = '';
+            document.getElementById('bonusAmount').value = '';
+            document.getElementById('bonusReason').value = '';
+        }
+
+        function removeExtraBonus(bonusId) {
+            if (confirm('Tem certeza que deseja remover este bônus?')) {
+                extraBonuses = extraBonuses.filter(b => b.id !== bonusId);
+                saveData();
+                updateBonusHistory();
+                showMessage('Bônus removido com sucesso!', 'success');
+            }
+        }
+
+        // Funções de Edição de Usuário
+        let editingUserId = null;
+
+        function editUser(username) {
+            const user = users[username];
+            if (!user) return;
+
+            editingUserId = username;
+            
+            document.getElementById('editUserName').value = user.name;
+            document.getElementById('editUserUsername').value = user.username;
+            document.getElementById('editUserPassword').value = '';
+            document.getElementById('editUserRole').value = user.role;
+            document.getElementById('editUserLevel').value = user.level;
+            document.getElementById('editUserXP').value = user.xp;
+
+            document.getElementById('editUserModal').style.display = 'block';
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+            editingUserId = null;
+        }
+
+        function saveUserEdit() {
+            if (!editingUserId) return;
+
+            const name = document.getElementById('editUserName').value;
+            const username = document.getElementById('editUserUsername').value;
+            const password = document.getElementById('editUserPassword').value;
+            const role = document.getElementById('editUserRole').value;
+            const level = parseInt(document.getElementById('editUserLevel').value);
+            const xp = parseInt(document.getElementById('editUserXP').value);
+
+            if (!name || !username || !role || !level || level < 1 || xp < 0) {
+                showMessage('Preencha todos os campos válidos!', 'error');
+                return;
+            }
+
+            // Verificar se username já existe (se mudou)
+            if (username !== editingUserId && users[username]) {
+                showMessage('Este usuário/email já existe!', 'error');
+                return;
+            }
+
+            const user = users[editingUserId];
+            
+            // Se mudou o username, precisa recriar o usuário
+            if (username !== editingUserId) {
+                // Criar novo usuário
+                users[username] = {
+                    name: name,
+                    username: username,
+                    password: password || user.password,
+                    role: role,
+                    level: level,
+                    xp: xp
+                };
+                
+                // Mover stats
+                userStats[username] = userStats[editingUserId];
+                
+                // Atualizar matrículas
+                matriculas.forEach(m => {
+                    if (m.vendedor === user.name) m.vendedor = name;
+                    if (m.gerente === user.name) m.gerente = name;
+                    if (m.assistente === user.name) m.assistente = name;
+                });
+                
+                // Atualizar bônus extras
+                extraBonuses.forEach(b => {
+                    if (b.userName === user.name) b.userName = name;
+                });
+                
+                // Remover usuário antigo
+                delete users[editingUserId];
+                delete userStats[editingUserId];
+            } else {
+                // Atualizar usuário existente
+                user.name = name;
+                user.role = role;
+                user.level = level;
+                user.xp = xp;
+                
+                if (password) {
+                    user.password = password;
+                }
+                
+                // Atualizar nome nas matrículas se mudou
+                const oldName = users[editingUserId].name;
+                if (name !== oldName) {
+                    matriculas.forEach(m => {
+                        if (m.vendedor === oldName) m.vendedor = name;
+                        if (m.gerente === oldName) m.gerente = name;
+                        if (m.assistente === oldName) m.assistente = name;
+                    });
+                    
+                    extraBonuses.forEach(b => {
+                        if (b.userName === oldName) b.userName = name;
+                    });
+                }
+            }
+
+            saveData();
+            updateAdminPanel();
+            updateUserSelects();
+            closeEditUserModal();
+            showMessage('Usuário atualizado com sucesso!', 'success');
+        }
+
+        // Funções de Edição de Matrícula
+        let editingMatriculaId = null;
+
+        function editMatricula(matriculaId) {
+            const matricula = matriculas.find(m => m.id === matriculaId);
+            if (!matricula) return;
+
+            editingMatriculaId = matriculaId;
+
+            document.getElementById('editMatriculaData').value = matricula.data;
+            document.getElementById('editMatriculaNome').value = matricula.nome;
+            document.getElementById('editMatriculaCurso').value = matricula.curso;
+            document.getElementById('editMatriculaValor').value = matricula.matricula;
+            document.getElementById('editMatriculaParcela').value = matricula.parcela;
+            document.getElementById('editMatriculaTipo').value = matricula.tipo;
+            document.getElementById('editMatriculaStatus').value = matricula.statusPagamento;
+
+            // Preencher selects de colaboradores
+            updateEditMatriculaSelects();
+            
+            document.getElementById('editMatriculaVendedor').value = matricula.vendedor;
+            document.getElementById('editMatriculaGerente').value = matricula.gerente;
+            document.getElementById('editMatriculaAssistente').value = matricula.assistente;
+
+            document.getElementById('editMatriculaModal').style.display = 'block';
+        }
+
+        function updateEditMatriculaSelects() {
+            const vendedorSelect = document.getElementById('editMatriculaVendedor');
+            const gerenteSelect = document.getElementById('editMatriculaGerente');
+            const assistenteSelect = document.getElementById('editMatriculaAssistente');
+
+            vendedorSelect.innerHTML = '';
+            gerenteSelect.innerHTML = '';
+            assistenteSelect.innerHTML = '';
+
+            Object.entries(users).forEach(([username, user]) => {
+                if (user.role === 'vendedor') {
+                    vendedorSelect.innerHTML += `<option value="${user.name}">${user.name}</option>`;
+                }
+                if (user.role === 'gerente') {
+                    gerenteSelect.innerHTML += `<option value="${user.name}">${user.name}</option>`;
+                }
+                if (user.role === 'assistente') {
+                    assistenteSelect.innerHTML += `<option value="${user.name}">${user.name}</option>`;
+                }
+            });
+        }
+
+        function closeEditMatriculaModal() {
+            document.getElementById('editMatriculaModal').style.display = 'none';
+            editingMatriculaId = null;
+        }
+
+        function saveMatriculaEdit() {
+            if (!editingMatriculaId) return;
+
+            const data = document.getElementById('editMatriculaData').value;
+            const nome = document.getElementById('editMatriculaNome').value;
+            const curso = document.getElementById('editMatriculaCurso').value;
+            const valor = parseFloat(document.getElementById('editMatriculaValor').value);
+            const parcela = parseFloat(document.getElementById('editMatriculaParcela').value) || 0;
+            const tipo = document.getElementById('editMatriculaTipo').value;
+            const vendedor = document.getElementById('editMatriculaVendedor').value;
+            const gerente = document.getElementById('editMatriculaGerente').value;
+            const assistente = document.getElementById('editMatriculaAssistente').value;
+            const status = document.getElementById('editMatriculaStatus').value;
+
+            if (!data || !nome || !curso || !valor || !vendedor || !gerente || !assistente) {
+                showMessage('Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            const matricula = matriculas.find(m => m.id === editingMatriculaId);
+            if (matricula) {
+                matricula.data = data;
+                matricula.nome = nome;
+                matricula.curso = curso;
+                matricula.matricula = valor;
+                matricula.parcela = parcela;
+                matricula.tipo = tipo;
+                matricula.vendedor = vendedor;
+                matricula.gerente = gerente;
+                matricula.assistente = assistente;
+                matricula.statusPagamento = status;
+
+                saveData();
+                updateMatriculasManagement();
+                closeEditMatriculaModal();
+                showMessage('Matrícula atualizada com sucesso!', 'success');
+            }
+        }
+
+        function toggleMatriculaCancelamento(matriculaId) {
+            const matricula = matriculas.find(m => m.id === matriculaId);
+            if (matricula) {
+                matricula.cancelado = !matricula.cancelado;
+                saveData();
+                updateMatriculasManagement();
+                showMessage(`Matrícula ${matricula.cancelado ? 'cancelada' : 'reativada'} com sucesso!`, 'success');
+            }
+        }
+
+        function deleteMatricula(matriculaId) {
+            if (confirm('Tem certeza que deseja EXCLUIR permanentemente esta matrícula?')) {
+                matriculas = matriculas.filter(m => m.id !== matriculaId);
+                saveData();
+                updateMatriculasManagement();
+                showMessage('Matrícula excluída com sucesso!', 'success');
+            }
+        }
+
+        function updateUserSelects() {
+            const vendedorSelect = document.getElementById('newVendedor');
+            const gerenteSelect = document.getElementById('newGerente');
+            const assistenteSelect = document.getElementById('newAssistente');
+
+            if (vendedorSelect) {
+                vendedorSelect.innerHTML = '<option value="">Selecione...</option>';
+                gerenteSelect.innerHTML = '<option value="">Selecione...</option>';
+                assistenteSelect.innerHTML = '<option value="">Selecione...</option>';
+
+                Object.entries(users).forEach(([username, user]) => {
+                    if (user.role === 'vendedor') {
+                        vendedorSelect.innerHTML += `<option value="${user.name}">${user.name}</option>`;
+                    }
+                    if (user.role === 'gerente') {
+                        gerenteSelect.innerHTML += `<option value="${user.name}">${user.name}</option>`;
+                    }
+                    if (user.role === 'assistente') {
+                        assistenteSelect.innerHTML += `<option value="${user.name}">${user.name}</option>`;
+                    }
+                });
+            }
+        }
+
+        // Funções do Admin
+        function addUser() {
+            const name = document.getElementById('newUserName').value;
+            const username = document.getElementById('newUserUsername').value;
+            const password = document.getElementById('newUserPassword').value;
+            const role = document.getElementById('newUserRole').value;
+
+            if (!name || !username || !password) {
+                showMessage('Preencha todos os campos!', 'error');
+                return;
+            }
+
+            if (users[username]) {
+                showMessage('Usuário já existe!', 'error');
+                return;
+            }
+
+            users[username] = {
+                name,
+                username,
+                password,
+                role,
+                level: 1,
+                xp: 0
+            };
+
+            userStats[username] = {
+                achievements: [],
+                totalSales: 0,
+                totalEarnings: 0,
+                currentStreak: 0,
+                bestStreak: 0
+            };
+
+            saveData();
+            updateAdminPanel();
+            updateUserSelects();
+            showMessage('Usuário adicionado com sucesso!', 'success');
+
+            // Limpar formulário
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserUsername').value = '';
+            document.getElementById('newUserPassword').value = '';
+        }
+
+        function deleteUser(username) {
+            if (username === 'gamecreatorsadm@gmail.com') return;
+            
+            if (confirm(`Tem certeza que deseja excluir ${users[username].name}?`)) {
+                delete users[username];
+                delete userStats[username];
+                saveData();
+                updateAdminPanel();
+                updateUserSelects();
+                showMessage('Usuário excluído com sucesso!', 'success');
+            }
+        }
+
+        // Adicionar Matrícula
+        function addMatricula() {
+            const data = document.getElementById('newData').value;
+            const nome = document.getElementById('newNome').value;
+            const curso = document.getElementById('newCurso').value;
+            const matricula = document.getElementById('newMatricula').value;
+            const parcela = document.getElementById('newParcela').value;
+            const tipo = document.getElementById('newTipo').value;
+            const vendedor = document.getElementById('newVendedor').value;
+            const gerente = document.getElementById('newGerente').value;
+            const assistente = document.getElementById('newAssistente').value;
+
+            if (!data || !nome || !curso || !matricula || !vendedor || !gerente || !assistente) {
+                showMessage('Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            const novaMatricula = {
+                id: Date.now(),
+                data,
+                nome,
+                curso,
+                matricula: parseFloat(matricula),
+                parcela: parseFloat(parcela) || 0,
+                tipo,
+                vendedor,
+                gerente,
+                assistente,
+                statusPagamento: 'Pago',
+                cancelado: false
+            };
+
+            matriculas.push(novaMatricula);
+            
+            // Dar XP aos envolvidos
+            giveXP(vendedor, 50);
+            giveXP(gerente, 30);
+            giveXP(assistente, 20);
+            
+            // Verificar conquistas
+            checkAchievements(vendedor);
+            checkAchievements(gerente);
+            checkAchievements(assistente);
+
+            saveData();
+            setupDashboard(); // Atualizar dashboard
+            showMessage('Matrícula adicionada com sucesso!', 'success');
+            clearMatriculaForm();
+        }
+
+        function clearMatriculaForm() {
+            document.getElementById('newData').value = '';
+            document.getElementById('newNome').value = '';
+            document.getElementById('newCurso').value = '';
+            document.getElementById('newMatricula').value = '';
+            document.getElementById('newParcela').value = '';
+            document.getElementById('newTipo').value = 'Convencional';
+            document.getElementById('newVendedor').value = '';
+            document.getElementById('newGerente').value = '';
+            document.getElementById('newAssistente').value = '';
+        }
+
+        // Sistema de XP e Conquistas
+        function giveXP(userName, amount) {
+            const user = Object.values(users).find(u => u.name === userName);
+            if (user) {
+                user.xp += amount;
+                
+                // Verificar level up
+                const newLevel = Math.floor(user.xp / 500) + 1;
+                if (newLevel > user.level) {
+                    user.level = newLevel;
+                    // Aqui poderia mostrar notificação de level up
+                }
+            }
+        }
+
+        function checkAchievements(userName) {
+            const user = Object.values(users).find(u => u.name === userName);
+            if (!user) return;
+
+            const userAchievements = userStats[user.username].achievements || [];
+            const userMatriculas = matriculas.filter(m => 
+                m.vendedor === userName || 
+                m.gerente === userName || 
+                m.assistente === userName
+            );
+
+            // Verificar primeira venda
+            if (userMatriculas.length >= 1 && !userAchievements.includes('first_sale')) {
+                unlockAchievement(user.username, 'first_sale');
+            }
+
+            // Verificar vendas no mesmo dia
+            const today = new Date().toISOString().split('T')[0];
+            const todaySales = userMatriculas.filter(m => m.data === today).length;
+            
+            if (todaySales >= 2 && !userAchievements.includes('daily_double')) {
+                unlockAchievement(user.username, 'daily_double');
+            }
+            
+            if (todaySales >= 3 && !userAchievements.includes('daily_triple')) {
+                unlockAchievement(user.username, 'daily_triple');
+            }
+
+            // Verificar outras conquistas...
+        }
+
+        function unlockAchievement(username, achievementId) {
+            if (!userStats[username].achievements.includes(achievementId)) {
+                userStats[username].achievements.push(achievementId);
+                const achievement = achievements[achievementId];
+                giveXP(users[username].name, achievement.xp);
+                
+                // Aqui poderia mostrar notificação de conquista desbloqueada
+                console.log(`🏆 ${users[username].name} desbloqueou: ${achievement.title}!`);
+            }
+        }
+
+        // Navegação
+        function showTab(tabName) {
+            // Esconder todas as abas
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remover classe active de todos os botões
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Mostrar aba selecionada
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Atualizar conteúdo se necessário
+            if (tabName === 'dashboard') {
+                setupDashboard();
+            } else if (tabName === 'admin') {
+                updateAdminPanel();
+            } else if (tabName === 'matriculas') {
+                updateMatriculasManagement();
+            }
+        }
+
+        // Utilitários
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // Atualizar data atual no formulário
+        function setCurrentDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('newData').value = today;
+        }
+
+        // Inicializar data quando a aba de matrículas for aberta
+        document.addEventListener('DOMContentLoaded', function() {
+            setCurrentDate();
+        });
+    </script>
+</body>
+</html>
