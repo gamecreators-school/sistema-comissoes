@@ -55,6 +55,12 @@
             text-align: center;
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.2);
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .login-card h1 {
@@ -486,7 +492,35 @@
             display: none !important;
         }
 
-        /* Tabelas aprimoradas */
+        /* Filtro de unidade */
+        .unit-filter {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .unit-selector {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .unit-selector.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Tabelas */
         .data-table {
             width: 100%;
             background: white;
@@ -519,21 +553,232 @@
             border-bottom: none;
         }
 
-        /* Badges e status */
-        .badge {
+        /* Ranking específico */
+        .rank-1 { 
+            background: linear-gradient(135deg, #ffd700, #ffed4e); 
+            color: #2d3748; 
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .rank-2 { 
+            background: linear-gradient(135deg, #c0c0c0, #e2e8f0); 
+            color: #2d3748; 
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .rank-3 { 
+            background: linear-gradient(135deg, #cd7f32, #dd6b20); 
+            color: white; 
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .rank-other { 
+            background: linear-gradient(135deg, #4a5568, #2d3748); 
+            color: white; 
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Badges para roles */
+        .role-badge {
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
             display: inline-block;
         }
+        
+        .role-vendedor {
+            background: rgba(56, 161, 105, 0.1);
+            color: #38a169;
+        }
+        
+        .role-gerente {
+            background: rgba(237, 137, 54, 0.1);
+            color: #ed8936;
+        }
+        
+        .role-assistente {
+            background: rgba(49, 130, 206, 0.1);
+            color: #3182ce;
+        }
+        
+        .role-admin {
+            background: rgba(229, 62, 62, 0.1);
+            color: #e53e3e;
+        }
 
-        .badge.success { background: rgba(56, 161, 105, 0.1); color: #38a169; }
-        .badge.warning { background: rgba(237, 137, 54, 0.1); color: #ed8936; }
-        .badge.error { background: rgba(229, 62, 62, 0.1); color: #e53e3e; }
-        .badge.info { background: rgba(49, 130, 206, 0.1); color: #3182ce; }
+        /* Gamificação */
+        .mission-card {
+            background: linear-gradient(135deg, #e6fffa, #f0fff4);
+            border: 2px solid #38a169;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            transition: var(--transition);
+        }
 
-        /* Loading states */
+        .mission-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(56, 161, 105, 0.2);
+        }
+
+        .mission-completed {
+            background: linear-gradient(135deg, #c6f6d5, #e6fffa);
+            border-color: #2f855a;
+        }
+
+        .mission-failed {
+            background: linear-gradient(135deg, #fed7d7, #fef5e7);
+            border-color: #e53e3e;
+        }
+
+        .mission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .mission-title {
+            font-weight: bold;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .mission-reward {
+            background: #38a169;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .mission-progress {
+            margin: 12px 0;
+        }
+
+        .achievement-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 4px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .achievement-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .xp-badge {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Seções especiais */
+        .team-overview {
+            background: linear-gradient(135deg, #e6fffa, #f0fff4);
+            border: 2px solid #38a169;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .team-member-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .team-member-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .member-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+            margin: 0 auto 15px;
+        }
+
+        .member-name {
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .member-role {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .member-stats {
+            font-size: 12px;
+            color: #38a169;
+            font-weight: 600;
+        }
+
+        .visits-section {
+            background: linear-gradient(135deg, #fef5e7, #fed7c2);
+            border: 2px solid #ed8936;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px;
+        }
+
+        /* Loading overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -572,7 +817,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Responsividade aprimorada */
+        /* Responsividade */
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -611,6 +856,14 @@
                 right: 20px;
                 left: 20px;
             }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 480px) {
@@ -624,53 +877,17 @@
                 font-size: 13px;
             }
 
-            .quick-actions {
-                flex-direction: column;
-            }
-
             .quick-actions .btn {
                 width: 100%;
                 justify-content: center;
             }
         }
-
-        /* Animações de entrada */
-        .animate-in {
-            animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Dark mode para algumas seções */
-        .dark-section {
-            background: var(--dark-gradient);
-            color: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            margin: 20px;
-        }
-
-        .dark-section .stat-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-        }
     </style>
 </head>
 <body>
-    <!-- Tela de Login Aprimorada -->
+    <!-- Tela de Login -->
     <div id="loginScreen" class="login-container">
-        <div class="login-card animate-in">
+        <div class="login-card">
             <h1>🎮 Game Creators</h1>
             <p class="login-subtitle">Sistema Avançado de Comissões e Gamificação</p>
             <div class="form-group">
@@ -690,7 +907,7 @@
         </div>
     </div>
 
-    <!-- Sistema Principal Aprimorado -->
+    <!-- Sistema Principal -->
     <div id="mainSystem" class="main-container">
         <!-- Header com Info do Usuário -->
         <div class="page-header">
@@ -714,14 +931,14 @@
         </div>
 
         <!-- Filtro de Unidade (apenas para admins) -->
-        <div id="unitFilter" class="hidden" style="background: var(--bg-primary); padding: 20px; text-align: center;">
+        <div id="unitFilter" class="unit-filter hidden">
             <strong>🏢 Filtrar por Unidade:</strong>
             <div id="unitSelectors" style="margin-top: 15px;">
                 <!-- Preenchido dinamicamente -->
             </div>
         </div>
 
-        <!-- Navegação Aprimorada -->
+        <!-- Navegação -->
         <div class="nav-tabs" id="navTabs">
             <!-- Preenchido dinamicamente -->
         </div>
@@ -733,7 +950,7 @@
             </div>
         </div>
 
-        <!-- Outras abas mantidas do código original mas com estilos aprimorados -->
+        <!-- Gamificação -->
         <div id="gamificacao" class="tab-content">
             <div style="padding: 30px;">
                 <div class="stat-card">
@@ -756,12 +973,64 @@
                         <!-- Preenchido dinamicamente -->
                     </div>
                 </div>
+
+                <!-- Criar Missão (Admin/Gerente) -->
+                <div id="createMissionSection" class="stat-card hidden" style="margin-top: 25px;">
+                    <h3>➕ Criar Nova Missão</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>Título da Missão:</label>
+                            <input type="text" id="missionTitle" placeholder="Ex: Vender 5 matrículas esta semana">
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição:</label>
+                            <textarea id="missionDescription" rows="3" placeholder="Descrição detalhada da missão..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo:</label>
+                            <select id="missionType">
+                                <option value="vendas">📊 Meta de Vendas</option>
+                                <option value="visitas">👥 Meta de Visitas</option>
+                                <option value="conversao">📈 Meta de Conversão</option>
+                                <option value="especial">⭐ Missão Especial</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Meta (número):</label>
+                            <input type="number" id="missionTarget" min="1" placeholder="Ex: 5">
+                        </div>
+                        <div class="form-group">
+                            <label>Recompensa (XP):</label>
+                            <input type="number" id="missionReward" min="10" placeholder="Ex: 100">
+                        </div>
+                        <div class="form-group">
+                            <label>Prazo:</label>
+                            <input type="date" id="missionDeadline">
+                        </div>
+                        <div class="form-group">
+                            <label>Para quem:</label>
+                            <select id="missionTarget_user">
+                                <option value="all">Todos da unidade</option>
+                                <option value="vendedores">Apenas vendedores</option>
+                                <option value="assistentes">Apenas assistentes</option>
+                                <option value="specific">Pessoa específica</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="specificUserGroup" style="display: none;">
+                            <label>Usuário específico:</label>
+                            <select id="missionSpecificUser">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="createMission()" style="margin-top: 15px;">🎯 Criar Missão</button>
+                </div>
             </div>
         </div>
 
-        <!-- Outras seções mantidas com melhorias visuais -->
+        <!-- Visitas e Conversão -->
         <div id="visitas" class="tab-content">
-            <div class="dark-section">
+            <div class="visits-section">
                 <h3>👥 Central de Visitas - <span id="visitsUnitName">Shopping Conjunto Nacional</span></h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px;">
                     <div class="form-group">
@@ -822,6 +1091,25 @@
             </div>
         </div>
 
+        <!-- Equipe (apenas para gerentes) -->
+        <div id="equipe" class="tab-content">
+            <div class="team-overview">
+                <h3>👥 Minha Equipe - <span id="teamUnitName">Shopping Conjunto Nacional</span></h3>
+                <div class="team-grid" id="teamGrid">
+                    <!-- Preenchido dinamicamente -->
+                </div>
+            </div>
+            
+            <div style="padding: 30px;">
+                <div class="stat-card">
+                    <h3>📊 Performance da Equipe - <span id="teamMonthYear">Dezembro 2024</span></h3>
+                    <div id="teamPerformance">
+                        <!-- Preenchido dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Ranking -->
         <div id="ranking" class="tab-content">
             <div style="padding: 30px;">
@@ -846,11 +1134,288 @@
             </div>
         </div>
 
-        <!-- Outras seções mantidas do código original -->
+        <!-- Painel Admin -->
+        <div id="admin" class="tab-content">
+            <div style="padding: 30px;">
+                <h2>👨‍💼 Painel Administrativo</h2>
+                
+                <!-- Configuração de Metas -->
+                <div class="stat-card" style="max-width: 800px; margin: 20px 0;">
+                    <h3>🎯 Configuração de Metas Mensais</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div>
+                            <h4>Shopping Conjunto Nacional</h4>
+                            <div class="form-group">
+                                <label>Meta de Matrículas/Mês:</label>
+                                <input type="number" id="metaMatriculasNacional" min="1" placeholder="Ex: 50" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Meta de Faturamento/Mês (R$):</label>
+                                <input type="number" id="metaFaturamentoNacional" min="0" step="0.01" placeholder="Ex: 50000" value="">
+                            </div>
+                        </div>
+                        <div>
+                            <h4>JK Shopping</h4>
+                            <div class="form-group">
+                                <label>Meta de Matrículas/Mês:</label>
+                                <input type="number" id="metaMatriculasJK" min="1" placeholder="Ex: 40" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Meta de Faturamento/Mês (R$):</label>
+                                <input type="number" id="metaFaturamentoJK" min="0" step="0.01" placeholder="Ex: 40000" value="">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-success" onclick="salvarMetas()">💾 Salvar Metas</button>
+                        <button class="btn btn-primary" onclick="carregarMetas()">🔄 Recarregar Metas</button>
+                    </div>
+                    <div id="metasStatus" style="margin-top: 10px;"></div>
+                </div>
+
+                <!-- Adicionar Usuário -->
+                <div class="stat-card" style="max-width: 500px; margin: 20px 0;">
+                    <h3>➕ Adicionar Novo Usuário</h3>
+                    <div class="form-group">
+                        <label>Nome:</label>
+                        <input type="text" id="newUserName" placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Usuário:</label>
+                        <input type="text" id="newUserUsername" placeholder="nome.usuario@gamecreatorsadm.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <input type="password" id="newUserPassword" placeholder="senha123">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo:</label>
+                        <select id="newUserRole">
+                            <option value="vendedor">👨‍💼 Vendedor</option>
+                            <option value="gerente">👔 Gerente</option>
+                            <option value="assistente">👩‍💻 Assistente</option>
+                            <option value="admin">🔧 Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Unidade:</label>
+                        <select id="newUserUnit">
+                            <option value="Shopping Conjunto Nacional">Shopping Conjunto Nacional</option>
+                            <option value="JK Shopping">JK Shopping</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="addUser()">➕ Adicionar Usuário</button>
+                </div>
+
+                <!-- Configurações do Google Sheets -->
+                <div class="stat-card" style="max-width: 800px; margin: 20px 0;">
+                    <h3>☁️ Configuração Google Sheets</h3>
+                    <div class="form-group">
+                        <label>URL do Google Apps Script:</label>
+                        <input type="url" id="googleScriptUrl" placeholder="https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec" value="">
+                    </div>
+                    
+                    <div style="background: #e6fffa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 12px; border-left: 4px solid #38a169;">
+                        <strong>📋 INSTRUÇÕES PASSO A PASSO:</strong><br><br>
+                        
+                        <strong>1️⃣ Criar Nova Planilha:</strong><br>
+                        • Acesse <a href="https://sheets.google.com" target="_blank">Google Sheets</a><br>
+                        • Crie uma nova planilha em branco<br>
+                        • Renomeie para "Game Creators Database"<br>
+                        • Copie o ID da URL (entre /d/ e /edit)<br><br>
+                        
+                        <strong>2️⃣ Criar Google Apps Script:</strong><br>
+                        • Acesse <a href="https://script.google.com" target="_blank">Google Apps Script</a><br>
+                        • Clique em "Novo projeto"<br>
+                        • Apague o código padrão<br>
+                        • Cole o código fornecido no botão "Ver Código"<br><br>
+                        
+                        <strong>3️⃣ Configurar ID da Planilha:</strong><br>
+                        • No código, encontre a linha: const SPREADSHEET_ID = 'SUA_PLANILHA_ID_AQUI';<br>
+                        • Substitua SUA_PLANILHA_ID_AQUI pelo ID copiado da planilha<br>
+                        • Salve o projeto (Ctrl+S)<br><br>
+                        
+                        <strong>4️⃣ Publicar como Aplicativo Web:</strong><br>
+                        • Clique em "Implantar" → "Nova implantação"<br>
+                        • Tipo: "Aplicativo da Web"<br>
+                        • Executar como: "Eu (seu email)"<br>
+                        • Quem tem acesso: "Qualquer pessoa"<br>
+                        • Clique em "Implantar"<br><br>
+                        
+                        <strong>5️⃣ Copiar URL e Testar:</strong><br>
+                        • Copie a "URL do aplicativo da Web"<br>
+                        • Cole no campo acima<br>
+                        • Clique em "Salvar Configuração"<br>
+                        • Clique em "Testar Conexão"<br>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" onclick="testGoogleSheetsConnection()">🔍 Testar Conexão</button>
+                        <button class="btn btn-success" onclick="saveGoogleSheetsConfig()">💾 Salvar Configuração</button>
+                        <button class="btn btn-warning" onclick="forceSync()">🔄 Sincronizar Agora</button>
+                        <button class="btn btn-info" onclick="showGoogleScriptCode()">📝 Ver Código Google Script</button>
+                        <button class="btn btn-danger" onclick="showTroubleshooting()">🔧 Solução de Problemas</button>
+                    </div>
+                    <div id="syncResult" style="margin-top: 10px;"></div>
+                </div>
+
+                <!-- Lista de Usuários -->
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>👤 Nome</th>
+                            <th>🔑 Usuário</th>
+                            <th>🏢 Unidade</th>
+                            <th>💼 Tipo</th>
+                            <th>📊 Matrículas</th>
+                            <th>👥 Visitas</th>
+                            <th>⭐ XP</th>
+                            <th>🔧 Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userManagementBody">
+                        <!-- Preenchido dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Matrículas -->
+        <div id="matriculas" class="tab-content">
+            <div style="padding: 30px;">
+                <div class="stat-card">
+                    <h3>➕ Adicionar Nova Matrícula</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>Data:</label>
+                            <input type="date" id="newData" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Aluno:</label>
+                            <input type="text" id="newNome" placeholder="Nome completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone:</label>
+                            <input type="tel" id="newTelefone" placeholder="(11) 99999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label>Curso:</label>
+                            <select id="newCurso" required>
+                                <option value="">Selecione...</option>
+                                <option value="Creators 2D">Creators 2D</option>
+                                <option value="Creators 3D">Creators 3D</option>
+                                <option value="Design Gráfico e Edição">Design Gráfico e Edição</option>
+                                <option value="Creators Dev">Creators Dev</option>
+                                <option value="Jogos Digitais Técnico">Jogos Digitais Técnico</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor Total do Curso (R$):</label>
+                            <input type="number" id="newValorTotal" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor de Entrada (R$):</label>
+                            <input type="number" id="newValorEntrada" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Venda:</label>
+                            <select id="newTipo" required>
+                                <option value="Convencional">Convencional (À vista ou parcelado normal)</option>
+                                <option value="Blackin">Blackin (6x no cartão)</option>
+                                <option value="Black">Black (10x+ no cartão)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Parcelas (se aplicável):</label>
+                            <input type="number" id="newParcelas" min="1" max="24" placeholder="Ex: 6, 10, 12...">
+                        </div>
+                        <div class="form-group">
+                            <label>Vendedor:</label>
+                            <select id="newVendedor" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Gerente:</label>
+                            <select id="newGerente" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Assistente:</label>
+                            <select id="newAssistente" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Veio de uma visita?</label>
+                            <select id="newFromVisit">
+                                <option value="">Não, cliente direto</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="addMatricula()" style="margin-top: 15px;">➕ Adicionar Matrícula</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatórios -->
+        <div id="relatorios" class="tab-content">
+            <div style="padding: 30px;">
+                <div class="stat-card">
+                    <h3>📊 Relatórios de Performance</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>Mês/Ano:</label>
+                            <input type="month" id="relatorioMes">
+                        </div>
+                        <div class="form-group">
+                            <label>Unidade:</label>
+                            <select id="relatorioUnidade">
+                                <option value="">Todas</option>
+                                <option value="Shopping Conjunto Nacional">Shopping Conjunto Nacional</option>
+                                <option value="JK Shopping">JK Shopping</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Colaborador:</label>
+                            <select id="relatorioColaborador">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="gerarRelatorioComissoes()">💰 Relatório Comissões</button>
+                        <button class="btn btn-success" onclick="gerarRelatorioConversao()">📈 Relatório Conversão</button>
+                        <button class="btn btn-warning" onclick="gerarRelatorioUnidade()">🏢 Relatório por Unidade</button>
+                        <button class="btn btn-info" onclick="gerarRelatorioMetas()">🎯 Relatório Metas vs Realizado</button>
+                    </div>
+                </div>
+
+                <div id="relatorioResultado">
+                    <!-- Preenchido dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para código Google Script -->
+    <div id="scriptModal" class="loading-overlay" style="display: none;">
+        <div style="background: white; padding: 30px; border-radius: 12px; max-width: 80%; max-height: 80%; overflow-y: auto;">
+            <h3>📝 Código para Google Apps Script</h3>
+            <p style="margin-bottom: 15px;">Cole este código no seu projeto do Google Apps Script:</p>
+            <textarea readonly style="width: 100%; height: 400px; font-family: monospace; font-size: 12px; border: 1px solid #ccc; padding: 10px;" id="scriptCode"></textarea>
+            <div style="margin-top: 15px; text-align: right;">
+                <button class="btn btn-primary" onclick="copyScriptCode()">📋 Copiar Código</button>
+                <button class="btn btn-danger" onclick="hideScriptModal()">❌ Fechar</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // JavaScript do sistema original mantido com melhorias
+        // === SISTEMA COMPLETO DO GAME CREATORS PRO ===
+        // Variáveis globais
         let GOOGLE_APPS_SCRIPT_URL = localStorage.getItem('googleScriptUrl') || '';
         let currentUser = null;
         let selectedUnit = 'all';
@@ -863,7 +1428,7 @@
         let metas = {};
         let isOnline = navigator.onLine;
 
-        // Usuários padrão aprimorados
+        // Usuários padrão
         const defaultUsers = {
             'admin@gamecreatorsadm.com': { 
                 name: 'Administrador Supremo', 
@@ -903,7 +1468,7 @@
             }
         };
 
-        // Tabelas de comissões (mantidas do original)
+        // Tabelas de comissões
         const COMISSAO_VENDEDOR = [
             { min: 10, max: 20, valor: 35 },
             { min: 21, max: 30, valor: 50 },
@@ -923,19 +1488,36 @@
             { min: 41, max: 999, valor: 30 }
         ];
 
-        // Sistema de inicialização aprimorado
+        // Sistema de Conquistas
+        const ACHIEVEMENT_DEFINITIONS = [
+            { id: 'first_sale', name: 'Primeira Venda', description: 'Realizar sua primeira matrícula', icon: '🎯', xp: 50 },
+            { id: 'sales_5', name: 'Vendedor Iniciante', description: 'Alcançar 5 matrículas no mês', icon: '📈', xp: 100 },
+            { id: 'sales_10', name: 'Vendedor Experiente', description: 'Alcançar 10 matrículas no mês', icon: '🚀', xp: 200 },
+            { id: 'sales_20', name: 'Vendedor Expert', description: 'Alcançar 20 matrículas no mês', icon: '⭐', xp: 500 },
+            { id: 'conversion_80', name: 'Mestre da Conversão', description: 'Atingir 80% de conversão', icon: '🎖️', xp: 300 },
+            { id: 'visits_50', name: 'Networking Master', description: 'Atender 50 visitas no mês', icon: '👥', xp: 150 },
+            { id: 'level_5', name: 'Veterano', description: 'Alcançar nível 5', icon: '🏆', xp: 250 }
+        ];
+
+        // INICIALIZAÇÃO DO SISTEMA
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Iniciando Game Creators Pro...');
             loadDataFromLocal();
             setCurrentDate();
             setCurrentMonthForReport();
             setupNetworkMonitoring();
-            
-            // Configurar eventos de teclado para login
             setupLoginEvents();
-            
-            // Aplicar formatação de telefone
             setupPhoneFormatting();
+            
+            // Carregar URL do Google Sheets salva
+            const savedUrl = localStorage.getItem('googleScriptUrl');
+            if (savedUrl) {
+                document.getElementById('googleScriptUrl').value = savedUrl;
+                GOOGLE_APPS_SCRIPT_URL = savedUrl;
+            }
+
+            // Gerar metas padrão se não existirem
+            generateDefaultMetas();
             
             console.log('✅ Sistema inicializado com sucesso!');
         });
@@ -983,7 +1565,7 @@
             input.value = value;
         }
 
-        // Sistema de Login aprimorado
+        // SISTEMA DE LOGIN APRIMORADO
         function login() {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
@@ -1006,6 +1588,7 @@
                     document.getElementById('mainSystem').style.animation = 'fadeIn 0.5s ease-in';
                     
                     setupUserInterface();
+                    initializeGamification();
                     showNotification(`🎉 Bem-vindo(a), ${currentUser.name}!`, 'success');
                 }, 500);
                 
@@ -1034,7 +1617,7 @@
             }, 500);
         }
 
-        // Sistema de notificações aprimorado
+        // SISTEMA DE NOTIFICAÇÕES APRIMORADO
         function showNotification(message, type = 'info', duration = 4000) {
             // Remove notificações existentes
             const existingNotifications = document.querySelectorAll('.notification');
@@ -1067,7 +1650,7 @@
             }, duration);
         }
 
-        // Interface do usuário aprimorada
+        // INTERFACE DO USUÁRIO
         function setupUserInterface() {
             document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
             document.getElementById('userName').textContent = currentUser.name;
@@ -1085,9 +1668,6 @@
             setupDashboard();
             updateUserSelects();
             updateVisitSelects();
-            
-            // Carregar dados se estiver offline
-            loadDataFromLocal();
         }
 
         function getLevelTitle(level) {
@@ -1112,10 +1692,19 @@
                 tabs += '<button class="tab-button" onclick="showTab(\'visitas\')">👥 Visitas</button>';
             }
             
+            if (currentUser.role === 'gerente') {
+                tabs += '<button class="tab-button" onclick="showTab(\'equipe\')">👥 Minha Equipe</button>';
+            }
+            
             tabs += '<button class="tab-button" onclick="showTab(\'ranking\')">🏆 Ranking</button>';
 
             if (currentUser.role === 'admin') {
                 tabs += '<button class="tab-button" onclick="showTab(\'admin\')">⚙️ Admin</button>';
+            }
+
+            if (['admin', 'gerente', 'vendedor'].includes(currentUser.role)) {
+                tabs += '<button class="tab-button" onclick="showTab(\'matriculas\')">➕ Matrículas</button>';
+                tabs += '<button class="tab-button" onclick="showTab(\'relatorios\')">📊 Relatórios</button>';
             }
 
             navTabs.innerHTML = tabs;
@@ -1135,9 +1724,6 @@
             
             // Atualizar dados específicos da aba
             switch(tabName) {
-                case 'dashboard':
-                    setupDashboard();
-                    break;
                 case 'gamificacao':
                     updateUserProgress();
                     updateMissionsDisplay();
@@ -1149,6 +1735,12 @@
                     break;
                 case 'ranking':
                     updateRanking();
+                    break;
+                case 'admin':
+                    updateAdminPanel();
+                    break;
+                case 'equipe':
+                    updateTeamDisplay();
                     break;
             }
         }
@@ -1169,25 +1761,35 @@
         }
 
         function generateUserDashboard() {
-            // Dados fictícios para demonstração
+            const userMatriculas = getUserMatriculas();
+            const userVisits = getUserVisits();
+            const monthData = getCurrentMonthData(userMatriculas);
+            const monthVisits = getCurrentMonthData(userVisits, 'data');
+            const todayData = getTodayData(userMatriculas);
+            
+            const conversionRate = monthVisits.length > 0 ? (monthData.length / monthVisits.length * 100).toFixed(1) : 0;
+            const monthTarget = currentUser.role === 'vendedor' ? 30 : 25;
+            const monthProgress = Math.min((monthData.length / monthTarget) * 100, 100);
+            const monthCommission = calculateUserMonthCommission();
+
             return `
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">📊</span>
                     </div>
-                    <div class="stat-value">12</div>
-                    <div class="stat-label">Matrículas do Mês</div>
+                    <div class="stat-value">${monthData.length}</div>
+                    <div class="stat-label">Minhas Matrículas</div>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: 60%"></div>
+                        <div class="progress-fill" style="width: ${monthProgress}%"></div>
                     </div>
-                    <div class="progress-text">12 de 20 (Meta)</div>
+                    <div class="progress-text">${monthData.length} de ${monthTarget}</div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">👥</span>
                     </div>
-                    <div class="stat-value">34</div>
+                    <div class="stat-value">${monthVisits.length}</div>
                     <div class="stat-label">Visitas Atendidas</div>
                 </div>
 
@@ -1195,15 +1797,15 @@
                     <div class="stat-header">
                         <span class="stat-icon">📈</span>
                     </div>
-                    <div class="conversion-rate">35.3%</div>
-                    <div class="stat-label">Taxa de Conversão</div>
+                    <div class="conversion-rate">${conversionRate}%</div>
+                    <div class="stat-label">Minha Conversão</div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">🎯</span>
                     </div>
-                    <div class="stat-value">3</div>
+                    <div class="stat-value">${todayData.length}</div>
                     <div class="stat-label">Vendas Hoje</div>
                 </div>
 
@@ -1211,28 +1813,38 @@
                     <div class="stat-header">
                         <span class="stat-icon">💰</span>
                     </div>
-                    <div class="stat-value">R$ 600</div>
-                    <div class="stat-label">Comissão Estimada</div>
+                    <div class="stat-value">${formatCurrency(monthCommission)}</div>
+                    <div class="stat-label">Comissão do Mês</div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">⭐</span>
-                        <span class="badge success">Nível ${currentUser.level}</span>
+                        <span class="xp-badge">Nível ${currentUser.level}</span>
                     </div>
                     <div class="stat-value">${currentUser.xp}</div>
-                    <div class="stat-label">Pontos de Experiência</div>
+                    <div class="stat-label">Pontos XP</div>
                 </div>
             `;
         }
 
         function generateManagerDashboard() {
+            const unitData = getUnitData(currentUser.unit);
+            const unitVisits = getUnitVisits(currentUser.unit);
+            const monthData = getCurrentMonthData(unitData);
+            const monthVisits = getCurrentMonthData(unitVisits, 'data');
+            
+            const conversionRate = monthVisits.length > 0 ? (monthData.length / monthVisits.length * 100).toFixed(1) : 0;
+            const totalUnitCommission = calculateManagerUnitCommission();
+            const unitRevenue = calculateTotalRevenue(monthData);
+
             return `
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">🏢</span>
+                        <span style="font-size: 12px; color: #666;">${currentUser.unit}</span>
                     </div>
-                    <div class="stat-value">45</div>
+                    <div class="stat-value">${monthData.length}</div>
                     <div class="stat-label">Matrículas da Unidade</div>
                 </div>
 
@@ -1240,31 +1852,37 @@
                     <div class="stat-header">
                         <span class="stat-icon">👥</span>
                     </div>
-                    <div class="stat-value">123</div>
-                    <div class="stat-label">Visitas da Equipe</div>
+                    <div class="stat-value">${monthVisits.length}</div>
+                    <div class="stat-label">Visitas do Mês</div>
                 </div>
 
                 <div class="stat-card conversion-card">
                     <div class="stat-header">
                         <span class="stat-icon">📈</span>
                     </div>
-                    <div class="conversion-rate">36.6%</div>
-                    <div class="stat-label">Conversão da Unidade</div>
+                    <div class="conversion-rate">${conversionRate}%</div>
+                    <div class="stat-label">Taxa de Conversão</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(conversionRate, 100)}%; background: var(--warning-gradient);"></div>
+                    </div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">💰</span>
                     </div>
-                    <div class="stat-value">R$ 2.250</div>
+                    <div class="stat-value">${formatCurrency(totalUnitCommission)}</div>
                     <div class="stat-label">Minha Comissão</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Baseada nas vendas da unidade
+                    </div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">💵</span>
                     </div>
-                    <div class="stat-value">R$ 54.500</div>
+                    <div class="stat-value">${formatCurrency(unitRevenue)}</div>
                     <div class="stat-label">Faturamento da Unidade</div>
                 </div>
 
@@ -1272,35 +1890,45 @@
                     <div class="stat-header">
                         <span class="stat-icon">👨‍💼</span>
                     </div>
-                    <div class="stat-value">8</div>
+                    <div class="stat-value">${getTeamMembersCount()}</div>
                     <div class="stat-label">Membros da Equipe</div>
                 </div>
             `;
         }
 
         function generateAdminDashboard() {
+            const allData = selectedUnit === 'all' ? matriculas : getUnitData(selectedUnit);
+            const allVisits = selectedUnit === 'all' ? visitas : getUnitVisits(selectedUnit);
+            const monthData = getCurrentMonthData(allData);
+            const monthVisits = getCurrentMonthData(allVisits, 'data');
+            
+            const conversionRate = monthVisits.length > 0 ? (monthData.length / monthVisits.length * 100).toFixed(1) : 0;
+            const totalRevenue = calculateTotalRevenue(monthData);
+            const totalCollaborators = Object.values(users).filter(u => u.role !== 'admin').length;
+
             return `
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">📊</span>
+                        <span style="font-size: 12px; color: #666;">${selectedUnit === 'all' ? 'Todas' : selectedUnit}</span>
                     </div>
-                    <div class="stat-value">87</div>
-                    <div class="stat-label">Total de Matrículas</div>
+                    <div class="stat-value">${monthData.length}</div>
+                    <div class="stat-label">Matrículas do Mês</div>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon">👥</span>
                     </div>
-                    <div class="stat-value">234</div>
-                    <div class="stat-label">Total de Visitas</div>
+                    <div class="stat-value">${monthVisits.length}</div>
+                    <div class="stat-label">Visitas do Mês</div>
                 </div>
 
                 <div class="stat-card conversion-card">
                     <div class="stat-header">
                         <span class="stat-icon">📈</span>
                     </div>
-                    <div class="conversion-rate">37.2%</div>
+                    <div class="conversion-rate">${conversionRate}%</div>
                     <div class="stat-label">Conversão Geral</div>
                 </div>
 
@@ -1308,8 +1936,8 @@
                     <div class="stat-header">
                         <span class="stat-icon">💰</span>
                     </div>
-                    <div class="stat-value">R$ 105.600</div>
-                    <div class="stat-label">Faturamento Total</div>
+                    <div class="stat-value">${formatCurrency(totalRevenue)}</div>
+                    <div class="stat-label">Faturamento</div>
                 </div>
 
                 <div class="stat-card">
@@ -1324,13 +1952,439 @@
                     <div class="stat-header">
                         <span class="stat-icon">👨‍💼</span>
                     </div>
-                    <div class="stat-value">15</div>
-                    <div class="stat-label">Colaboradores Ativos</div>
+                    <div class="stat-value">${totalCollaborators}</div>
+                    <div class="stat-label">Colaboradores</div>
                 </div>
             `;
         }
 
-        // Funções do sistema de visitas
+        // SISTEMA DE GAMIFICAÇÃO
+        function initializeGamification() {
+            if (!missions) missions = [];
+            if (!achievements) achievements = [];
+            
+            createAutoMissions();
+            checkAchievements();
+            updateMissionProgress();
+        }
+
+        function createAutoMissions() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            
+            const autoMissions = [
+                {
+                    id: `vendas_${currentMonth}`,
+                    title: '🎯 Meta de Vendas Mensal',
+                    description: 'Alcançar 15 matrículas neste mês',
+                    type: 'vendas',
+                    target: 15,
+                    reward: 200,
+                    deadline: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
+                    createdBy: 'Sistema',
+                    assignedTo: 'all',
+                    autoMission: true
+                },
+                {
+                    id: `visitas_${currentMonth}`,
+                    title: '👥 Meta de Visitas',
+                    description: 'Atender 30 visitas neste mês',
+                    type: 'visitas',
+                    target: 30,
+                    reward: 150,
+                    deadline: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
+                    createdBy: 'Sistema',
+                    assignedTo: 'all',
+                    autoMission: true
+                }
+            ];
+
+            autoMissions.forEach(mission => {
+                if (!missions.find(m => m.id === mission.id)) {
+                    missions.push(mission);
+                }
+            });
+        }
+
+        function updateUserProgress() {
+            const userProgress = document.getElementById('userProgress');
+            if (!userProgress || !currentUser) return;
+            
+            const nextLevelXP = currentUser.level * 500;
+            const currentLevelXP = (currentUser.level - 1) * 500;
+            const progressXP = currentUser.xp - currentLevelXP;
+            const neededXP = nextLevelXP - currentLevelXP;
+            const progressPercent = Math.min((progressXP / neededXP) * 100, 100);
+            
+            userProgress.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div style="text-align: center; padding: 20px; background: var(--bg-primary); border-radius: 12px;">
+                        <div style="font-size: 32px; font-weight: bold; color: var(--text-primary);">${currentUser.level}</div>
+                        <div style="font-size: 14px; color: var(--text-secondary);">Nível Atual</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: var(--bg-primary); border-radius: 12px;">
+                        <div style="font-size: 32px; font-weight: bold; color: #667eea;">${currentUser.xp}</div>
+                        <div style="font-size: 14px; color: var(--text-secondary);">XP Total</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: var(--bg-primary); border-radius: 12px;">
+                        <div style="font-size: 32px; font-weight: bold; color: #38a169;">${userStats[currentUser.username]?.achievements?.length || 0}</div>
+                        <div style="font-size: 14px; color: var(--text-secondary);">Conquistas</div>
+                    </div>
+                    <div style="padding: 20px; background: var(--bg-primary); border-radius: 12px;">
+                        <div style="text-align: center; font-size: 18px; font-weight: bold; color: #ed8936; margin-bottom: 10px;">Próximo Nível</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%; background: var(--primary-gradient);"></div>
+                        </div>
+                        <div style="text-align: center; font-size: 12px; color: var(--text-secondary); margin-top: 5px;">${progressXP}/${neededXP} XP</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateMissionsDisplay() {
+            const activeMissions = document.getElementById('activeMissions');
+            if (!activeMissions) return;
+
+            const userMissions = getUserMissions();
+            let html = '';
+
+            if (userMissions.length === 0) {
+                html = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma missão ativa no momento.</p>';
+            } else {
+                userMissions.forEach(mission => {
+                    const progress = calculateMissionProgress(mission);
+                    const isCompleted = progress >= mission.target;
+                    const isExpired = new Date(mission.deadline) < new Date();
+                    
+                    let cardClass = 'mission-card';
+                    if (isCompleted) cardClass += ' mission-completed';
+                    else if (isExpired) cardClass += ' mission-failed';
+
+                    html += `
+                        <div class="${cardClass}">
+                            <div class="mission-header">
+                                <div class="mission-title">${mission.title}</div>
+                                <div class="mission-reward">+${mission.reward} XP</div>
+                            </div>
+                            <div style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                                ${mission.description}
+                            </div>
+                            <div class="mission-progress">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <span style="font-size: 12px; color: #666;">Progresso:</span>
+                                    <span style="font-size: 12px; font-weight: bold;">${progress}/${mission.target}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${Math.min((progress / mission.target) * 100, 100)}%"></div>
+                                </div>
+                            </div>
+                            <div style="font-size: 12px; color: #666;">
+                                📅 Prazo: ${formatDate(mission.deadline)}
+                                ${isCompleted ? ' | ✅ Concluída!' : isExpired ? ' | ❌ Expirada' : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            activeMissions.innerHTML = html;
+        }
+
+        function updateAchievementsDisplay() {
+            const userAchievements = document.getElementById('userAchievements');
+            if (!userAchievements || !currentUser) return;
+            
+            const userAchievementIds = userStats[currentUser.username]?.achievements || [];
+            let html = '';
+
+            if (userAchievementIds.length === 0) {
+                html = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma conquista desbloqueada ainda. Complete missões para ganhar conquistas!</p>';
+            } else {
+                userAchievementIds.forEach(achievementId => {
+                    const achievement = ACHIEVEMENT_DEFINITIONS.find(a => a.id === achievementId);
+                    if (achievement) {
+                        html += `
+                            <div class="achievement-badge" title="${achievement.description}">
+                                ${achievement.icon} ${achievement.name}
+                            </div>
+                        `;
+                    }
+                });
+            }
+            
+            userAchievements.innerHTML = html;
+        }
+
+        // FUNÇÕES AUXILIARES (Implementação completa das funções do sistema original)
+        function getUserMatriculas() {
+            if (currentUser.role === 'admin') {
+                return selectedUnit === 'all' ? matriculas : getUnitData(selectedUnit);
+            }
+            if (currentUser.role === 'gerente') {
+                return getUnitData(currentUser.unit);
+            }
+            return matriculas.filter(m => 
+                m.vendedor === currentUser.name || 
+                m.gerente === currentUser.name || 
+                m.assistente === currentUser.name
+            );
+        }
+
+        function getUserVisits() {
+            return visitas.filter(v => {
+                if (currentUser.role === 'admin') {
+                    return selectedUnit === 'all' ? true : v.unidade === selectedUnit;
+                }
+                if (currentUser.role === 'gerente') {
+                    return v.unidade === currentUser.unit;
+                }
+                return v.atendente === currentUser.name;
+            });
+        }
+
+        function getUnitData(unit) {
+            if (!unit || unit === 'all') return matriculas;
+            return matriculas.filter(m => m.unidade === unit);
+        }
+
+        function getUnitVisits(unit) {
+            if (!unit || unit === 'all') return visitas;
+            return visitas.filter(v => v.unidade === unit);
+        }
+
+        function getCurrentMonthData(data, dateField = 'data') {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            return data.filter(item => {
+                const date = new Date(item[dateField]);
+                return date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear && 
+                       !item.cancelado;
+            });
+        }
+
+        function getTodayData(data) {
+            const today = new Date().toISOString().split('T')[0];
+            return data.filter(m => m.data === today && !m.cancelado);
+        }
+
+        function calculateUserMonthCommission() {
+            if (currentUser.role === 'gerente') {
+                return calculateManagerUnitCommission();
+            }
+            
+            const monthData = getCurrentMonthData(getUserMatriculas());
+            const myMatriculas = monthData.filter(m => {
+                if (currentUser.role === 'vendedor') return m.vendedor === currentUser.name;
+                if (currentUser.role === 'assistente') return m.assistente === currentUser.name;
+                return false;
+            });
+            
+            const count = myMatriculas.length;
+            let commission = 0;
+            
+            if (currentUser.role === 'vendedor' && count >= 10) {
+                commission = count * getCommissionByBand(count, COMISSAO_VENDEDOR);
+            } else if (currentUser.role === 'assistente' && count >= 10) {
+                commission = count * getCommissionByBand(count, COMISSAO_ASSISTENTE);
+            }
+            
+            return commission;
+        }
+
+        function calculateManagerUnitCommission() {
+            const unitData = getUnitData(currentUser.unit);
+            const monthData = getCurrentMonthData(unitData);
+            
+            const totalMatriculas = monthData.length;
+            let commission = 0;
+            
+            if (totalMatriculas >= 26) {
+                commission = totalMatriculas * getCommissionByBand(totalMatriculas, COMISSAO_GERENTE);
+            }
+            
+            const specialBonus = monthData.reduce((total, m) => {
+                if (m.tipo === 'Blackin') total += 25;
+                if (m.tipo === 'Black') total += 50;
+                return total;
+            }, 0);
+            
+            return commission + specialBonus;
+        }
+
+        function calculateTotalRevenue(data) {
+            return data.reduce((total, m) => total + (m.valorEntrada || 0), 0);
+        }
+
+        function getCommissionByBand(matriculasCount, table) {
+            for (let band of table) {
+                if (matriculasCount >= band.min && matriculasCount <= band.max) {
+                    return band.valor;
+                }
+            }
+            return 0;
+        }
+
+        function getTeamMembersCount() {
+            return Object.values(users).filter(u => 
+                u.unit === currentUser.unit && u.role !== 'admin'
+            ).length;
+        }
+
+        function getUserMissions() {
+            return missions.filter(mission => {
+                if (mission.assignedTo === 'all') return true;
+                if (mission.assignedTo === 'vendedores' && currentUser.role === 'vendedor') return true;
+                if (mission.assignedTo === 'assistentes' && currentUser.role === 'assistente') return true;
+                if (mission.assignedTo === currentUser.name) return true;
+                return false;
+            });
+        }
+
+        function calculateMissionProgress(mission) {
+            if (mission.type === 'vendas') {
+                const userMatriculas = getUserMatriculas();
+                return getCurrentMonthData(userMatriculas).length;
+            } else if (mission.type === 'visitas') {
+                const userVisits = getUserVisits();
+                return getCurrentMonthData(userVisits, 'data').length;
+            } else if (mission.type === 'conversao') {
+                const userVisits = getUserVisits();
+                const userMatriculas = getUserMatriculas();
+                const monthVisits = getCurrentMonthData(userVisits, 'data');
+                const monthMatriculas = getCurrentMonthData(userMatriculas);
+                return monthVisits.length > 0 ? Math.round((monthMatriculas.length / monthVisits.length) * 100) : 0;
+            }
+            
+            return 0;
+        }
+
+        function checkAchievements() {
+            if (!currentUser) return;
+            
+            const userMatriculas = getUserMatriculas();
+            const userVisits = getUserVisits();
+            const monthMatriculas = getCurrentMonthData(userMatriculas);
+            const monthVisits = getCurrentMonthData(userVisits, 'data');
+            
+            const conversionRate = monthVisits.length > 0 ? (monthMatriculas.length / monthVisits.length * 100) : 0;
+            
+            ACHIEVEMENT_DEFINITIONS.forEach(achievement => {
+                if (userStats[currentUser.username] && userStats[currentUser.username].achievements.includes(achievement.id)) {
+                    return;
+                }
+                
+                let unlocked = false;
+                
+                switch (achievement.id) {
+                    case 'first_sale':
+                        unlocked = userMatriculas.length > 0;
+                        break;
+                    case 'sales_5':
+                        unlocked = monthMatriculas.length >= 5;
+                        break;
+                    case 'sales_10':
+                        unlocked = monthMatriculas.length >= 10;
+                        break;
+                    case 'sales_20':
+                        unlocked = monthMatriculas.length >= 20;
+                        break;
+                    case 'conversion_80':
+                        unlocked = conversionRate >= 80 && monthVisits.length >= 5;
+                        break;
+                    case 'visits_50':
+                        unlocked = monthVisits.length >= 50;
+                        break;
+                    case 'level_5':
+                        unlocked = currentUser.level >= 5;
+                        break;
+                }
+                
+                if (unlocked) {
+                    unlockAchievement(achievement);
+                }
+            });
+        }
+
+        function unlockAchievement(achievement) {
+            if (!userStats[currentUser.username]) {
+                userStats[currentUser.username] = { achievements: [] };
+            }
+            
+            userStats[currentUser.username].achievements.push(achievement.id);
+            giveXP(currentUser.name, achievement.xp);
+            
+            showNotification(`🏆 Conquista desbloqueada: ${achievement.name} (+${achievement.xp} XP)!`, 'success');
+            updateAchievementsDisplay();
+        }
+
+        function updateMissionProgress() {
+            const userMissions = getUserMissions();
+            
+            userMissions.forEach(mission => {
+                const progress = calculateMissionProgress(mission);
+                
+                if (progress >= mission.target && !mission.completed) {
+                    mission.completed = true;
+                    mission.completedDate = new Date().toISOString();
+                    
+                    giveXP(currentUser.name, mission.reward);
+                    showNotification(`🎉 Missão completada: ${mission.title} (+${mission.reward} XP)!`, 'success');
+                }
+            });
+        }
+
+        function createMission() {
+            const title = document.getElementById('missionTitle').value;
+            const description = document.getElementById('missionDescription').value;
+            const type = document.getElementById('missionType').value;
+            const target = parseInt(document.getElementById('missionTarget').value);
+            const reward = parseInt(document.getElementById('missionReward').value);
+            const deadline = document.getElementById('missionDeadline').value;
+            const assignedTo = document.getElementById('missionTarget_user').value;
+            const specificUser = document.getElementById('missionSpecificUser').value;
+
+            if (!title || !description || !target || !reward || !deadline) {
+                showNotification('Preencha todos os campos da missão!', 'error');
+                return;
+            }
+
+            const newMission = {
+                id: Date.now(),
+                title,
+                description,
+                type,
+                target,
+                reward,
+                deadline,
+                createdBy: currentUser.name,
+                assignedTo: assignedTo === 'specific' ? specificUser : assignedTo,
+                unit: currentUser.unit,
+                created: new Date().toISOString()
+            };
+
+            missions.push(newMission);
+            saveDataToLocal();
+            
+            if (GOOGLE_APPS_SCRIPT_URL) {
+                forceSync();
+            }
+
+            showNotification('🎯 Missão criada com sucesso!', 'success');
+            clearMissionForm();
+            updateMissionsDisplay();
+        }
+
+        function clearMissionForm() {
+            document.getElementById('missionTitle').value = '';
+            document.getElementById('missionDescription').value = '';
+            document.getElementById('missionTarget').value = '';
+            document.getElementById('missionReward').value = '';
+            document.getElementById('missionDeadline').value = '';
+        }
+
+        // SISTEMA DE VISITAS COMPLETO
         function addVisit() {
             const data = document.getElementById('visitDate').value;
             const nome = document.getElementById('visitName').value;
@@ -1340,14 +2394,41 @@
             const observacoes = document.getElementById('visitNotes').value;
 
             if (!data || !nome || !telefone || !cursoInteresse || !atendente) {
-                showNotification('Por favor, preencha todos os campos obrigatórios!', 'error');
+                showNotification('Preencha todos os campos obrigatórios!', 'error');
                 return;
             }
 
-            // Simular adição da visita
+            const atendenteUser = Object.values(users).find(u => u.name === atendente);
+            const unidade = atendenteUser ? atendenteUser.unit : currentUser.unit;
+
+            const novaVisita = {
+                id: Date.now(),
+                data,
+                nome,
+                telefone,
+                cursoInteresse,
+                atendente,
+                unidade,
+                observacoes,
+                convertido: false,
+                matriculaId: null,
+                dataConversao: null,
+                criadoPor: currentUser.name,
+                dataLancamento: new Date().toISOString()
+            };
+
+            visitas.push(novaVisita);
+            giveXP(atendente, 10);
+            
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+            
+            updateVisitsDisplay();
+            updateVisitSelects();
+            updateMissionProgress();
+            checkAchievements();
             showNotification('✅ Visita registrada com sucesso!', 'success');
             clearVisitForm();
-            updateVisitsDisplay();
         }
 
         function clearVisitForm() {
@@ -1356,11 +2437,15 @@
             document.getElementById('visitPhone').value = '';
             document.getElementById('visitCourse').value = '';
             document.getElementById('visitNotes').value = '';
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('visitAttendant').value = '';
+            }
         }
 
         function convertVisitToMatricula() {
-            showNotification('Redirecionando para registro de matrícula...', 'info');
-            // showTab('matriculas'); // Descomentaria se a aba existisse
+            showTab('matriculas');
+            showNotification('Preencha os dados da matrícula. Use o campo "Veio de uma visita?" para vincular.', 'info');
         }
 
         function updateVisitsDisplay() {
@@ -1372,23 +2457,29 @@
             const conversionMetrics = document.getElementById('conversionMetrics');
             if (!conversionMetrics) return;
 
+            const userVisits = getUserVisits();
+            const monthVisits = getCurrentMonthData(userVisits, 'data');
+            const convertedVisits = monthVisits.filter(v => v.convertido);
+            
+            const conversionRate = monthVisits.length > 0 ? (convertedVisits.length / monthVisits.length * 100).toFixed(1) : 0;
+            
             conversionMetrics.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                    <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px; backdrop-filter: blur(10px);">
-                        <div style="font-size: 28px; font-weight: bold; color: white;">34</div>
-                        <div style="font-size: 14px; color: rgba(255,255,255,0.8);">Total de Visitas</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: var(--text-primary);">${monthVisits.length}</div>
+                        <div style="font-size: 12px; color: #666;">Total de Visitas</div>
                     </div>
-                    <div style="text-align: center; padding: 20px; background: rgba(56,161,105,0.2); border-radius: 12px; backdrop-filter: blur(10px);">
-                        <div style="font-size: 28px; font-weight: bold; color: #38a169;">12</div>
-                        <div style="font-size: 14px; color: rgba(255,255,255,0.8);">Convertidas</div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #38a169;">${convertedVisits.length}</div>
+                        <div style="font-size: 12px; color: #666;">Convertidas</div>
                     </div>
-                    <div style="text-align: center; padding: 20px; background: rgba(237,137,54,0.2); border-radius: 12px; backdrop-filter: blur(10px);">
-                        <div style="font-size: 28px; font-weight: bold; color: #ed8936;">35.3%</div>
-                        <div style="font-size: 14px; color: rgba(255,255,255,0.8);">Taxa de Conversão</div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #ed8936;">${conversionRate}%</div>
+                        <div style="font-size: 12px; color: #666;">Taxa de Conversão</div>
                     </div>
-                    <div style="text-align: center; padding: 20px; background: rgba(102,126,234,0.2); border-radius: 12px; backdrop-filter: blur(10px);">
-                        <div style="font-size: 28px; font-weight: bold; color: #667eea;">22</div>
-                        <div style="font-size: 14px; color: rgba(255,255,255,0.8);">Pendentes</div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #667eea;">${monthVisits.length - convertedVisits.length}</div>
+                        <div style="font-size: 12px; color: #666;">Pendentes</div>
                     </div>
                 </div>
             `;
@@ -1398,77 +2489,164 @@
             const recentVisits = document.getElementById('recentVisits');
             if (!recentVisits) return;
 
-            // Dados simulados para demonstração
-            const visitasDemo = [
-                { nome: 'Ana Silva', data: '2024-12-15', curso: 'Creators 2D', telefone: '(11) 99999-1234', convertido: true },
-                { nome: 'Carlos Santos', data: '2024-12-14', curso: 'Creators 3D', telefone: '(11) 99999-5678', convertido: false },
-                { nome: 'Maria Oliveira', data: '2024-12-13', curso: 'Design Gráfico', telefone: '(11) 99999-9012', convertido: true },
-                { nome: 'João Pereira', data: '2024-12-12', curso: 'Creators Dev', telefone: '(11) 99999-3456', convertido: false },
-            ];
-
+            const userVisits = getUserVisits();
+            const sortedVisits = userVisits.sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 10);
+            
             let html = '';
-            visitasDemo.forEach(visita => {
-                html += `
-                    <div style="border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; margin-bottom: 15px; 
-                         ${visita.convertido ? 'background: linear-gradient(135deg, #f0fff4, #e6fffa); border-color: #38a169;' : 'background: white;'}
-                         transition: var(--transition);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <strong style="font-size: 16px;">${visita.nome}</strong>
-                            <span style="color: ${visita.convertido ? '#38a169' : '#ed8936'}; font-weight: bold; font-size: 14px;">
-                                ${visita.convertido ? '✅ Convertido' : '⏳ Pendente'}
-                            </span>
+            if (sortedVisits.length === 0) {
+                html = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma visita registrada ainda.</p>';
+            } else {
+                sortedVisits.forEach(visita => {
+                    html += `
+                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; ${visita.convertido ? 'background: #f0fff4; border-color: #38a169;' : ''}">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <strong>${visita.nome}</strong>
+                                <span style="color: ${visita.convertido ? '#38a169' : '#ed8936'}; font-weight: bold;">
+                                    ${visita.convertido ? '✅ Convertido' : '⏳ Pendente'}
+                                </span>
+                            </div>
+                            <div style="font-size: 12px; color: #666;">
+                                ${formatDate(visita.data)} • ${visita.cursoInteresse} • ${visita.atendente}
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                                📞 ${visita.telefone}
+                            </div>
+                            ${visita.observacoes ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">${visita.observacoes}</div>` : ''}
                         </div>
-                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 5px;">
-                            📅 ${formatDate(visita.data)} • 🎓 ${visita.curso}
-                        </div>
-                        <div style="font-size: 13px; color: var(--text-secondary);">
-                            📱 ${visita.telefone}
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
             
             recentVisits.innerHTML = html;
         }
 
-        // Ranking aprimorado
+        // SISTEMA DE MATRÍCULAS
+        function addMatricula() {
+            const data = document.getElementById('newData').value;
+            const nome = document.getElementById('newNome').value;
+            const telefone = document.getElementById('newTelefone').value;
+            const curso = document.getElementById('newCurso').value;
+            const valorTotal = parseFloat(document.getElementById('newValorTotal').value);
+            const valorEntrada = parseFloat(document.getElementById('newValorEntrada').value);
+            const tipo = document.getElementById('newTipo').value;
+            const parcelas = parseInt(document.getElementById('newParcelas').value) || 1;
+            const vendedor = document.getElementById('newVendedor').value;
+            const gerente = document.getElementById('newGerente').value;
+            const assistente = document.getElementById('newAssistente').value;
+            const fromVisitId = document.getElementById('newFromVisit').value;
+
+            if (!data || !nome || !curso || !valorTotal || !valorEntrada || !vendedor || !gerente || !assistente) {
+                showNotification('Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            const gerenteUser = Object.values(users).find(u => u.name === gerente);
+            const unidade = gerenteUser ? gerenteUser.unit : 'Shopping Conjunto Nacional';
+
+            const novaMatricula = {
+                id: Date.now(),
+                data,
+                nome,
+                telefone,
+                curso,
+                valorTotal,
+                valorEntrada,
+                tipo,
+                parcelas,
+                vendedor,
+                gerente,
+                assistente,
+                unidade,
+                statusPagamento: 'Pago',
+                cancelado: false,
+                fromVisit: fromVisitId ? parseInt(fromVisitId) : null,
+                criadoPor: currentUser.name,
+                dataLancamento: new Date().toISOString()
+            };
+
+            matriculas.push(novaMatricula);
+
+            // Se veio de uma visita, marcar como convertida
+            if (fromVisitId) {
+                const visita = visitas.find(v => v.id === parseInt(fromVisitId));
+                if (visita) {
+                    visita.convertido = true;
+                    visita.matriculaId = novaMatricula.id;
+                    visita.dataConversao = data;
+                    giveXP(visita.atendente, 30);
+                }
+            }
+
+            giveXP(vendedor, 50);
+            giveXP(gerente, 30);
+            giveXP(assistente, 20);
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+            
+            setupDashboard();
+            updateMissionProgress();
+            checkAchievements();
+            showNotification('✅ Matrícula adicionada com sucesso!', 'success');
+            clearMatriculaForm();
+        }
+
+        function clearMatriculaForm() {
+            document.getElementById('newData').value = '';
+            document.getElementById('newNome').value = '';
+            document.getElementById('newTelefone').value = '';
+            document.getElementById('newCurso').value = '';
+            document.getElementById('newValorTotal').value = '';
+            document.getElementById('newValorEntrada').value = '';
+            document.getElementById('newTipo').value = 'Convencional';
+            document.getElementById('newParcelas').value = '';
+            document.getElementById('newFromVisit').value = '';
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('newVendedor').value = '';
+                document.getElementById('newGerente').value = '';
+                document.getElementById('newAssistente').value = '';
+            }
+        }
+
+        function giveXP(userName, amount) {
+            const user = Object.values(users).find(u => u.name === userName);
+            if (user) {
+                user.xp += amount;
+                const newLevel = Math.floor(user.xp / 500) + 1;
+                if (newLevel > user.level) {
+                    const oldLevel = user.level;
+                    user.level = newLevel;
+                    showNotification(`🎉 ${userName} subiu para o nível ${newLevel}!`, 'success');
+                }
+            }
+        }
+
+        // SISTEMA DE RANKING
         function updateRanking() {
             const rankingBody = document.getElementById('rankingBody');
-            
-            // Dados simulados para demonstração
-            const rankingData = [
-                { pos: 1, nome: 'Maria Silva', unidade: 'Conjunto Nacional', cargo: 'gerente', visitas: 45, matriculas: 18, conversao: 40.0, comissao: 2250, xp: 4500 },
-                { pos: 2, nome: 'João Santos', unidade: 'Conjunto Nacional', cargo: 'vendedor', visitas: 32, matriculas: 12, conversao: 37.5, comissao: 600, xp: 2200 },
-                { pos: 3, nome: 'Ana Costa', unidade: 'JK Shopping', cargo: 'vendedor', visitas: 28, matriculas: 10, conversao: 35.7, comissao: 500, xp: 1800 },
-                { pos: 4, nome: 'Carlos Lima', unidade: 'JK Shopping', cargo: 'assistente', visitas: 25, matriculas: 8, conversao: 32.0, comissao: 240, xp: 1200 },
-            ];
-
+            const rankings = calculateRankings();
             let html = '';
-            rankingData.forEach(user => {
-                const rankClass = user.pos === 1 ? 'badge success' : 
-                                user.pos === 2 ? 'badge warning' : 
-                                user.pos === 3 ? 'badge info' : 'badge';
+
+            rankings.forEach((user, index) => {
+                const position = index + 1;
+                const rankClass = position === 1 ? 'rank-1' : 
+                                position === 2 ? 'rank-2' : 
+                                position === 3 ? 'rank-3' : 'rank-other';
 
                 html += `
-                    <tr style="transition: var(--transition);">
-                        <td style="padding: 16px;">
-                            <div style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-                                 font-weight: bold; font-size: 16px; color: white;
-                                 background: ${user.pos === 1 ? 'linear-gradient(135deg, #ffd700, #ffed4e)' : 
-                                            user.pos === 2 ? 'linear-gradient(135deg, #c0c0c0, #e2e8f0)' : 
-                                            user.pos === 3 ? 'linear-gradient(135deg, #cd7f32, #dd6b20)' : 
-                                            'linear-gradient(135deg, #4a5568, #2d3748)'};">
-                                ${user.pos}
-                            </div>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px;">
+                            <div class="${rankClass}">${position}</div>
                         </td>
-                        <td style="padding: 16px; font-weight: 600;">${user.nome}</td>
-                        <td style="padding: 16px;">${user.unidade}</td>
-                        <td style="padding: 16px;"><span class="badge ${user.cargo === 'gerente' ? 'warning' : user.cargo === 'vendedor' ? 'success' : 'info'}">${user.cargo}</span></td>
-                        <td style="padding: 16px; text-align: center; font-weight: 600;">${user.visitas}</td>
-                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #38a169;">${user.matriculas}</td>
-                        <td style="padding: 16px; text-align: center; font-weight: 600; color: #ed8936;">${user.conversao}%</td>
-                        <td style="padding: 16px; text-align: right; font-weight: 600;">${formatCurrency(user.comissao)}</td>
-                        <td style="padding: 16px; text-align: center;"><span class="badge info">${user.xp} XP</span></td>
+                        <td style="padding: 15px;">${user.name}</td>
+                        <td style="padding: 15px;">${user.unit}</td>
+                        <td style="padding: 15px;"><span class="role-badge role-${user.role}">${user.role}</span></td>
+                        <td style="padding: 15px; text-align: center;">${user.visitas}</td>
+                        <td style="padding: 15px; text-align: center;">${user.matriculas}</td>
+                        <td style="padding: 15px; text-align: center; color: #ed8936; font-weight: bold;">${user.conversao}%</td>
+                        <td style="padding: 15px; text-align: right;">${formatCurrency(user.earnings)}</td>
+                        <td style="padding: 15px; text-align: center;"><span class="xp-badge">${user.xp} XP</span></td>
                     </tr>
                 `;
             });
@@ -1476,7 +2654,1300 @@
             rankingBody.innerHTML = html;
         }
 
-        // Funções utilitárias
+        function calculateRankings() {
+            const rankings = [];
+            
+            Object.entries(users).forEach(([username, user]) => {
+                if (user.role !== 'admin') {
+                    const userMatriculas = matriculas.filter(m => 
+                        m.vendedor === user.name || 
+                        m.gerente === user.name || 
+                        m.assistente === user.name
+                    );
+                    const userVisits = visitas.filter(v => v.atendente === user.name);
+                    
+                    const monthMatriculas = getCurrentMonthData(userMatriculas);
+                    const monthVisits = getCurrentMonthData(userVisits, 'data');
+                    const conversionRate = monthVisits.length > 0 ? (monthMatriculas.length / monthVisits.length * 100).toFixed(1) : 0;
+                    
+                    let earnings = 0;
+                    if (user.role === 'vendedor') {
+                        const vendMatriculas = monthMatriculas.filter(m => m.vendedor === user.name);
+                        if (vendMatriculas.length >= 10) {
+                            earnings = vendMatriculas.length * getCommissionByBand(vendMatriculas.length, COMISSAO_VENDEDOR);
+                        }
+                    } else if (user.role === 'gerente') {
+                        const unitData = getUnitData(user.unit);
+                        const unitMonth = getCurrentMonthData(unitData);
+                        if (unitMonth.length >= 26) {
+                            earnings = unitMonth.length * getCommissionByBand(unitMonth.length, COMISSAO_GERENTE);
+                        }
+                    } else if (user.role === 'assistente') {
+                        const assistMatriculas = monthMatriculas.filter(m => m.assistente === user.name);
+                        if (assistMatriculas.length >= 10) {
+                            earnings = assistMatriculas.length * getCommissionByBand(assistMatriculas.length, COMISSAO_ASSISTENTE);
+                        }
+                    }
+
+                    rankings.push({
+                        name: user.name,
+                        unit: user.unit,
+                        role: user.role,
+                        visitas: monthVisits.length,
+                        matriculas: monthMatriculas.length,
+                        conversao: conversionRate,
+                        earnings: earnings,
+                        xp: user.xp
+                    });
+                }
+            });
+
+            return rankings.sort((a, b) => b.matriculas - a.matriculas);
+        }
+
+        // SISTEMA DE EQUIPE
+        function updateTeamDisplay() {
+            if (currentUser.role !== 'gerente') return;
+
+            const teamGrid = document.getElementById('teamGrid');
+            const teamPerformance = document.getElementById('teamPerformance');
+            
+            document.getElementById('teamUnitName').textContent = currentUser.unit;
+            document.getElementById('teamMonthYear').textContent = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+            const teamMembers = Object.values(users).filter(user => 
+                user.unit === currentUser.unit && user.role !== 'admin'
+            );
+
+            let teamHTML = '';
+            let performanceHTML = '';
+            let totalTeamMatriculas = 0;
+            let totalTeamVisitas = 0;
+
+            teamMembers.forEach(member => {
+                const memberMatriculas = matriculas.filter(m => 
+                    m.vendedor === member.name || 
+                    m.gerente === member.name || 
+                    m.assistente === member.name
+                );
+                const memberVisits = visitas.filter(v => v.atendente === member.name);
+                
+                const monthMatriculas = getCurrentMonthData(memberMatriculas);
+                const monthVisits = getCurrentMonthData(memberVisits, 'data');
+                
+                totalTeamMatriculas += monthMatriculas.length;
+                totalTeamVisitas += monthVisits.length;
+
+                teamHTML += `
+                    <div class="team-member-card">
+                        <div class="member-avatar">${member.name.charAt(0).toUpperCase()}</div>
+                        <div class="member-name">${member.name}</div>
+                        <div class="member-role">${member.role}</div>
+                        <div class="member-stats">
+                            📊 ${monthMatriculas.length} matrículas<br>
+                            👥 ${monthVisits.length} visitas<br>
+                            ⭐ ${member.xp} XP
+                        </div>
+                    </div>
+                `;
+            });
+
+            const teamConversion = totalTeamVisitas > 0 ? (totalTeamMatriculas / totalTeamVisitas * 100).toFixed(1) : 0;
+
+            performanceHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: var(--text-primary);">${totalTeamMatriculas}</div>
+                        <div style="font-size: 12px; color: #666;">Total Matrículas</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #38a169;">${totalTeamVisitas}</div>
+                        <div style="font-size: 12px; color: #666;">Total Visitas</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #ed8936;">${teamConversion}%</div>
+                        <div style="font-size: 12px; color: #666;">Conversão da Equipe</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #667eea;">${teamMembers.length}</div>
+                        <div style="font-size: 12px; color: #666;">Membros da Equipe</div>
+                    </div>
+                </div>
+            `;
+
+            teamGrid.innerHTML = teamHTML;
+            teamPerformance.innerHTML = performanceHTML;
+        }
+
+        // FUNÇÕES DE CONFIGURAÇÃO
+        function updateUserSelects() {
+            const vendedorSelect = document.getElementById('newVendedor');
+            const gerenteSelect = document.getElementById('newGerente');
+            const assistenteSelect = document.getElementById('newAssistente');
+            const relatorioColaboradorSelect = document.getElementById('relatorioColaborador');
+            const visitAttendantSelect = document.getElementById('visitAttendant');
+
+            if (vendedorSelect) {
+                vendedorSelect.innerHTML = '<option value="">Selecione...</option>';
+                gerenteSelect.innerHTML = '<option value="">Selecione...</option>';
+                assistenteSelect.innerHTML = '<option value="">Selecione...</option>';
+
+                Object.entries(users).forEach(([username, user]) => {
+                    if (currentUser.role === 'gerente' && user.unit !== currentUser.unit) return;
+                    
+                    if (user.role === 'vendedor') {
+                        vendedorSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.unit})</option>`;
+                    }
+                    if (user.role === 'gerente') {
+                        gerenteSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.unit})</option>`;
+                    }
+                    if (user.role === 'assistente') {
+                        assistenteSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.unit})</option>`;
+                    }
+                });
+
+                if (currentUser.role === 'vendedor') {
+                    vendedorSelect.value = currentUser.name;
+                    vendedorSelect.disabled = true;
+                } else if (currentUser.role === 'gerente') {
+                    gerenteSelect.value = currentUser.name;
+                    gerenteSelect.disabled = true;
+                }
+            }
+
+            if (relatorioColaboradorSelect) {
+                relatorioColaboradorSelect.innerHTML = '<option value="">Todos</option>';
+                Object.entries(users).forEach(([username, user]) => {
+                    if (user.role !== 'admin') {
+                        if (currentUser.role === 'gerente' && user.unit !== currentUser.unit) return;
+                        
+                        relatorioColaboradorSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.role} - ${user.unit})</option>`;
+                    }
+                });
+            }
+        }
+
+        function updateVisitSelects() {
+            const visitAttendantSelect = document.getElementById('visitAttendant');
+            const fromVisitSelect = document.getElementById('newFromVisit');
+            
+            if (visitAttendantSelect) {
+                visitAttendantSelect.innerHTML = '<option value="">Selecione...</option>';
+                
+                Object.entries(users).forEach(([username, user]) => {
+                    if (user.role !== 'admin') {
+                        if (currentUser.role === 'gerente' && user.unit !== currentUser.unit) return;
+                        
+                        visitAttendantSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.role})</option>`;
+                    }
+                });
+
+                if (currentUser.role !== 'admin') {
+                    visitAttendantSelect.value = currentUser.name;
+                    visitAttendantSelect.disabled = true;
+                }
+            }
+            
+            if (fromVisitSelect) {
+                fromVisitSelect.innerHTML = '<option value="">Não, cliente direto</option>';
+                
+                const pendingVisits = visitas.filter(v => !v.convertido);
+                pendingVisits.forEach(visita => {
+                    fromVisitSelect.innerHTML += `<option value="${visita.id}">${visita.nome} - ${formatDate(visita.data)}</option>`;
+                });
+            }
+        }
+
+        function setupUnitFilter() {
+            const unitSelectors = document.getElementById('unitSelectors');
+            const units = ['all', 'Shopping Conjunto Nacional', 'JK Shopping'];
+            
+            let html = '';
+            units.forEach(unit => {
+                const label = unit === 'all' ? 'Todas as Unidades' : unit;
+                const activeClass = selectedUnit === unit ? 'active' : '';
+                html += `<span class="unit-selector ${activeClass}" onclick="selectUnit('${unit}')">${label}</span>`;
+            });
+            
+            unitSelectors.innerHTML = html;
+        }
+
+        function selectUnit(unit) {
+            selectedUnit = unit;
+            setupUnitFilter();
+            setupDashboard();
+            updateRanking();
+            showNotification(`Filtro aplicado: ${unit === 'all' ? 'Todas as Unidades' : unit}`, 'info');
+        }
+
+        // SISTEMA DE ADMINISTRAÇÃO
+        function addUser() {
+            const name = document.getElementById('newUserName').value;
+            const username = document.getElementById('newUserUsername').value;
+            const password = document.getElementById('newUserPassword').value;
+            const role = document.getElementById('newUserRole').value;
+            const unit = document.getElementById('newUserUnit').value;
+
+            if (!name || !username || !password) {
+                showNotification('Preencha todos os campos!', 'error');
+                return;
+            }
+
+            if (users[username]) {
+                showNotification('Usuário já existe!', 'error');
+                return;
+            }
+
+            users[username] = {
+                name,
+                username,
+                password,
+                role,
+                unit,
+                level: 1,
+                xp: 0
+            };
+
+            userStats[username] = {
+                achievements: [],
+                totalSales: 0,
+                totalEarnings: 0,
+                totalVisits: 0,
+                conversionRate: 0
+            };
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+            
+            updateAdminPanel();
+            updateUserSelects();
+            showNotification('✅ Usuário adicionado com sucesso!', 'success');
+
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserUsername').value = '';
+            document.getElementById('newUserPassword').value = '';
+        }
+
+        function updateAdminPanel() {
+            const userManagementBody = document.getElementById('userManagementBody');
+            let html = '';
+
+            Object.entries(users).forEach(([username, user]) => {
+                if (user.role === 'admin') return;
+                
+                const userMatriculas = matriculas.filter(m => 
+                    m.vendedor === user.name || 
+                    m.gerente === user.name || 
+                    m.assistente === user.name
+                );
+                const userVisits = visitas.filter(v => v.atendente === user.name);
+                const monthMatriculas = getCurrentMonthData(userMatriculas);
+                const monthVisits = getCurrentMonthData(userVisits, 'data');
+
+                html += `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px;">${user.name}</td>
+                        <td style="padding: 15px;">${user.username}</td>
+                        <td style="padding: 15px;">${user.unit}</td>
+                        <td style="padding: 15px;"><span class="role-badge role-${user.role}">${user.role}</span></td>
+                        <td style="padding: 15px; text-align: center;">${monthMatriculas.length}</td>
+                        <td style="padding: 15px; text-align: center;">${monthVisits.length}</td>
+                        <td style="padding: 15px; text-align: center;"><span class="xp-badge">${user.xp} XP</span></td>
+                        <td style="padding: 15px;">
+                            <button style="padding: 6px 10px; font-size: 10px; background: var(--danger-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;" onclick="deleteUser('${username}')">
+                                🗑️ Excluir
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            userManagementBody.innerHTML = html;
+        }
+
+        function deleteUser(username) {
+            if (confirm(`Tem certeza que deseja excluir ${users[username].name}?`)) {
+                delete users[username];
+                delete userStats[username];
+                saveDataToLocal();
+                if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+                
+                updateAdminPanel();
+                updateUserSelects();
+                showNotification('✅ Usuário excluído com sucesso!', 'success');
+            }
+        }
+
+        // GOOGLE SHEETS INTEGRAÇÃO
+        function saveGoogleSheetsConfig() {
+            const url = document.getElementById('googleScriptUrl').value;
+            if (!url) {
+                showNotification('Digite a URL do Google Apps Script!', 'error');
+                return;
+            }
+            
+            GOOGLE_APPS_SCRIPT_URL = url;
+            localStorage.setItem('googleScriptUrl', url);
+            showNotification('✅ Configuração salva! Teste a conexão agora.', 'success');
+        }
+
+        function testGoogleSheetsConnection() {
+            if (!GOOGLE_APPS_SCRIPT_URL) {
+                showNotification('Configure a URL primeiro!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Testando conexão com Google Sheets...');
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            const data = { action: 'test' };
+            
+            fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: new URLSearchParams({ data: JSON.stringify(data) }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                signal: controller.signal
+            })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                hideLoadingMessage();
+                try {
+                    const result = JSON.parse(text);
+                    if (result.success) {
+                        showNotification('✅ Conexão com Google Sheets estabelecida!', 'success');
+                        document.getElementById('syncResult').innerHTML = `
+                            <div style="color: #38a169; font-weight: bold;">
+                                ✅ Conectado com sucesso!<br>
+                                <small>Mensagem: ${result.message}</small>
+                            </div>
+                        `;
+                        updateSyncStatus('online');
+                    } else {
+                        throw new Error(result.error || 'Erro desconhecido do servidor');
+                    }
+                } catch (parseError) {
+                    throw new Error('Resposta inválida do servidor: ' + text.substring(0, 100));
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                hideLoadingMessage();
+                
+                let errorMessage = 'Erro desconhecido';
+                
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Timeout - Verifique a URL e configuração do script';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Erro de conexão - Verifique se:\n1. A URL está correta\n2. O script foi publicado como aplicativo web\n3. As permissões estão configuradas';
+                } else if (error.message.includes('HTTP')) {
+                    errorMessage = 'Erro HTTP - ' + error.message;
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showNotification('❌ Erro na conexão: ' + errorMessage, 'error');
+                document.getElementById('syncResult').innerHTML = `
+                    <div style="color: #e53e3e; font-weight: bold;">
+                        ❌ Erro: ${errorMessage}<br>
+                        <small>Verifique as instruções de configuração abaixo</small>
+                    </div>
+                `;
+                updateSyncStatus('error');
+            });
+        }
+
+        function forceSync() {
+            if (!GOOGLE_APPS_SCRIPT_URL) {
+                showNotification('Configure o Google Sheets primeiro!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Sincronizando dados...');
+            updateSyncStatus('syncing');
+            
+            const data = {
+                action: 'save',
+                users: users,
+                matriculas: matriculas,
+                visitas: visitas,
+                missions: missions,
+                metas: metas,
+                timestamp: new Date().toISOString()
+            };
+
+            submitToGoogleSheets(data)
+                .then(result => {
+                    hideLoadingMessage();
+                    if (result.success) {
+                        showNotification('✅ Dados sincronizados com sucesso!', 'success');
+                        updateSyncStatus('online');
+                        saveDataToLocal();
+                    } else {
+                        throw new Error(result.error || 'Erro na sincronização');
+                    }
+                })
+                .catch(error => {
+                    hideLoadingMessage();
+                    showNotification('⚠️ Erro na sincronização: ' + error.message, 'warning');
+                    updateSyncStatus('error');
+                    saveDataToLocal();
+                });
+        }
+
+        function submitToGoogleSheets(data) {
+            return new Promise((resolve, reject) => {
+                if (!GOOGLE_APPS_SCRIPT_URL) {
+                    reject(new Error('URL do Google Apps Script não configurada'));
+                    return;
+                }
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+                const formData = new URLSearchParams();
+                formData.append('data', JSON.stringify(data));
+
+                fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    signal: controller.signal
+                })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    return response.text();
+                })
+                .then(text => {
+                    try {
+                        const result = JSON.parse(text);
+                        
+                        if (result.success) {
+                            resolve(result);
+                        } else {
+                            reject(new Error(result.error || 'Erro desconhecido do servidor'));
+                        }
+                    } catch (parseError) {
+                        reject(new Error('Resposta inválida do servidor. Verifique se o script foi publicado corretamente.'));
+                    }
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    
+                    if (error.name === 'AbortError') {
+                        reject(new Error('Timeout - A requisição demorou mais que 30 segundos'));
+                    } else if (error.message.includes('Failed to fetch')) {
+                        reject(new Error('Falha na conexão. Verifique se a URL está correta e o script foi publicado.'));
+                    } else {
+                        reject(error);
+                    }
+                });
+            });
+        }
+
+        function showGoogleScriptCode() {
+            document.getElementById('scriptCode').value = `
+/**
+ * Google Apps Script - Game Creators Pro
+ * Cole este código no seu projeto do Google Apps Script
+ */
+
+// ⚠️ SUBSTITUA PELO ID DA SUA PLANILHA
+const SPREADSHEET_ID = 'SUA_PLANILHA_ID_AQUI';
+
+function doPost(e) {
+  try {
+    if (!e || !e.parameter || !e.parameter.data) {
+      throw new Error('Dados não recebidos');
+    }
+    
+    const data = JSON.parse(e.parameter.data);
+    const action = data.action;
+    
+    if (SPREADSHEET_ID === 'SUA_PLANILHA_ID_AQUI') {
+      throw new Error('Substitua SUA_PLANILHA_ID_AQUI pelo ID real da planilha!');
+    }
+    
+    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    
+    if (action === 'test') {
+      return ContentService
+        .createTextOutput(JSON.stringify({
+          success: true,
+          message: 'Conexão OK! Game Creators funcionando!',
+          timestamp: new Date().toISOString()
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (action === 'save') {
+      if (data.users) saveUsers(spreadsheet, data.users);
+      if (data.matriculas) saveMatriculas(spreadsheet, data.matriculas);
+      if (data.visitas) saveVisitas(spreadsheet, data.visitas);
+      if (data.missions) saveMissions(spreadsheet, data.missions);
+      if (data.metas) saveMetas(spreadsheet, data.metas);
+      
+      return ContentService
+        .createTextOutput(JSON.stringify({
+          success: true,
+          message: 'Dados salvos com sucesso!'
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    throw new Error('Ação não reconhecida');
+    
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: error.toString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function saveUsers(spreadsheet, users) {
+  let sheet = spreadsheet.getSheetByName('Usuarios');
+  if (!sheet) sheet = spreadsheet.insertSheet('Usuarios');
+  
+  sheet.clear();
+  const headers = ['Username', 'Name', 'Password', 'Role', 'Unit', 'Level', 'XP'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  const data = Object.entries(users).map(([username, user]) => [
+    username, user.name, user.password, user.role, user.unit, user.level || 1, user.xp || 0
+  ]);
+  
+  if (data.length > 0) {
+    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+  }
+}
+
+// Adicione outras funções save conforme necessário
+            `;
+            document.getElementById('scriptModal').style.display = 'flex';
+        }
+
+        function hideScriptModal() {
+            document.getElementById('scriptModal').style.display = 'none';
+        }
+
+        function copyScriptCode() {
+            const textarea = document.getElementById('scriptCode');
+            textarea.select();
+            document.execCommand('copy');
+            showNotification('📋 Código copiado para a área de transferência!', 'success');
+        }
+
+        function showTroubleshooting() {
+            const modal = document.createElement('div');
+            modal.className = 'loading-overlay';
+            modal.style.display = 'flex';
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 12px; max-width: 80%; max-height: 80%; overflow-y: auto;">
+                    <h3>🔧 Solução de Problemas</h3>
+                    
+                    <div style="background: #fed7d7; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>❌ ERRO: "Failed to fetch"</strong><br>
+                        1. Verificar URL do script<br>
+                        2. Republicar como aplicativo web<br>
+                        3. Verificar permissões<br>
+                    </div>
+                    
+                    <div style="background: #fef5e7; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>⚠️ ERRO: "Unauthorized"</strong><br>
+                        1. Executar como "Eu (seu email)"<br>
+                        2. Autorizar todas as permissões<br>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button class="btn btn-primary" onclick="this.parentElement.parentElement.parentElement.remove()">✅ Entendi</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // SISTEMA DE METAS
+        function generateDefaultMetas() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            
+            if (!metas[currentMonth]) {
+                metas[currentMonth] = {
+                    'Shopping Conjunto Nacional': {
+                        matriculas: 50,
+                        faturamento: 50000
+                    },
+                    'JK Shopping': {
+                        matriculas: 40,
+                        faturamento: 40000
+                    }
+                };
+                saveDataToLocal();
+            }
+        }
+
+        function salvarMetas() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            
+            const metaMatriculasNacional = parseInt(document.getElementById('metaMatriculasNacional').value) || 0;
+            const metaFaturamentoNacional = parseFloat(document.getElementById('metaFaturamentoNacional').value) || 0;
+            const metaMatriculasJK = parseInt(document.getElementById('metaMatriculasJK').value) || 0;
+            const metaFaturamentoJK = parseFloat(document.getElementById('metaFaturamentoJK').value) || 0;
+
+            if (!metas[currentMonth]) {
+                metas[currentMonth] = {};
+            }
+
+            metas[currentMonth]['Shopping Conjunto Nacional'] = {
+                matriculas: metaMatriculasNacional,
+                faturamento: metaFaturamentoNacional
+            };
+
+            metas[currentMonth]['JK Shopping'] = {
+                matriculas: metaMatriculasJK,
+                faturamento: metaFaturamentoJK
+            };
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+
+            setupDashboard();
+
+            showNotification('🎯 Metas salvas com sucesso!', 'success');
+            document.getElementById('metasStatus').innerHTML = '<div style="color: #38a169; font-weight: bold;">✅ Metas salvas e sincronizadas!</div>';
+        }
+
+        function carregarMetas() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            const metasDoMes = metas[currentMonth] || {};
+
+            const metaNacional = metasDoMes['Shopping Conjunto Nacional'] || {};
+            const metaJK = metasDoMes['JK Shopping'] || {};
+
+            document.getElementById('metaMatriculasNacional').value = metaNacional.matriculas || '';
+            document.getElementById('metaFaturamentoNacional').value = metaNacional.faturamento || '';
+            document.getElementById('metaMatriculasJK').value = metaJK.matriculas || '';
+            document.getElementById('metaFaturamentoJK').value = metaJK.faturamento || '';
+
+            showNotification('🔄 Metas carregadas!', 'info');
+            document.getElementById('metasStatus').innerHTML = '<div style="color: #667eea; font-weight: bold;">📋 Metas do mês carregadas!</div>';
+        }
+
+        // SISTEMA DE RELATÓRIOS COMPLETO
+        function gerarRelatorioComissoes() {
+            const mes = document.getElementById('relatorioMes').value;
+            const unidade = document.getElementById('relatorioUnidade').value;
+            const colaborador = document.getElementById('relatorioColaborador').value;
+            
+            if (!mes) {
+                showNotification('Selecione o mês para o relatório!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Gerando relatório de comissões...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
+                
+                const [year, month] = mes.split('-');
+                const filteredData = matriculas.filter(m => {
+                    const matriculaDate = new Date(m.data);
+                    const mesMatch = matriculaDate.getFullYear() == year && matriculaDate.getMonth() == month - 1;
+                    const unidadeMatch = !unidade || m.unidade === unidade;
+                    const colaboradorMatch = !colaborador || m.vendedor === colaborador || m.gerente === colaborador || m.assistente === colaborador;
+                    return mesMatch && unidadeMatch && colaboradorMatch && !m.cancelado;
+                });
+
+                const comissoes = {};
+                
+                filteredData.forEach(m => {
+                    [m.vendedor, m.gerente, m.assistente].forEach((nome, index) => {
+                        if (!nome) return;
+                        
+                        const user = Object.values(users).find(u => u.name === nome);
+                        if (!user) return;
+                        
+                        if (!comissoes[nome]) {
+                            comissoes[nome] = {
+                                nome,
+                                role: user.role,
+                                unidade: user.unit,
+                                matriculas: 0,
+                                comissao: 0
+                            };
+                        }
+                        
+                        comissoes[nome].matriculas++;
+                        
+                        if (user.role === 'vendedor' && comissoes[nome].matriculas >= 10) {
+                            comissoes[nome].comissao = comissoes[nome].matriculas * getCommissionByBand(comissoes[nome].matriculas, COMISSAO_VENDEDOR);
+                        } else if (user.role === 'assistente' && comissoes[nome].matriculas >= 10) {
+                            comissoes[nome].comissao = comissoes[nome].matriculas * getCommissionByBand(comissoes[nome].matriculas, COMISSAO_ASSISTENTE);
+                        } else if (user.role === 'gerente') {
+                            const unitMatriculas = filteredData.filter(m => m.unidade === user.unit).length;
+                            if (unitMatriculas >= 26) {
+                                comissoes[nome].comissao = unitMatriculas * getCommissionByBand(unitMatriculas, COMISSAO_GERENTE);
+                            }
+                        }
+                    });
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>💰 Relatório de Comissões - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>👤 Nome</th>
+                                    <th>💼 Cargo</th>
+                                    <th>🏢 Unidade</th>
+                                    <th>📊 Matrículas</th>
+                                    <th>💰 Comissão</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                Object.values(comissoes).forEach(pessoa => {
+                    html += `
+                        <tr>
+                            <td>${pessoa.nome}</td>
+                            <td><span class="role-badge role-${pessoa.role}">${pessoa.role}</span></td>
+                            <td>${pessoa.unidade}</td>
+                            <td style="text-align: center;">${pessoa.matriculas}</td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(pessoa.comissao)}</td>
+                        </tr>
+                    `;
+                });
+
+                const totalComissoes = Object.values(comissoes).reduce((total, p) => total + p.comissao, 0);
+
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: var(--bg-primary); font-weight: bold;">
+                                    <td colspan="4">TOTAL</td>
+                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totalComissoes)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showNotification('✅ Relatório de comissões gerado!', 'success');
+            }, 1500);
+        }
+
+        function gerarRelatorioConversao() {
+            const mes = document.getElementById('relatorioMes').value;
+            const unidade = document.getElementById('relatorioUnidade').value;
+            const colaborador = document.getElementById('relatorioColaborador').value;
+            
+            if (!mes) {
+                showNotification('Selecione o mês para o relatório!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Gerando relatório de conversão...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
+                
+                const [year, month] = mes.split('-');
+                
+                const filteredVisitas = visitas.filter(v => {
+                    const visitaDate = new Date(v.data);
+                    const mesMatch = visitaDate.getFullYear() == year && visitaDate.getMonth() == month - 1;
+                    const unidadeMatch = !unidade || v.unidade === unidade;
+                    const colaboradorMatch = !colaborador || v.atendente === colaborador;
+                    return mesMatch && unidadeMatch && colaboradorMatch;
+                });
+
+                const conversaoData = {};
+                
+                filteredVisitas.forEach(v => {
+                    if (!conversaoData[v.atendente]) {
+                        conversaoData[v.atendente] = {
+                            nome: v.atendente,
+                            unidade: v.unidade,
+                            visitas: 0,
+                            conversoes: 0
+                        };
+                    }
+                    conversaoData[v.atendente].visitas++;
+                    if (v.convertido) {
+                        conversaoData[v.atendente].conversoes++;
+                    }
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>📈 Relatório de Conversão - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>👤 Atendente</th>
+                                    <th>🏢 Unidade</th>
+                                    <th>👥 Visitas</th>
+                                    <th>✅ Conversões</th>
+                                    <th>📈 Taxa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                Object.values(conversaoData).forEach(pessoa => {
+                    const taxa = pessoa.visitas > 0 ? (pessoa.conversoes / pessoa.visitas * 100).toFixed(1) : 0;
+                    html += `
+                        <tr>
+                            <td>${pessoa.nome}</td>
+                            <td>${pessoa.unidade}</td>
+                            <td style="text-align: center;">${pessoa.visitas}</td>
+                            <td style="text-align: center;">${pessoa.conversoes}</td>
+                            <td style="text-align: center; font-weight: bold; color: ${taxa >= 50 ? '#38a169' : '#e53e3e'};">${taxa}%</td>
+                        </tr>
+                    `;
+                });
+
+                const totalVisitas = Object.values(conversaoData).reduce((total, p) => total + p.visitas, 0);
+                const totalConversoes = Object.values(conversaoData).reduce((total, p) => total + p.conversoes, 0);
+                const taxaGeral = totalVisitas > 0 ? (totalConversoes / totalVisitas * 100).toFixed(1) : 0;
+
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: var(--bg-primary); font-weight: bold;">
+                                    <td colspan="2">TOTAL GERAL</td>
+                                    <td style="text-align: center;">${totalVisitas}</td>
+                                    <td style="text-align: center;">${totalConversoes}</td>
+                                    <td style="text-align: center; color: #38a169;">${taxaGeral}%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showNotification('✅ Relatório de conversão gerado!', 'success');
+            }, 1500);
+        }
+
+        function gerarRelatorioUnidade() {
+            const mes = document.getElementById('relatorioMes').value;
+            
+            if (!mes) {
+                showNotification('Selecione o mês para o relatório!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Gerando relatório por unidade...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
+                
+                const [year, month] = mes.split('-');
+                const monthName = new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                
+                const unidades = ['Shopping Conjunto Nacional', 'JK Shopping'];
+                const dadosUnidades = {};
+
+                unidades.forEach(unidade => {
+                    const matriculasUnidade = matriculas.filter(m => {
+                        const matriculaDate = new Date(m.data);
+                        return matriculaDate.getFullYear() == year && 
+                               matriculaDate.getMonth() == month - 1 && 
+                               m.unidade === unidade && 
+                               !m.cancelado;
+                    });
+
+                    const visitasUnidade = visitas.filter(v => {
+                        const visitaDate = new Date(v.data);
+                        return visitaDate.getFullYear() == year && 
+                               visitaDate.getMonth() == month - 1 && 
+                               v.unidade === unidade;
+                    });
+
+                    const colaboradoresUnidade = Object.values(users).filter(u => 
+                        u.unit === unidade && u.role !== 'admin'
+                    ).length;
+
+                    const faturamento = matriculasUnidade.reduce((total, m) => total + (m.valorEntrada || 0), 0);
+                    const conversoes = visitasUnidade.filter(v => v.convertido).length;
+                    const taxaConversao = visitasUnidade.length > 0 ? (conversoes / visitasUnidade.length * 100).toFixed(1) : 0;
+
+                    const convencional = matriculasUnidade.filter(m => m.tipo === 'Convencional').length;
+                    const blackin = matriculasUnidade.filter(m => m.tipo === 'Blackin').length;
+                    const black = matriculasUnidade.filter(m => m.tipo === 'Black').length;
+
+                    dadosUnidades[unidade] = {
+                        nome: unidade,
+                        colaboradores: colaboradoresUnidade,
+                        visitas: visitasUnidade.length,
+                        matriculas: matriculasUnidade.length,
+                        conversao: taxaConversao,
+                        faturamento: faturamento,
+                        convencional: convencional,
+                        blackin: blackin,
+                        black: black
+                    };
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>🏢 Relatório por Unidade - ${monthName}</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>🏢 Unidade</th>
+                                    <th>👨‍💼 Colaboradores</th>
+                                    <th>👥 Visitas</th>
+                                    <th>📊 Matrículas</th>
+                                    <th>📈 Conversão</th>
+                                    <th>💰 Faturamento</th>
+                                    <th>📋 Convencional</th>
+                                    <th>🖤 Blackin</th>
+                                    <th>⚫ Black</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                let totals = {
+                    colaboradores: 0,
+                    visitas: 0,
+                    matriculas: 0,
+                    faturamento: 0,
+                    convencional: 0,
+                    blackin: 0,
+                    black: 0
+                };
+
+                Object.values(dadosUnidades).forEach(unidade => {
+                    totals.colaboradores += unidade.colaboradores;
+                    totals.visitas += unidade.visitas;
+                    totals.matriculas += unidade.matriculas;
+                    totals.faturamento += unidade.faturamento;
+                    totals.convencional += unidade.convencional;
+                    totals.blackin += unidade.blackin;
+                    totals.black += unidade.black;
+
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold;">${unidade.nome}</td>
+                            <td style="text-align: center;">${unidade.colaboradores}</td>
+                            <td style="text-align: center;">${unidade.visitas}</td>
+                            <td style="text-align: center;">${unidade.matriculas}</td>
+                            <td style="text-align: center; font-weight: bold; color: ${unidade.conversao >= 50 ? '#38a169' : '#e53e3e'};">${unidade.conversao}%</td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(unidade.faturamento)}</td>
+                            <td style="text-align: center;">${unidade.convencional}</td>
+                            <td style="text-align: center;">${unidade.blackin}</td>
+                            <td style="text-align: center;">${unidade.black}</td>
+                        </tr>
+                    `;
+                });
+
+                const conversaoTotal = totals.visitas > 0 ? ((totals.matriculas / totals.visitas) * 100).toFixed(1) : 0;
+
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: var(--bg-primary); font-weight: bold;">
+                                    <td>TOTAL GERAL</td>
+                                    <td style="text-align: center;">${totals.colaboradores}</td>
+                                    <td style="text-align: center;">${totals.visitas}</td>
+                                    <td style="text-align: center;">${totals.matriculas}</td>
+                                    <td style="text-align: center; color: #38a169;">${conversaoTotal}%</td>
+                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totals.faturamento)}</td>
+                                    <td style="text-align: center;">${totals.convencional}</td>
+                                    <td style="text-align: center;">${totals.blackin}</td>
+                                    <td style="text-align: center;">${totals.black}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showNotification('✅ Relatório por unidade gerado!', 'success');
+            }, 1500);
+        }
+
+        function gerarRelatorioMetas() {
+            const mes = document.getElementById('relatorioMes').value;
+            
+            if (!mes) {
+                showNotification('Selecione o mês para o relatório!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Gerando relatório de metas...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
+                
+                const [year, month] = mes.split('-');
+                const metasDoMes = metas[mes] || {};
+                
+                const unidades = ['Shopping Conjunto Nacional', 'JK Shopping'];
+                const dadosComparacao = [];
+
+                unidades.forEach(unidade => {
+                    const matriculasUnidade = matriculas.filter(m => {
+                        const matriculaDate = new Date(m.data);
+                        return matriculaDate.getFullYear() == year && 
+                               matriculaDate.getMonth() == month - 1 && 
+                               m.unidade === unidade && 
+                               !m.cancelado;
+                    });
+
+                    const faturamento = matriculasUnidade.reduce((total, m) => total + (m.valorEntrada || 0), 0);
+                    const metaUnidade = metasDoMes[unidade] || {};
+
+                    const progressMatriculas = metaUnidade.matriculas ? (matriculasUnidade.length / metaUnidade.matriculas * 100) : 0;
+                    const progressFaturamento = metaUnidade.faturamento ? (faturamento / metaUnidade.faturamento * 100) : 0;
+
+                    dadosComparacao.push({
+                        unidade,
+                        matriculasReal: matriculasUnidade.length,
+                        matriculasMeta: metaUnidade.matriculas || 0,
+                        progressMatriculas,
+                        faturamentoReal: faturamento,
+                        faturamentoMeta: metaUnidade.faturamento || 0,
+                        progressFaturamento
+                    });
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>🎯 Relatório Metas vs Realizado - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>🏢 Unidade</th>
+                                    <th>📊 Matrículas Real</th>
+                                    <th>🎯 Meta Matrículas</th>
+                                    <th>📈 Progress %</th>
+                                    <th>💰 Faturamento Real</th>
+                                    <th>🎯 Meta Faturamento</th>
+                                    <th>📈 Progress %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                dadosComparacao.forEach(unidade => {
+                    const statusMatriculas = unidade.progressMatriculas >= 100 ? '✅' : unidade.progressMatriculas >= 80 ? '⚠️' : '❌';
+                    const statusFaturamento = unidade.progressFaturamento >= 100 ? '✅' : unidade.progressFaturamento >= 80 ? '⚠️' : '❌';
+                    const corMatriculas = unidade.progressMatriculas >= 100 ? '#38a169' : unidade.progressMatriculas >= 80 ? '#ed8936' : '#e53e3e';
+                    const corFaturamento = unidade.progressFaturamento >= 100 ? '#38a169' : unidade.progressFaturamento >= 80 ? '#ed8936' : '#e53e3e';
+
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold;">${unidade.unidade}</td>
+                            <td style="text-align: center; font-weight: bold;">${unidade.matriculasReal}</td>
+                            <td style="text-align: center;">${unidade.matriculasMeta}</td>
+                            <td style="text-align: center;">
+                                <span style="color: ${corMatriculas}; font-weight: bold;">
+                                    ${statusMatriculas} ${unidade.progressMatriculas.toFixed(1)}%
+                                </span>
+                            </td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(unidade.faturamentoReal)}</td>
+                            <td style="text-align: right;">${formatCurrency(unidade.faturamentoMeta)}</td>
+                            <td style="text-align: center;">
+                                <span style="color: ${corFaturamento}; font-weight: bold;">
+                                    ${statusFaturamento} ${unidade.progressFaturamento.toFixed(1)}%
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showNotification('✅ Relatório de metas gerado!', 'success');
+            }, 1500);
+        }
+
+        // SISTEMA DE ARMAZENAMENTO LOCAL
+        function loadDataFromLocal() {
+            try {
+                const savedUsers = localStorage.getItem('users');
+                const savedMatriculas = localStorage.getItem('matriculas');
+                const savedVisitas = localStorage.getItem('visitas');
+                const savedUserStats = localStorage.getItem('userStats');
+                const savedMissions = localStorage.getItem('missions');
+                const savedMetas = localStorage.getItem('metas');
+
+                if (savedUsers) {
+                    users = JSON.parse(savedUsers);
+                } else {
+                    users = {...defaultUsers};
+                }
+
+                if (savedMatriculas) {
+                    matriculas = JSON.parse(savedMatriculas);
+                } else {
+                    matriculas = generateSampleData();
+                }
+
+                if (savedVisitas) {
+                    visitas = JSON.parse(savedVisitas);
+                } else {
+                    visitas = generateSampleVisits();
+                }
+
+                if (savedUserStats) {
+                    userStats = JSON.parse(savedUserStats);
+                } else {
+                    userStats = {};
+                }
+
+                if (savedMissions) {
+                    missions = JSON.parse(savedMissions);
+                } else {
+                    missions = [];
+                }
+
+                if (savedMetas) {
+                    metas = JSON.parse(savedMetas);
+                } else {
+                    metas = {};
+                }
+
+                Object.keys(users).forEach(username => {
+                    if (!userStats[username]) {
+                        userStats[username] = {
+                            achievements: [],
+                            totalSales: 0,
+                            totalEarnings: 0,
+                            totalVisits: 0,
+                            conversionRate: 0
+                        };
+                    }
+                });
+
+                console.log('📊 Dados carregados do localStorage');
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados locais:', error);
+                users = {...defaultUsers};
+                matriculas = generateSampleData();
+                visitas = generateSampleVisits();
+                userStats = {};
+                missions = [];
+                metas = {};
+            }
+        }
+
+        function saveDataToLocal() {
+            try {
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('matriculas', JSON.stringify(matriculas));
+                localStorage.setItem('visitas', JSON.stringify(visitas));
+                localStorage.setItem('userStats', JSON.stringify(userStats));
+                localStorage.setItem('missions', JSON.stringify(missions));
+                localStorage.setItem('metas', JSON.stringify(metas));
+                localStorage.setItem('lastLocalSave', new Date().toISOString());
+                console.log('💾 Dados salvos localmente');
+            } catch (error) {
+                console.error('❌ Erro ao salvar dados localmente:', error);
+            }
+        }
+
+        function generateSampleData() {
+            const sampleData = [];
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+
+            for (let i = 0; i < 25; i++) {
+                const randomDay = Math.floor(Math.random() * 28) + 1;
+                const date = new Date(currentYear, currentMonth, randomDay);
+                const unit = i % 2 === 0 ? 'Shopping Conjunto Nacional' : 'JK Shopping';
+                
+                sampleData.push({
+                    id: Date.now() + i,
+                    data: date.toISOString().split('T')[0],
+                    nome: `Aluno ${i + 1}`,
+                    telefone: `(11) 9999-${String(i).padStart(4, '0')}`,
+                    curso: ['Creators 2D', 'Creators 3D', 'Design Gráfico'][Math.floor(Math.random() * 3)],
+                    valorTotal: 2400,
+                    valorEntrada: Math.floor(Math.random() * 500) + 200,
+                    tipo: ['Convencional', 'Blackin', 'Black'][Math.floor(Math.random() * 3)],
+                    parcelas: Math.floor(Math.random() * 12) + 1,
+                    vendedor: unit === 'Shopping Conjunto Nacional' ? 'João Santos' : 'Paula Oliveira',
+                    gerente: unit === 'Shopping Conjunto Nacional' ? 'Maria Silva' : 'Carlos Lima',
+                    assistente: unit === 'Shopping Conjunto Nacional' ? 'Ana Costa' : 'Paula Oliveira',
+                    unidade: unit,
+                    statusPagamento: 'Pago',
+                    cancelado: false,
+                    fromVisit: Math.random() > 0.7
+                });
+            }
+
+            return sampleData;
+        }
+
+        function generateSampleVisits() {
+            const sampleVisits = [];
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+
+            for (let i = 0; i < 40; i++) {
+                const randomDay = Math.floor(Math.random() * 28) + 1;
+                const date = new Date(currentYear, currentMonth, randomDay);
+                const unit = i % 2 === 0 ? 'Shopping Conjunto Nacional' : 'JK Shopping';
+                const converted = Math.random() > 0.7;
+                
+                sampleVisits.push({
+                    id: Date.now() + i,
+                    data: date.toISOString().split('T')[0],
+                    nome: `Visitante ${i + 1}`,
+                    telefone: `(11) 8888-${String(i).padStart(4, '0')}`,
+                    cursoInteresse: ['Creators 2D', 'Creators 3D', 'Design Gráfico'][Math.floor(Math.random() * 3)],
+                    atendente: unit === 'Shopping Conjunto Nacional' ? 'João Santos' : 'Paula Oliveira',
+                    unidade: unit,
+                    observacoes: 'Visitante interessado',
+                    convertido: converted,
+                    matriculaId: converted ? Date.now() + i + 1000 : null,
+                    dataConversao: converted ? date.toISOString().split('T')[0] : null
+                });
+            }
+
+            return sampleVisits;
+        }
+
+        // FUNÇÕES UTILITÁRIAS
         function formatCurrency(value) {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
@@ -1492,30 +3963,47 @@
         function setCurrentDate() {
             const today = new Date().toISOString().split('T')[0];
             const visitDateInput = document.getElementById('visitDate');
+            const newDataInput = document.getElementById('newData');
+            const missionDeadlineInput = document.getElementById('missionDeadline');
             
             if (visitDateInput) visitDateInput.value = today;
+            if (newDataInput) newDataInput.value = today;
+            if (missionDeadlineInput) {
+                const nextWeek = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                missionDeadlineInput.value = nextWeek.toISOString().split('T')[0];
+            }
         }
 
         function setCurrentMonthForReport() {
             const now = new Date();
+            const monthString = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            const relatorioMesInput = document.getElementById('relatorioMes');
+            
+            if (relatorioMesInput) relatorioMesInput.value = monthString;
+            
             const monthYear = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
             const conversionMonthYear = document.getElementById('conversionMonthYear');
+            const teamMonthYear = document.getElementById('teamMonthYear');
             
             if (conversionMonthYear) conversionMonthYear.textContent = monthYear;
+            if (teamMonthYear) teamMonthYear.textContent = monthYear;
         }
 
-        // Sistema de monitoramento de rede
         function setupNetworkMonitoring() {
             window.addEventListener('online', function() {
                 isOnline = true;
                 updateSyncStatus('online');
-                showNotification('🟢 Conectado! Sistema online.', 'success');
+                if (GOOGLE_APPS_SCRIPT_URL) {
+                    showNotification('🟢 Conectado! Tentando sincronizar...', 'info');
+                    forceSync();
+                }
             });
 
             window.addEventListener('offline', function() {
                 isOnline = false;
                 updateSyncStatus('offline');
-                showNotification('🔴 Offline. Funcionando localmente.', 'warning');
+                showNotification('🔴 Offline. Dados serão salvos localmente.', 'warning');
             });
         }
 
@@ -1540,207 +4028,53 @@
                     break;
                 case 'error':
                     syncIcon.textContent = '⚠️';
-                    syncText.textContent = 'Erro';
+                    syncText.textContent = 'Erro de sync';
                     break;
             }
         }
 
-        // Carregamento de dados (simulado)
-        function loadDataFromLocal() {
-            try {
-                const savedUsers = localStorage.getItem('gc_users');
-                
-                if (savedUsers) {
-                    users = JSON.parse(savedUsers);
-                } else {
-                    users = {...defaultUsers};
-                    localStorage.setItem('gc_users', JSON.stringify(users));
-                }
-
-                console.log('📊 Dados carregados:', Object.keys(users).length, 'usuários');
-            } catch (error) {
-                console.error('❌ Erro ao carregar dados:', error);
-                users = {...defaultUsers};
-            }
-        }
-
-        // Funções de gamificação (simuladas)
-        function updateUserProgress() {
-            const userProgress = document.getElementById('userProgress');
-            if (!userProgress || !currentUser) return;
+        function showLoadingMessage(message) {
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.id = 'loadingOverlay';
             
-            const nextLevelXP = currentUser.level * 500;
-            const currentLevelXP = (currentUser.level - 1) * 500;
-            const progressXP = currentUser.xp - currentLevelXP;
-            const neededXP = nextLevelXP - currentLevelXP;
-            const progressPercent = Math.min((progressXP / neededXP) * 100, 100);
-            
-            userProgress.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                    <div style="text-align: center; padding: 20px; background: var(--bg-primary); border-radius: 12px;">
-                        <div style="font-size: 32px; font-weight: bold; color: var(--text-primary);">${currentUser.level}</div>
-                        <div style="font-size: 14px; color: var(--text-secondary);">Nível Atual</div>
-                    </div>
-                    <div style="text-align: center; padding: 20px; background: var(--bg-primary); border-radius: 12px;">
-                        <div style="font-size: 32px; font-weight: bold; color: #667eea;">${currentUser.xp}</div>
-                        <div style="font-size: 14px; color: var(--text-secondary);">XP Total</div>
-                    </div>
-                    <div style="text-align: center; padding: 20px; background: var(--bg-primary); border-radius: 12px;">
-                        <div style="font-size: 32px; font-weight: bold; color: #38a169;">3</div>
-                        <div style="font-size: 14px; color: var(--text-secondary);">Conquistas</div>
-                    </div>
-                    <div style="padding: 20px; background: var(--bg-primary); border-radius: 12px;">
-                        <div style="text-align: center; font-size: 18px; font-weight: bold; color: #ed8936; margin-bottom: 10px;">Próximo Nível</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progressPercent}%; background: var(--primary-gradient);"></div>
-                        </div>
-                        <div style="text-align: center; font-size: 12px; color: var(--text-secondary); margin-top: 5px;">${progressXP}/${neededXP} XP</div>
-                    </div>
+            overlay.innerHTML = `
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <div style="margin-top: 10px; color: var(--text-primary); font-weight: bold;">${message}</div>
                 </div>
             `;
+            
+            document.body.appendChild(overlay);
         }
 
-        function updateMissionsDisplay() {
-            const activeMissions = document.getElementById('activeMissions');
-            if (!activeMissions) return;
-
-            // Missões demo
-            const missionsDemo = [
-                { title: "🎯 Meta Semanal", description: "Realizar 5 matrículas esta semana", progress: 3, target: 5, reward: 150, deadline: "2024-12-20" },
-                { title: "👥 Networking Master", description: "Atender 20 visitas neste mês", progress: 15, target: 20, reward: 200, deadline: "2024-12-31" },
-                { title: "📈 Alta Conversão", description: "Manter conversão acima de 40%", progress: 35, target: 40, reward: 300, deadline: "2024-12-31" }
-            ];
-
-            let html = '';
-            missionsDemo.forEach(mission => {
-                const progressPercent = (mission.progress / mission.target) * 100;
-                const isCompleted = mission.progress >= mission.target;
-                
-                html += `
-                    <div style="border: 2px solid ${isCompleted ? '#38a169' : '#667eea'}; border-radius: 12px; padding: 20px; margin-bottom: 15px;
-                         background: ${isCompleted ? 'linear-gradient(135deg, #f0fff4, #e6fffa)' : 'linear-gradient(135deg, #f7fafc, #edf2f7)'};">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div style="font-weight: bold; font-size: 16px;">${mission.title}</div>
-                            <div style="background: ${isCompleted ? '#38a169' : '#667eea'}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">
-                                +${mission.reward} XP
-                            </div>
-                        </div>
-                        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 15px;">
-                            ${mission.description}
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span style="font-size: 12px; font-weight: 600;">Progresso:</span>
-                                <span style="font-size: 12px; font-weight: 600;">${mission.progress}/${mission.target}</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${Math.min(progressPercent, 100)}%; 
-                                     background: ${isCompleted ? 'var(--success-gradient)' : 'var(--primary-gradient)'};"></div>
-                            </div>
-                        </div>
-                        <div style="font-size: 12px; color: var(--text-secondary);">
-                            📅 Prazo: ${formatDate(mission.deadline)} ${isCompleted ? ' | ✅ Concluída!' : ''}
-                        </div>
-                    </div>
-                `;
-            });
-
-            activeMissions.innerHTML = html;
-        }
-
-        function updateAchievementsDisplay() {
-            const userAchievements = document.getElementById('userAchievements');
-            if (!userAchievements) return;
-            
-            const achievementsDemo = [
-                { icon: '🎯', name: 'Primeira Venda', description: 'Primeira matrícula realizada' },
-                { icon: '📈', name: 'Vendedor Iniciante', description: 'Alcançou 5 matrículas no mês' },
-                { icon: '👥', name: 'Networking Pro', description: 'Atendeu 25 visitas' }
-            ];
-
-            let html = '';
-            achievementsDemo.forEach(achievement => {
-                html += `
-                    <div style="display: inline-block; background: linear-gradient(135deg, #ffd700, #ffed4e); 
-                         color: var(--text-primary); padding: 8px 16px; border-radius: 25px; 
-                         font-size: 14px; font-weight: 600; margin: 4px; cursor: pointer;
-                         transition: var(--transition); box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);"
-                         title="${achievement.description}">
-                        ${achievement.icon} ${achievement.name}
-                    </div>
-                `;
-            });
-            
-            if (achievementsDemo.length === 0) {
-                html = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">Complete missões para desbloquear conquistas!</p>';
-            }
-            
-            userAchievements.innerHTML = html;
-        }
-
-        function updateUserSelects() {
-            const visitAttendantSelect = document.getElementById('visitAttendant');
-            
-            if (visitAttendantSelect) {
-                visitAttendantSelect.innerHTML = '<option value="">Selecione...</option>';
-                
-                Object.entries(users).forEach(([username, user]) => {
-                    if (user.role !== 'admin') {
-                        visitAttendantSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.role})</option>`;
-                    }
-                });
-
-                if (currentUser.role !== 'admin') {
-                    visitAttendantSelect.value = currentUser.name;
-                    visitAttendantSelect.disabled = true;
-                }
+        function hideLoadingMessage() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.remove();
             }
         }
 
-        function updateVisitSelects() {
-            updateUserSelects();
-        }
-
-        function setupUnitFilter() {
-            const unitSelectors = document.getElementById('unitSelectors');
-            const units = ['all', 'Shopping Conjunto Nacional', 'JK Shopping'];
-            
-            let html = '';
-            units.forEach(unit => {
-                const label = unit === 'all' ? 'Todas as Unidades' : unit;
-                const activeClass = selectedUnit === unit ? 'btn btn-primary' : 'btn';
-                html += `<button class="${activeClass}" onclick="selectUnit('${unit}')" style="margin: 5px;">${label}</button>`;
-            });
-            
-            unitSelectors.innerHTML = html;
-        }
-
-        function selectUnit(unit) {
-            selectedUnit = unit;
-            setupUnitFilter();
-            setupDashboard();
-            updateRanking();
-            showNotification(`Filtro aplicado: ${unit === 'all' ? 'Todas as Unidades' : unit}`, 'info');
-        }
-
-        // CSS adicional para animações
-        const additionalCSS = `
-            @keyframes fadeOut {
-                from { opacity: 1; transform: scale(1); }
-                to { opacity: 0; transform: scale(0.95); }
+        // Backup automático dos dados
+        function autoBackup() {
+            if (currentUser) {
+                saveDataToLocal();
+                console.log('💾 Backup automático realizado:', new Date().toLocaleTimeString());
             }
-            
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        
-        const styleSheet = document.createElement("style");
-        styleSheet.textContent = additionalCSS;
-        document.head.appendChild(styleSheet);
+        }
 
-        console.log('🎮 Game Creators Pro inicializado com sucesso!');
+        // Executar backup a cada 5 minutos
+        setInterval(autoBackup, 5 * 60 * 1000);
+
+        // Salvar ao fechar/recarregar a página
+        window.addEventListener('beforeunload', function() {
+            if (currentUser) {
+                saveDataToLocal();
+            }
+        });
+
+        console.log('🎮 Sistema Game Creators Pro carregado com sucesso!');
+        console.log('💡 Sistema completo com todas as funcionalidades implementadas!');
     </script>
 </body>
 </html>
