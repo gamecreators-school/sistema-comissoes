@@ -297,6 +297,11 @@
             color: white;
         }
 
+        .btn-info {
+            background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+            color: white;
+        }
+
         .team-overview {
             background: linear-gradient(135deg, #e6fffa, #f0fff4);
             border: 2px solid #38a169;
@@ -871,6 +876,40 @@
             <div style="padding: 20px;">
                 <h2>👨‍💼 Painel Administrativo</h2>
                 
+                <!-- Configuração de Metas -->
+                <div class="stat-card" style="max-width: 800px; margin: 20px 0;">
+                    <h3>🎯 Configuração de Metas Mensais</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div>
+                            <h4>Shopping Conjunto Nacional</h4>
+                            <div class="form-group">
+                                <label>Meta de Matrículas/Mês:</label>
+                                <input type="number" id="metaMatriculasNacional" min="1" placeholder="Ex: 50" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Meta de Faturamento/Mês (R$):</label>
+                                <input type="number" id="metaFaturamentoNacional" min="0" step="0.01" placeholder="Ex: 50000" value="">
+                            </div>
+                        </div>
+                        <div>
+                            <h4>JK Shopping</h4>
+                            <div class="form-group">
+                                <label>Meta de Matrículas/Mês:</label>
+                                <input type="number" id="metaMatriculasJK" min="1" placeholder="Ex: 40" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Meta de Faturamento/Mês (R$):</label>
+                                <input type="number" id="metaFaturamentoJK" min="0" step="0.01" placeholder="Ex: 40000" value="">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-success" onclick="salvarMetas()">💾 Salvar Metas</button>
+                        <button class="btn btn-primary" onclick="carregarMetas()">🔄 Recarregar Metas</button>
+                    </div>
+                    <div id="metasStatus" style="margin-top: 10px;"></div>
+                </div>
+
                 <!-- Adicionar Usuário -->
                 <div class="stat-card" style="max-width: 500px; margin: 20px 0;">
                     <h3>➕ Adicionar Novo Usuário</h3>
@@ -1061,6 +1100,7 @@
                         <button class="btn btn-primary" onclick="gerarRelatorioComissoes()">💰 Relatório Comissões</button>
                         <button class="btn btn-success" onclick="gerarRelatorioConversao()">📈 Relatório Conversão</button>
                         <button class="btn btn-warning" onclick="gerarRelatorioUnidade()">🏢 Relatório por Unidade</button>
+                        <button class="btn btn-info" onclick="gerarRelatorioMetas()">🎯 Relatório Metas vs Realizado</button>
                     </div>
                 </div>
 
@@ -1095,6 +1135,7 @@
         let userStats = {};
         let missions = [];
         let achievements = [];
+        let metas = {};
         let isOnline = navigator.onLine;
 
         // Usuários padrão
@@ -1172,7 +1213,7 @@ function doPost(e) {
     
     if (action === 'test') {
       return ContentService
-        .createTextOutput(JSON.stringify({success: true, message: 'Conexão OK!'}))
+        .createTextOutput(JSON.stringify({success: true, message: 'Conexão OK! Sistema Game Creators funcionando!'}))
         .setMimeType(ContentService.MimeType.JSON);
     }
     
@@ -1182,9 +1223,10 @@ function doPost(e) {
       saveMatriculas(spreadsheet, data.matriculas);
       saveVisitas(spreadsheet, data.visitas);
       saveMissions(spreadsheet, data.missions);
+      saveMetas(spreadsheet, data.metas);
       
       return ContentService
-        .createTextOutput(JSON.stringify({success: true, message: 'Dados salvos!'}))
+        .createTextOutput(JSON.stringify({success: true, message: 'Dados salvos com sucesso!'}))
         .setMimeType(ContentService.MimeType.JSON);
     }
     
@@ -1193,7 +1235,8 @@ function doPost(e) {
         users: loadUsers(spreadsheet),
         matriculas: loadMatriculas(spreadsheet),
         visitas: loadVisitas(spreadsheet),
-        missions: loadMissions(spreadsheet)
+        missions: loadMissions(spreadsheet),
+        metas: loadMetas(spreadsheet)
       };
       
       return ContentService
@@ -1234,13 +1277,13 @@ function saveMatriculas(spreadsheet, matriculas) {
   }
   
   sheet.clear();
-  const headers = ['ID', 'Data', 'Nome', 'Telefone', 'Curso', 'ValorTotal', 'ValorEntrada', 'Tipo', 'Parcelas', 'Vendedor', 'Gerente', 'Assistente', 'Unidade'];
+  const headers = ['ID', 'Data', 'Nome', 'Telefone', 'Curso', 'ValorTotal', 'ValorEntrada', 'Tipo', 'Parcelas', 'Vendedor', 'Gerente', 'Assistente', 'Unidade', 'StatusPagamento', 'Cancelado'];
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   
   if (matriculas.length > 0) {
     const data = matriculas.map(m => [
       m.id, m.data, m.nome, m.telefone, m.curso, m.valorTotal, m.valorEntrada,
-      m.tipo, m.parcelas, m.vendedor, m.gerente, m.assistente, m.unidade
+      m.tipo, m.parcelas, m.vendedor, m.gerente, m.assistente, m.unidade, m.statusPagamento, m.cancelado
     ]);
     sheet.getRange(2, 1, data.length, headers.length).setValues(data);
   }
@@ -1253,12 +1296,12 @@ function saveVisitas(spreadsheet, visitas) {
   }
   
   sheet.clear();
-  const headers = ['ID', 'Data', 'Nome', 'Telefone', 'CursoInteresse', 'Atendente', 'Unidade', 'Observacoes', 'Convertido'];
+  const headers = ['ID', 'Data', 'Nome', 'Telefone', 'CursoInteresse', 'Atendente', 'Unidade', 'Observacoes', 'Convertido', 'MatriculaID', 'DataConversao'];
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   
   if (visitas.length > 0) {
     const data = visitas.map(v => [
-      v.id, v.data, v.nome, v.telefone, v.cursoInteresse, v.atendente, v.unidade, v.observacoes, v.convertido
+      v.id, v.data, v.nome, v.telefone, v.cursoInteresse, v.atendente, v.unidade, v.observacoes, v.convertido, v.matriculaId, v.dataConversao
     ]);
     sheet.getRange(2, 1, data.length, headers.length).setValues(data);
   }
@@ -1271,14 +1314,38 @@ function saveMissions(spreadsheet, missions) {
   }
   
   sheet.clear();
-  const headers = ['ID', 'Title', 'Description', 'Type', 'Target', 'Reward', 'Deadline', 'CreatedBy', 'AssignedTo'];
+  const headers = ['ID', 'Title', 'Description', 'Type', 'Target', 'Reward', 'Deadline', 'CreatedBy', 'AssignedTo', 'Completed', 'Unit'];
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   
   if (missions && missions.length > 0) {
     const data = missions.map(m => [
-      m.id, m.title, m.description, m.type, m.target, m.reward, m.deadline, m.createdBy, m.assignedTo
+      m.id, m.title, m.description, m.type, m.target, m.reward, m.deadline, m.createdBy, m.assignedTo, m.completed, m.unit
     ]);
     sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+  }
+}
+
+function saveMetas(spreadsheet, metas) {
+  let sheet = spreadsheet.getSheetByName('Metas');
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet('Metas');
+  }
+  
+  sheet.clear();
+  const headers = ['Mes', 'Unidade', 'MetaMatriculas', 'MetaFaturamento'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  if (metas && Object.keys(metas).length > 0) {
+    const data = [];
+    Object.entries(metas).forEach(([mes, unidades]) => {
+      Object.entries(unidades).forEach(([unidade, meta]) => {
+        data.push([mes, unidade, meta.matriculas, meta.faturamento]);
+      });
+    });
+    
+    if (data.length > 0) {
+      sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+    }
   }
 }
 
@@ -1291,7 +1358,9 @@ function loadUsers(spreadsheet) {
   
   for (let i = 1; i < data.length; i++) {
     const [username, name, password, role, unit, level, xp] = data[i];
-    users[username] = { username, name, password, role, unit, level: level || 1, xp: xp || 0 };
+    if (username) {
+      users[username] = { username, name, password, role, unit, level: level || 1, xp: xp || 0 };
+    }
   }
   
   return users;
@@ -1305,10 +1374,12 @@ function loadMatriculas(spreadsheet) {
   const matriculas = [];
   
   for (let i = 1; i < data.length; i++) {
-    const [id, data_mat, nome, telefone, curso, valorTotal, valorEntrada, tipo, parcelas, vendedor, gerente, assistente, unidade] = data[i];
-    matriculas.push({
-      id, data: data_mat, nome, telefone, curso, valorTotal, valorEntrada, tipo, parcelas, vendedor, gerente, assistente, unidade
-    });
+    const [id, data_mat, nome, telefone, curso, valorTotal, valorEntrada, tipo, parcelas, vendedor, gerente, assistente, unidade, statusPagamento, cancelado] = data[i];
+    if (id) {
+      matriculas.push({
+        id, data: data_mat, nome, telefone, curso, valorTotal, valorEntrada, tipo, parcelas, vendedor, gerente, assistente, unidade, statusPagamento, cancelado
+      });
+    }
   }
   
   return matriculas;
@@ -1322,10 +1393,12 @@ function loadVisitas(spreadsheet) {
   const visitas = [];
   
   for (let i = 1; i < data.length; i++) {
-    const [id, data_vis, nome, telefone, cursoInteresse, atendente, unidade, observacoes, convertido] = data[i];
-    visitas.push({
-      id, data: data_vis, nome, telefone, cursoInteresse, atendente, unidade, observacoes, convertido
-    });
+    const [id, data_vis, nome, telefone, cursoInteresse, atendente, unidade, observacoes, convertido, matriculaId, dataConversao] = data[i];
+    if (id) {
+      visitas.push({
+        id, data: data_vis, nome, telefone, cursoInteresse, atendente, unidade, observacoes, convertido, matriculaId, dataConversao
+      });
+    }
   }
   
   return visitas;
@@ -1339,13 +1412,38 @@ function loadMissions(spreadsheet) {
   const missions = [];
   
   for (let i = 1; i < data.length; i++) {
-    const [id, title, description, type, target, reward, deadline, createdBy, assignedTo] = data[i];
-    missions.push({
-      id, title, description, type, target, reward, deadline, createdBy, assignedTo
-    });
+    const [id, title, description, type, target, reward, deadline, createdBy, assignedTo, completed, unit] = data[i];
+    if (id) {
+      missions.push({
+        id, title, description, type, target, reward, deadline, createdBy, assignedTo, completed, unit
+      });
+    }
   }
   
   return missions;
+}
+
+function loadMetas(spreadsheet) {
+  const sheet = spreadsheet.getSheetByName('Metas');
+  if (!sheet) return {};
+  
+  const data = sheet.getDataRange().getValues();
+  const metas = {};
+  
+  for (let i = 1; i < data.length; i++) {
+    const [mes, unidade, metaMatriculas, metaFaturamento] = data[i];
+    if (mes && unidade) {
+      if (!metas[mes]) {
+        metas[mes] = {};
+      }
+      metas[mes][unidade] = {
+        matriculas: metaMatriculas || 0,
+        faturamento: metaFaturamento || 0
+      };
+    }
+  }
+  
+  return metas;
 }
 `;
 
@@ -1363,7 +1461,29 @@ function loadMissions(spreadsheet) {
                 document.getElementById('googleScriptUrl').value = savedUrl;
                 GOOGLE_APPS_SCRIPT_URL = savedUrl;
             }
+
+            // Gerar metas padrão se não existirem
+            generateDefaultMetas();
         });
+
+        function generateDefaultMetas() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            
+            if (!metas[currentMonth]) {
+                metas[currentMonth] = {
+                    'Shopping Conjunto Nacional': {
+                        matriculas: 50,
+                        faturamento: 50000
+                    },
+                    'JK Shopping': {
+                        matriculas: 40,
+                        faturamento: 40000
+                    }
+                };
+                saveDataToLocal();
+                console.log('Metas padrão geradas para', currentMonth);
+            }
+        }
 
         // Google Sheets - Configuração Real
         function saveGoogleSheetsConfig() {
@@ -1422,6 +1542,7 @@ function loadMissions(spreadsheet) {
                 matriculas: matriculas,
                 visitas: visitas,
                 missions: missions,
+                metas: metas,
                 timestamp: new Date().toISOString()
             };
 
@@ -1458,6 +1579,7 @@ function loadMissions(spreadsheet) {
                         matriculas = result.data.matriculas || [];
                         visitas = result.data.visitas || [];
                         missions = result.data.missions || [];
+                        metas = result.data.metas || {};
 
                         // Se não houver usuários, criar os padrão
                         if (Object.keys(users).length === 0) {
@@ -1852,6 +1974,7 @@ function loadMissions(spreadsheet) {
                 const savedVisitas = localStorage.getItem('visitas');
                 const savedUserStats = localStorage.getItem('userStats');
                 const savedMissions = localStorage.getItem('missions');
+                const savedMetas = localStorage.getItem('metas');
 
                 if (savedUsers) {
                     users = JSON.parse(savedUsers);
@@ -1883,6 +2006,12 @@ function loadMissions(spreadsheet) {
                     missions = [];
                 }
 
+                if (savedMetas) {
+                    metas = JSON.parse(savedMetas);
+                } else {
+                    metas = {};
+                }
+
                 // Garantir que todos os usuários tenham stats
                 Object.keys(users).forEach(username => {
                     if (!userStats[username]) {
@@ -1905,6 +2034,7 @@ function loadMissions(spreadsheet) {
                 visitas = generateSampleVisits();
                 userStats = {};
                 missions = [];
+                metas = {};
             }
         }
 
@@ -1915,6 +2045,7 @@ function loadMissions(spreadsheet) {
                 localStorage.setItem('visitas', JSON.stringify(visitas));
                 localStorage.setItem('userStats', JSON.stringify(userStats));
                 localStorage.setItem('missions', JSON.stringify(missions));
+                localStorage.setItem('metas', JSON.stringify(metas));
                 localStorage.setItem('lastLocalSave', new Date().toISOString());
                 console.log('Dados salvos localmente');
             } catch (error) {
@@ -2069,6 +2200,8 @@ function loadMissions(spreadsheet) {
             if (currentUser.role === 'admin') {
                 document.getElementById('unitFilter').classList.remove('hidden');
                 setupUnitFilter();
+                // Carregar metas automaticamente
+                setTimeout(carregarMetas, 1000);
             }
 
             setupNavigation();
@@ -2195,6 +2328,11 @@ function loadMissions(spreadsheet) {
             
             const conversionRate = monthVisits.length > 0 ? (monthData.length / monthVisits.length * 100).toFixed(1) : 0;
             const totalUnitCommission = calculateManagerUnitCommission();
+            const unitRevenue = calculateTotalRevenue(monthData);
+
+            // Buscar meta da unidade
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            const metaUnidade = metas[currentMonth]?.[currentUser.unit] || {};
 
             let html = `
                 <div class="stat-card">
@@ -2230,12 +2368,57 @@ function loadMissions(spreadsheet) {
                         <span class="stat-icon">💰</span>
                     </div>
                     <div class="stat-value">${formatCurrency(totalUnitCommission)}</div>
-                    <div class="stat-label">Comissão Total</div>
+                    <div class="stat-label">Minha Comissão</div>
                     <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                        Comissão por todas as vendas da unidade
+                        Baseada nas vendas da unidade
                     </div>
                 </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">💵</span>
+                    </div>
+                    <div class="stat-value">${formatCurrency(unitRevenue)}</div>
+                    <div class="stat-label">Faturamento da Unidade</div>
+                </div>
             `;
+
+            // Adicionar cards de metas se existirem
+            if (metaUnidade.matriculas) {
+                const progressMatriculas = (monthData.length / metaUnidade.matriculas * 100);
+                html += `
+                    <div class="stat-card" style="border-left-color: #667eea;">
+                        <div class="stat-header">
+                            <span class="stat-icon">🎯</span>
+                            <span style="font-size: 12px; color: #666;">Meta do Mês</span>
+                        </div>
+                        <div class="stat-value">${monthData.length}/${metaUnidade.matriculas}</div>
+                        <div class="stat-label">Matrículas</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(progressMatriculas, 100)}%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+                        </div>
+                        <div class="progress-text">${progressMatriculas.toFixed(1)}% da meta</div>
+                    </div>
+                `;
+            }
+
+            if (metaUnidade.faturamento) {
+                const progressFaturamento = (unitRevenue / metaUnidade.faturamento * 100);
+                html += `
+                    <div class="stat-card" style="border-left-color: #38a169;">
+                        <div class="stat-header">
+                            <span class="stat-icon">💰</span>
+                            <span style="font-size: 12px; color: #666;">Meta do Mês</span>
+                        </div>
+                        <div class="stat-value">${formatCurrency(unitRevenue)}</div>
+                        <div class="stat-label">Meta: ${formatCurrency(metaUnidade.faturamento)}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(progressFaturamento, 100)}%; background: linear-gradient(90deg, #38a169, #68d391);"></div>
+                        </div>
+                        <div class="progress-text">${progressFaturamento.toFixed(1)}% da meta</div>
+                    </div>
+                `;
+            }
 
             return html;
         }
@@ -2249,6 +2432,17 @@ function loadMissions(spreadsheet) {
             const conversionRate = monthVisits.length > 0 ? (monthData.length / monthVisits.length * 100).toFixed(1) : 0;
             const totalRevenue = calculateTotalRevenue(monthData);
             const totalCollaborators = Object.values(users).filter(u => u.role !== 'admin').length;
+
+            // Dados por unidade para comparar com metas
+            const nacionalData = getCurrentMonthData(getUnitData('Shopping Conjunto Nacional'));
+            const jkData = getCurrentMonthData(getUnitData('JK Shopping'));
+            const nacionalRevenue = calculateTotalRevenue(nacionalData);
+            const jkRevenue = calculateTotalRevenue(jkData);
+
+            // Buscar metas
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            const metaNacional = metas[currentMonth]?.['Shopping Conjunto Nacional'] || {};
+            const metaJK = metas[currentMonth]?.['JK Shopping'] || {};
 
             let html = `
                 <div class="stat-card">
@@ -2300,6 +2494,73 @@ function loadMissions(spreadsheet) {
                     <div class="stat-label">Colaboradores</div>
                 </div>
             `;
+
+            // Adicionar cards de metas se existirem
+            if (metaNacional.matriculas || metaNacional.faturamento) {
+                const progressMatriculasNacional = metaNacional.matriculas ? (nacionalData.length / metaNacional.matriculas * 100) : 0;
+                const progressFaturamentoNacional = metaNacional.faturamento ? (nacionalRevenue / metaNacional.faturamento * 100) : 0;
+
+                html += `
+                    <div class="stat-card" style="border-left-color: #667eea;">
+                        <div class="stat-header">
+                            <span class="stat-icon">🎯</span>
+                            <span style="font-size: 12px; color: #666;">Conjunto Nacional</span>
+                        </div>
+                        <div class="stat-value">${nacionalData.length}/${metaNacional.matriculas || 0}</div>
+                        <div class="stat-label">Meta Matrículas</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(progressMatriculasNacional, 100)}%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+                        </div>
+                        <div class="progress-text">${progressMatriculasNacional.toFixed(1)}% da meta</div>
+                    </div>
+
+                    <div class="stat-card" style="border-left-color: #ed8936;">
+                        <div class="stat-header">
+                            <span class="stat-icon">💰</span>
+                            <span style="font-size: 12px; color: #666;">Conjunto Nacional</span>
+                        </div>
+                        <div class="stat-value">${formatCurrency(nacionalRevenue)}</div>
+                        <div class="stat-label">Meta: ${formatCurrency(metaNacional.faturamento || 0)}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(progressFaturamentoNacional, 100)}%; background: linear-gradient(90deg, #ed8936, #ff9500);"></div>
+                        </div>
+                        <div class="progress-text">${progressFaturamentoNacional.toFixed(1)}% da meta</div>
+                    </div>
+                `;
+            }
+
+            if (metaJK.matriculas || metaJK.faturamento) {
+                const progressMatriculasJK = metaJK.matriculas ? (jkData.length / metaJK.matriculas * 100) : 0;
+                const progressFaturamentoJK = metaJK.faturamento ? (jkRevenue / metaJK.faturamento * 100) : 0;
+
+                html += `
+                    <div class="stat-card" style="border-left-color: #38a169;">
+                        <div class="stat-header">
+                            <span class="stat-icon">🎯</span>
+                            <span style="font-size: 12px; color: #666;">JK Shopping</span>
+                        </div>
+                        <div class="stat-value">${jkData.length}/${metaJK.matriculas || 0}</div>
+                        <div class="stat-label">Meta Matrículas</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(progressMatriculasJK, 100)}%; background: linear-gradient(90deg, #38a169, #68d391);"></div>
+                        </div>
+                        <div class="progress-text">${progressMatriculasJK.toFixed(1)}% da meta</div>
+                    </div>
+
+                    <div class="stat-card" style="border-left-color: #e53e3e;">
+                        <div class="stat-header">
+                            <span class="stat-icon">💰</span>
+                            <span style="font-size: 12px; color: #666;">JK Shopping</span>
+                        </div>
+                        <div class="stat-value">${formatCurrency(jkRevenue)}</div>
+                        <div class="stat-label">Meta: ${formatCurrency(metaJK.faturamento || 0)}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(progressFaturamentoJK, 100)}%; background: linear-gradient(90deg, #e53e3e, #c53030);"></div>
+                        </div>
+                        <div class="progress-text">${progressFaturamentoJK.toFixed(1)}% da meta</div>
+                    </div>
+                `;
+            }
 
             return html;
         }
@@ -2529,7 +2790,6 @@ function loadMissions(spreadsheet) {
             updateVisitSelects();
             updateMissionProgress();
             checkAchievements();
-            
             showMessage('Visita registrada com sucesso!', 'success');
             clearVisitForm();
         }
@@ -2704,26 +2964,21 @@ function loadMissions(spreadsheet) {
             const missionTargetSelect = document.getElementById('missionTarget_user');
             const specificUserSelect = document.getElementById('missionSpecificUser');
             
-            if (missionTargetSelect) {
-                missionTargetSelect.addEventListener('change', function() {
-                    if (this.value === 'specific') {
-                        document.getElementById('specificUserGroup').style.display = 'block';
-                        updateSpecificUserSelect();
-                    } else {
-                        document.getElementById('specificUserGroup').style.display = 'none';
-                    }
-                });
-            }
-            
-            function updateSpecificUserSelect() {
-                specificUserSelect.innerHTML = '<option value="">Selecione...</option>';
-                Object.entries(users).forEach(([username, user]) => {
-                    if (user.role !== 'admin') {
-                        if (currentUser.role === 'gerente' && user.unit !== currentUser.unit) return;
-                        specificUserSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.role})</option>`;
-                    }
-                });
-            }
+            missionTargetSelect.addEventListener('change', function() {
+                if (this.value === 'specific') {
+                    document.getElementById('specificUserGroup').style.display = 'block';
+                    specificUserSelect.innerHTML = '<option value="">Selecione...</option>';
+                    
+                    Object.entries(users).forEach(([username, user]) => {
+                        if (user.role !== 'admin') {
+                            if (currentUser.role === 'gerente' && user.unit !== currentUser.unit) return;
+                            specificUserSelect.innerHTML += `<option value="${user.name}">${user.name} (${user.role})</option>`;
+                        }
+                    });
+                } else {
+                    document.getElementById('specificUserGroup').style.display = 'none';
+                }
+            });
         }
 
         // Adicionar Usuário
@@ -2891,7 +3146,6 @@ function loadMissions(spreadsheet) {
             setupDashboard();
             updateMissionProgress();
             checkAchievements();
-            
             showMessage('Matrícula adicionada com sucesso!', 'success');
             clearMatriculaForm();
         }
@@ -2917,19 +3171,12 @@ function loadMissions(spreadsheet) {
         function giveXP(userName, amount) {
             const user = Object.values(users).find(u => u.name === userName);
             if (user) {
-                const oldLevel = user.level;
                 user.xp += amount;
                 const newLevel = Math.floor(user.xp / 500) + 1;
-                
-                if (newLevel > oldLevel) {
+                if (newLevel > user.level) {
+                    const oldLevel = user.level;
                     user.level = newLevel;
-                    
-                    // Se é o usuário atual, mostrar level up
-                    if (user.username === currentUser.username) {
-                        showMessage(`🎉 Level Up! Você agora é nível ${newLevel}!`, 'success');
-                        currentUser = user; // Atualizar referência
-                        setupUserInterface(); // Atualizar interface
-                    }
+                    showMessage(`🎉 ${userName} subiu para o nível ${newLevel}!`, 'success');
                 }
             }
         }
@@ -2958,7 +3205,7 @@ function loadMissions(spreadsheet) {
                         <td style="padding: 15px; text-align: center;">${user.matriculas}</td>
                         <td style="padding: 15px; text-align: center; color: #ed8936; font-weight: bold;">${user.conversao}%</td>
                         <td style="padding: 15px; text-align: right;">${formatCurrency(user.earnings)}</td>
-                        <td style="padding: 15px; text-align: center;"><span class="xp-badge">${user.xp}</span></td>
+                        <td style="padding: 15px; text-align: center;"><span class="xp-badge">${user.xp} XP</span></td>
                     </tr>
                 `;
             });
@@ -3060,7 +3307,7 @@ function loadMissions(spreadsheet) {
                         <div class="member-stats">
                             📊 ${monthMatriculas.length} matrículas<br>
                             👥 ${monthVisits.length} visitas<br>
-                            ⭐ Nível ${member.level}
+                            ⭐ ${member.xp} XP
                         </div>
                     </div>
                 `;
@@ -3093,7 +3340,56 @@ function loadMissions(spreadsheet) {
             teamPerformance.innerHTML = performanceHTML;
         }
 
-        // SISTEMA DE RELATÓRIOS FUNCIONAIS
+        // Sistema de Metas
+        function salvarMetas() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            
+            const metaMatriculasNacional = parseInt(document.getElementById('metaMatriculasNacional').value) || 0;
+            const metaFaturamentoNacional = parseFloat(document.getElementById('metaFaturamentoNacional').value) || 0;
+            const metaMatriculasJK = parseInt(document.getElementById('metaMatriculasJK').value) || 0;
+            const metaFaturamentoJK = parseFloat(document.getElementById('metaFaturamentoJK').value) || 0;
+
+            if (!metas[currentMonth]) {
+                metas[currentMonth] = {};
+            }
+
+            metas[currentMonth]['Shopping Conjunto Nacional'] = {
+                matriculas: metaMatriculasNacional,
+                faturamento: metaFaturamentoNacional
+            };
+
+            metas[currentMonth]['JK Shopping'] = {
+                matriculas: metaMatriculasJK,
+                faturamento: metaFaturamentoJK
+            };
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+
+            // Atualizar dashboard
+            setupDashboard();
+
+            showMessage('🎯 Metas salvas com sucesso!', 'success');
+            document.getElementById('metasStatus').innerHTML = '<div style="color: #38a169; font-weight: bold;">✅ Metas salvas e sincronizadas!</div>';
+        }
+
+        function carregarMetas() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            const metasDoMes = metas[currentMonth] || {};
+
+            const metaNacional = metasDoMes['Shopping Conjunto Nacional'] || {};
+            const metaJK = metasDoMes['JK Shopping'] || {};
+
+            document.getElementById('metaMatriculasNacional').value = metaNacional.matriculas || '';
+            document.getElementById('metaFaturamentoNacional').value = metaNacional.faturamento || '';
+            document.getElementById('metaMatriculasJK').value = metaJK.matriculas || '';
+            document.getElementById('metaFaturamentoJK').value = metaJK.faturamento || '';
+
+            showMessage('🔄 Metas carregadas!', 'info');
+            document.getElementById('metasStatus').innerHTML = '<div style="color: #667eea; font-weight: bold;">📋 Metas do mês carregadas!</div>';
+        }
+
+        // Funções de relatórios FUNCIONAIS
         function gerarRelatorioComissoes() {
             const mes = document.getElementById('relatorioMes').value;
             const unidade = document.getElementById('relatorioUnidade').value;
@@ -3105,142 +3401,232 @@ function loadMissions(spreadsheet) {
             }
 
             showLoadingMessage('Gerando relatório de comissões...');
-
+            
             setTimeout(() => {
                 hideLoadingMessage();
                 
-                const [year, month] = mes.split('-').map(Number);
+                const [year, month] = mes.split('-');
                 const filteredData = matriculas.filter(m => {
-                    const dataM = new Date(m.data);
-                    const isMonth = dataM.getFullYear() === year && dataM.getMonth() === (month - 1);
-                    const isUnit = !unidade || m.unidade === unidade;
-                    const isColaborador = !colaborador || m.vendedor === colaborador || m.gerente === colaborador || m.assistente === colaborador;
-                    
-                    return isMonth && isUnit && isColaborador && !m.cancelado;
+                    const matriculaDate = new Date(m.data);
+                    const mesMatch = matriculaDate.getFullYear() == year && matriculaDate.getMonth() == month - 1;
+                    const unidadeMatch = !unidade || m.unidade === unidade;
+                    const colaboradorMatch = !colaborador || m.vendedor === colaborador || m.gerente === colaborador || m.assistente === colaborador;
+                    return mesMatch && unidadeMatch && colaboradorMatch && !m.cancelado;
                 });
 
-                const relatorioData = {};
+                // Calcular comissões por pessoa
+                const comissoes = {};
                 
                 filteredData.forEach(m => {
-                    [m.vendedor, m.gerente, m.assistente].forEach(nome => {
-                        if (!relatorioData[nome]) {
-                            const user = Object.values(users).find(u => u.name === nome);
-                            relatorioData[nome] = {
+                    [m.vendedor, m.gerente, m.assistente].forEach((nome, index) => {
+                        if (!nome) return;
+                        
+                        const user = Object.values(users).find(u => u.name === nome);
+                        if (!user) return;
+                        
+                        if (!comissoes[nome]) {
+                            comissoes[nome] = {
                                 nome,
-                                role: user?.role || 'N/A',
-                                unit: user?.unit || 'N/A',
+                                role: user.role,
+                                unidade: user.unit,
                                 matriculas: 0,
-                                comissao: 0,
-                                vendas: [],
-                                totalRecebido: 0
+                                comissao: 0
                             };
                         }
-                        relatorioData[nome].matriculas++;
-                        relatorioData[nome].vendas.push(m);
-                        relatorioData[nome].totalRecebido += m.valorEntrada;
+                        
+                        comissoes[nome].matriculas++;
+                        
+                        // Calcular comissão baseada no papel
+                        if (user.role === 'vendedor' && comissoes[nome].matriculas >= 10) {
+                            comissoes[nome].comissao = comissoes[nome].matriculas * getCommissionByBand(comissoes[nome].matriculas, COMISSAO_VENDEDOR);
+                        } else if (user.role === 'assistente' && comissoes[nome].matriculas >= 10) {
+                            comissoes[nome].comissao = comissoes[nome].matriculas * getCommissionByBand(comissoes[nome].matriculas, COMISSAO_ASSISTENTE);
+                        } else if (user.role === 'gerente') {
+                            const unitMatriculas = filteredData.filter(m => m.unidade === user.unit).length;
+                            if (unitMatriculas >= 26) {
+                                comissoes[nome].comissao = unitMatriculas * getCommissionByBand(unitMatriculas, COMISSAO_GERENTE);
+                            }
+                        }
                     });
                 });
 
-                // Calcular comissões
-                Object.values(relatorioData).forEach(pessoa => {
-                    const user = Object.values(users).find(u => u.name === pessoa.nome);
-                    if (!user) return;
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>💰 Relatório de Comissões - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>👤 Nome</th>
+                                    <th>💼 Cargo</th>
+                                    <th>🏢 Unidade</th>
+                                    <th>📊 Matrículas</th>
+                                    <th>💰 Comissão</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
 
-                    if (user.role === 'vendedor') {
-                        const vendMatriculas = pessoa.vendas.filter(v => v.vendedor === pessoa.nome).length;
-                        if (vendMatriculas >= 10) {
-                            pessoa.comissao = vendMatriculas * getCommissionByBand(vendMatriculas, COMISSAO_VENDEDOR);
-                        }
-                    } else if (user.role === 'gerente') {
-                        const unitMatriculas = filteredData.filter(m => m.unidade === user.unit).length;
-                        if (unitMatriculas >= 26) {
-                            pessoa.comissao = unitMatriculas * getCommissionByBand(unitMatriculas, COMISSAO_GERENTE);
-                        }
-                        // Bonus especiais
-                        const bonusBlackin = pessoa.vendas.filter(v => v.tipo === 'Blackin').length * 25;
-                        const bonusBlack = pessoa.vendas.filter(v => v.tipo === 'Black').length * 50;
-                        pessoa.comissao += bonusBlackin + bonusBlack;
-                    } else if (user.role === 'assistente') {
-                        const assistMatriculas = pessoa.vendas.filter(v => v.assistente === pessoa.nome).length;
-                        if (assistMatriculas >= 10) {
-                            pessoa.comissao = assistMatriculas * getCommissionByBand(assistMatriculas, COMISSAO_ASSISTENTE);
-                        }
-                    }
+                Object.values(comissoes).forEach(pessoa => {
+                    html += `
+                        <tr>
+                            <td>${pessoa.nome}</td>
+                            <td><span class="role-badge role-${pessoa.role}">${pessoa.role}</span></td>
+                            <td>${pessoa.unidade}</td>
+                            <td style="text-align: center;">${pessoa.matriculas}</td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(pessoa.comissao)}</td>
+                        </tr>
+                    `;
                 });
 
-                displayRelatorioComissoes(relatorioData, mes, unidade, colaborador);
+                const totalComissoes = Object.values(comissoes).reduce((total, p) => total + p.comissao, 0);
+
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f8fafc; font-weight: bold;">
+                                    <td colspan="4">TOTAL</td>
+                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totalComissoes)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showMessage('✅ Relatório de comissões gerado!', 'success');
             }, 1500);
         }
 
-        function displayRelatorioComissoes(data, mes, unidade, colaborador) {
-            const resultado = document.getElementById('relatorioResultado');
-            const [year, month] = mes.split('-').map(Number);
-            const monthName = new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        function gerarRelatorioMetas() {
+            const mes = document.getElementById('relatorioMes').value;
             
-            let html = `
-                <div class="stat-card" style="margin-top: 20px;">
-                    <h3>💰 Relatório de Comissões - ${monthName}</h3>
-                    <div style="margin-bottom: 15px; font-size: 14px; color: #666;">
-                        <strong>Filtros aplicados:</strong>
-                        Unidade: ${unidade || 'Todas'} | 
-                        Colaborador: ${colaborador || 'Todos'}
-                    </div>
-                    
-                    <table class="report-table">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Cargo</th>
-                                <th>Unidade</th>
-                                <th>Matrículas</th>
-                                <th>Total Arrecadado</th>
-                                <th>Comissão</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
+            if (!mes) {
+                showMessage('Selecione o mês para o relatório!', 'error');
+                return;
+            }
 
-            const sortedData = Object.values(data).sort((a, b) => b.comissao - a.comissao);
-            let totalComissoes = 0;
-            let totalArrecadado = 0;
-
-            sortedData.forEach(pessoa => {
-                totalComissoes += pessoa.comissao;
-                totalArrecadado += pessoa.totalRecebido;
+            showLoadingMessage('Gerando relatório de metas...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
                 
-                const statusComissao = pessoa.comissao > 0 ? 
-                    `<span style="color: #38a169; font-weight: bold;">✅ ${formatCurrency(pessoa.comissao)}</span>` :
-                    `<span style="color: #e53e3e;">❌ Sem comissão</span>`;
+                const [year, month] = mes.split('-');
+                const metasDoMes = metas[mes] || {};
+                
+                const unidades = ['Shopping Conjunto Nacional', 'JK Shopping'];
+                const dadosComparacao = [];
+
+                unidades.forEach(unidade => {
+                    const matriculasUnidade = matriculas.filter(m => {
+                        const matriculaDate = new Date(m.data);
+                        return matriculaDate.getFullYear() == year && 
+                               matriculaDate.getMonth() == month - 1 && 
+                               m.unidade === unidade && 
+                               !m.cancelado;
+                    });
+
+                    const faturamento = matriculasUnidade.reduce((total, m) => total + (m.valorEntrada || 0), 0);
+                    const metaUnidade = metasDoMes[unidade] || {};
+
+                    const progressMatriculas = metaUnidade.matriculas ? (matriculasUnidade.length / metaUnidade.matriculas * 100) : 0;
+                    const progressFaturamento = metaUnidade.faturamento ? (faturamento / metaUnidade.faturamento * 100) : 0;
+
+                    dadosComparacao.push({
+                        unidade,
+                        matriculasReal: matriculasUnidade.length,
+                        matriculasMeta: metaUnidade.matriculas || 0,
+                        progressMatriculas,
+                        faturamentoReal: faturamento,
+                        faturamentoMeta: metaUnidade.faturamento || 0,
+                        progressFaturamento
+                    });
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>🎯 Relatório Metas vs Realizado - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>🏢 Unidade</th>
+                                    <th>📊 Matrículas Realizado</th>
+                                    <th>🎯 Meta Matrículas</th>
+                                    <th>📈 Progress Matrículas</th>
+                                    <th>💰 Faturamento Realizado</th>
+                                    <th>🎯 Meta Faturamento</th>
+                                    <th>📈 Progress Faturamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                dadosComparacao.forEach(unidade => {
+                    const statusMatriculas = unidade.progressMatriculas >= 100 ? '✅' : unidade.progressMatriculas >= 80 ? '⚠️' : '❌';
+                    const statusFaturamento = unidade.progressFaturamento >= 100 ? '✅' : unidade.progressFaturamento >= 80 ? '⚠️' : '❌';
+                    const corMatriculas = unidade.progressMatriculas >= 100 ? '#38a169' : unidade.progressMatriculas >= 80 ? '#ed8936' : '#e53e3e';
+                    const corFaturamento = unidade.progressFaturamento >= 100 ? '#38a169' : unidade.progressFaturamento >= 80 ? '#ed8936' : '#e53e3e';
+
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold;">${unidade.unidade}</td>
+                            <td style="text-align: center; font-weight: bold;">${unidade.matriculasReal}</td>
+                            <td style="text-align: center;">${unidade.matriculasMeta}</td>
+                            <td style="text-align: center;">
+                                <span style="color: ${corMatriculas}; font-weight: bold;">
+                                    ${statusMatriculas} ${unidade.progressMatriculas.toFixed(1)}%
+                                </span>
+                            </td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(unidade.faturamentoReal)}</td>
+                            <td style="text-align: right;">${formatCurrency(unidade.faturamentoMeta)}</td>
+                            <td style="text-align: center;">
+                                <span style="color: ${corFaturamento}; font-weight: bold;">
+                                    ${statusFaturamento} ${unidade.progressFaturamento.toFixed(1)}%
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                const totalMatriculasReal = dadosComparacao.reduce((total, u) => total + u.matriculasReal, 0);
+                const totalMatriculasMeta = dadosComparacao.reduce((total, u) => total + u.matriculasMeta, 0);
+                const totalFaturamentoReal = dadosComparacao.reduce((total, u) => total + u.faturamentoReal, 0);
+                const totalFaturamentoMeta = dadosComparacao.reduce((total, u) => total + u.faturamentoMeta, 0);
+                const progressGeralMatriculas = totalMatriculasMeta > 0 ? (totalMatriculasReal / totalMatriculasMeta * 100) : 0;
+                const progressGeralFaturamento = totalFaturamentoMeta > 0 ? (totalFaturamentoReal / totalFaturamentoMeta * 100) : 0;
 
                 html += `
-                    <tr>
-                        <td><strong>${pessoa.nome}</strong></td>
-                        <td><span class="role-badge role-${pessoa.role}">${pessoa.role}</span></td>
-                        <td>${pessoa.unit}</td>
-                        <td style="text-align: center;">${pessoa.matriculas}</td>
-                        <td style="text-align: right;">${formatCurrency(pessoa.totalRecebido)}</td>
-                        <td style="text-align: right;">${formatCurrency(pessoa.comissao)}</td>
-                        <td>${statusComissao}</td>
-                    </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f8fafc; font-weight: bold;">
+                                    <td>TOTAL GERAL</td>
+                                    <td style="text-align: center; color: #38a169;">${totalMatriculasReal}</td>
+                                    <td style="text-align: center;">${totalMatriculasMeta}</td>
+                                    <td style="text-align: center; color: ${progressGeralMatriculas >= 100 ? '#38a169' : '#ed8936'};">
+                                        ${progressGeralMatriculas.toFixed(1)}%
+                                    </td>
+                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totalFaturamentoReal)}</td>
+                                    <td style="text-align: right;">${formatCurrency(totalFaturamentoMeta)}</td>
+                                    <td style="text-align: center; color: ${progressGeralFaturamento >= 100 ? '#38a169' : '#ed8936'};">
+                                        ${progressGeralFaturamento.toFixed(1)}%
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                            <strong>📊 Resumo Executivo:</strong><br>
+                            • Performance Geral Matrículas: <span style="color: ${progressGeralMatriculas >= 100 ? '#38a169' : '#ed8936'}; font-weight: bold;">${progressGeralMatriculas.toFixed(1)}% da meta</span><br>
+                            • Performance Geral Faturamento: <span style="color: ${progressGeralFaturamento >= 100 ? '#38a169' : '#ed8936'}; font-weight: bold;">${progressGeralFaturamento.toFixed(1)}% da meta</span><br>
+                            • Status: ${progressGeralMatriculas >= 100 && progressGeralFaturamento >= 100 ? '🎉 Metas atingidas!' : '💪 Foco nas metas restantes!'}
+                        </div>
+                    </div>
                 `;
-            });
 
-            html += `
-                        </tbody>
-                        <tfoot style="background: #f8fafc; font-weight: bold;">
-                            <tr>
-                                <td colspan="4">TOTAIS</td>
-                                <td style="text-align: right;">${formatCurrency(totalArrecadado)}</td>
-                                <td style="text-align: right; color: #38a169;">${formatCurrency(totalComissoes)}</td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
-
-            resultado.innerHTML = html;
+                relatorioResultado.innerHTML = html;
+                showMessage('✅ Relatório de metas gerado!', 'success');
+            }, 1500);
         }
 
         function gerarRelatorioConversao() {
@@ -3254,144 +3640,97 @@ function loadMissions(spreadsheet) {
             }
 
             showLoadingMessage('Gerando relatório de conversão...');
-
+            
             setTimeout(() => {
                 hideLoadingMessage();
                 
-                const [year, month] = mes.split('-').map(Number);
+                const [year, month] = mes.split('-');
+                
                 const filteredVisitas = visitas.filter(v => {
-                    const dataV = new Date(v.data);
-                    const isMonth = dataV.getFullYear() === year && dataV.getMonth() === (month - 1);
-                    const isUnit = !unidade || v.unidade === unidade;
-                    const isColaborador = !colaborador || v.atendente === colaborador;
-                    
-                    return isMonth && isUnit && isColaborador;
+                    const visitaDate = new Date(v.data);
+                    const mesMatch = visitaDate.getFullYear() == year && visitaDate.getMonth() == month - 1;
+                    const unidadeMatch = !unidade || v.unidade === unidade;
+                    const colaboradorMatch = !colaborador || v.atendente === colaborador;
+                    return mesMatch && unidadeMatch && colaboradorMatch;
                 });
 
                 const filteredMatriculas = matriculas.filter(m => {
-                    const dataM = new Date(m.data);
-                    const isMonth = dataM.getFullYear() === year && dataM.getMonth() === (month - 1);
-                    const isUnit = !unidade || m.unidade === unidade;
-                    const isColaborador = !colaborador || m.vendedor === colaborador || m.gerente === colaborador || m.assistente === colaborador;
-                    
-                    return isMonth && isUnit && isColaborador && !m.cancelado;
+                    const matriculaDate = new Date(m.data);
+                    const mesMatch = matriculaDate.getFullYear() == year && matriculaDate.getMonth() == month - 1;
+                    const unidadeMatch = !unidade || m.unidade === unidade;
+                    const colaboradorMatch = !colaborador || m.vendedor === colaborador || m.gerente === colaborador || m.assistente === colaborador;
+                    return mesMatch && unidadeMatch && colaboradorMatch && !m.cancelado;
                 });
 
-                const relatorioData = {};
+                // Agrupar por atendente
+                const conversaoData = {};
                 
-                // Processar visitas
                 filteredVisitas.forEach(v => {
-                    if (!relatorioData[v.atendente]) {
-                        const user = Object.values(users).find(u => u.name === v.atendente);
-                        relatorioData[v.atendente] = {
+                    if (!conversaoData[v.atendente]) {
+                        conversaoData[v.atendente] = {
                             nome: v.atendente,
-                            role: user?.role || 'N/A',
-                            unit: user?.unit || 'N/A',
+                            unidade: v.unidade,
                             visitas: 0,
-                            convertidas: 0,
-                            pendentes: 0,
-                            conversao: 0
+                            conversoes: 0
                         };
                     }
-                    relatorioData[v.atendente].visitas++;
+                    conversaoData[v.atendente].visitas++;
                     if (v.convertido) {
-                        relatorioData[v.atendente].convertidas++;
-                    } else {
-                        relatorioData[v.atendente].pendentes++;
+                        conversaoData[v.atendente].conversoes++;
                     }
                 });
 
-                // Calcular taxas de conversão
-                Object.values(relatorioData).forEach(pessoa => {
-                    if (pessoa.visitas > 0) {
-                        pessoa.conversao = ((pessoa.convertidas / pessoa.visitas) * 100).toFixed(1);
-                    }
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>📈 Relatório de Conversão - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>👤 Atendente</th>
+                                    <th>🏢 Unidade</th>
+                                    <th>👥 Visitas</th>
+                                    <th>✅ Conversões</th>
+                                    <th>📈 Taxa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                Object.values(conversaoData).forEach(pessoa => {
+                    const taxa = pessoa.visitas > 0 ? (pessoa.conversoes / pessoa.visitas * 100).toFixed(1) : 0;
+                    html += `
+                        <tr>
+                            <td>${pessoa.nome}</td>
+                            <td>${pessoa.unidade}</td>
+                            <td style="text-align: center;">${pessoa.visitas}</td>
+                            <td style="text-align: center;">${pessoa.conversoes}</td>
+                            <td style="text-align: center; font-weight: bold; color: ${taxa >= 50 ? '#38a169' : '#e53e3e'};">${taxa}%</td>
+                        </tr>
+                    `;
                 });
 
-                displayRelatorioConversao(relatorioData, mes, unidade, colaborador, filteredVisitas.length, filteredMatriculas.length);
-            }, 1500);
-        }
-
-        function displayRelatorioConversao(data, mes, unidade, colaborador, totalVisitas, totalMatriculas) {
-            const resultado = document.getElementById('relatorioResultado');
-            const [year, month] = mes.split('-').map(Number);
-            const monthName = new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-            
-            const conversaoGeral = totalVisitas > 0 ? ((totalMatriculas / totalVisitas) * 100).toFixed(1) : 0;
-            
-            let html = `
-                <div class="stat-card" style="margin-top: 20px;">
-                    <h3>📈 Relatório de Conversão - ${monthName}</h3>
-                    <div style="margin-bottom: 15px; font-size: 14px; color: #666;">
-                        <strong>Filtros aplicados:</strong>
-                        Unidade: ${unidade || 'Todas'} | 
-                        Colaborador: ${colaborador || 'Todos'}
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: bold; color: #2d3748;">${totalVisitas}</div>
-                            <div style="font-size: 12px; color: #666;">Total de Visitas</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: bold; color: #38a169;">${totalMatriculas}</div>
-                            <div style="font-size: 12px; color: #666;">Total Convertidas</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: bold; color: #ed8936;">${conversaoGeral}%</div>
-                            <div style="font-size: 12px; color: #666;">Conversão Geral</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: bold; color: #667eea;">${totalVisitas - totalMatriculas}</div>
-                            <div style="font-size: 12px; color: #666;">Visitas Pendentes</div>
-                        </div>
-                    </div>
-                    
-                    <table class="report-table">
-                        <thead>
-                            <tr>
-                                <th>Atendente</th>
-                                <th>Cargo</th>
-                                <th>Unidade</th>
-                                <th>Visitas</th>
-                                <th>Convertidas</th>
-                                <th>Pendentes</th>
-                                <th>Taxa de Conversão</th>
-                                <th>Performance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            const sortedData = Object.values(data).sort((a, b) => parseFloat(b.conversao) - parseFloat(a.conversao));
-
-            sortedData.forEach(pessoa => {
-                const performanceColor = parseFloat(pessoa.conversao) >= 70 ? '#38a169' : 
-                                       parseFloat(pessoa.conversao) >= 50 ? '#ed8936' : '#e53e3e';
-                const performanceIcon = parseFloat(pessoa.conversao) >= 70 ? '🔥' : 
-                                      parseFloat(pessoa.conversao) >= 50 ? '👍' : '📉';
+                const totalVisitas = Object.values(conversaoData).reduce((total, p) => total + p.visitas, 0);
+                const totalConversoes = Object.values(conversaoData).reduce((total, p) => total + p.conversoes, 0);
+                const taxaGeral = totalVisitas > 0 ? (totalConversoes / totalVisitas * 100).toFixed(1) : 0;
 
                 html += `
-                    <tr>
-                        <td><strong>${pessoa.nome}</strong></td>
-                        <td><span class="role-badge role-${pessoa.role}">${pessoa.role}</span></td>
-                        <td>${pessoa.unit}</td>
-                        <td style="text-align: center;">${pessoa.visitas}</td>
-                        <td style="text-align: center; color: #38a169; font-weight: bold;">${pessoa.convertidas}</td>
-                        <td style="text-align: center; color: #ed8936;">${pessoa.pendentes}</td>
-                        <td style="text-align: center; font-weight: bold; color: ${performanceColor};">${pessoa.conversao}%</td>
-                        <td style="text-align: center;">${performanceIcon}</td>
-                    </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f8fafc; font-weight: bold;">
+                                    <td colspan="2">TOTAL GERAL</td>
+                                    <td style="text-align: center;">${totalVisitas}</td>
+                                    <td style="text-align: center;">${totalConversoes}</td>
+                                    <td style="text-align: center; color: #38a169;">${taxaGeral}%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 `;
-            });
 
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            resultado.innerHTML = html;
+                relatorioResultado.innerHTML = html;
+                showMessage('✅ Relatório de conversão gerado!', 'success');
+            }, 1500);
         }
 
         function gerarRelatorioUnidade() {
@@ -3403,21 +3742,270 @@ function loadMissions(spreadsheet) {
             }
 
             showLoadingMessage('Gerando relatório por unidade...');
-
+            
             setTimeout(() => {
                 hideLoadingMessage();
                 
-                const [year, month] = mes.split('-').map(Number);
+                const [year, month] = mes.split('-');
+                
                 const unidades = ['Shopping Conjunto Nacional', 'JK Shopping'];
-                const relatorioData = {};
+                const dadosUnidades = [];
 
                 unidades.forEach(unidade => {
-                    const unitMatriculas = matriculas.filter(m => {
-                        const dataM = new Date(m.data);
-                        return dataM.getFullYear() === year && 
-                               dataM.getMonth() === (month - 1) && 
+                    const matriculasUnidade = matriculas.filter(m => {
+                        const matriculaDate = new Date(m.data);
+                        return matriculaDate.getFullYear() == year && 
+                               matriculaDate.getMonth() == month - 1 && 
                                m.unidade === unidade && 
                                !m.cancelado;
+                    });
+
+                    const visitasUnidade = visitas.filter(v => {
+                        const visitaDate = new Date(v.data);
+                        return visitaDate.getFullYear() == year && 
+                               visitaDate.getMonth() == month - 1 && 
+                               v.unidade === unidade;
+                    });
+
+                    const faturamento = matriculasUnidade.reduce((total, m) => total + (m.valorEntrada || 0), 0);
+                    const conversoes = visitasUnidade.filter(v => v.convertido).length;
+                    const taxaConversao = visitasUnidade.length > 0 ? (conversoes / visitasUnidade.length * 100).toFixed(1) : 0;
+
+                    dadosUnidades.push({
+                        unidade,
+                        matriculas: matriculasUnidade.length,
+                        visitas: visitasUnidade.length,
+                        conversoes,
+                        taxaConversao,
+                        faturamento
+                    });
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <h3>🏢 Relatório por Unidade - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>🏢 Unidade</th>
+                                    <th>📊 Matrículas</th>
+                                    <th>👥 Visitas</th>
+                                    <th>✅ Conversões</th>
+                                    <th>📈 Taxa</th>
+                                    <th>💰 Faturamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                dadosUnidades.forEach(unidade => {
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold;">${unidade.unidade}</td>
+                            <td style="text-align: center;">${unidade.matriculas}</td>
+                            <td style="text-align: center;">${unidade.visitas}</td>
+                            <td style="text-align: center;">${unidade.conversoes}</td>
+                            <td style="text-align: center; font-weight: bold; color: ${unidade.taxaConversao >= 50 ? '#38a169' : '#e53e3e'};">${unidade.taxaConversao}%</td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(unidade.faturamento)}</td>
+                        </tr>
+                    `;
+                });
+
+                const totalMatriculas = dadosUnidades.reduce((total, u) => total + u.matriculas, 0);
+                const totalVisitas = dadosUnidades.reduce((total, u) => total + u.visitas, 0);
+                const totalConversoes = dadosUnidades.reduce((total, u) => total + u.conversoes, 0);
+                const totalFaturamento = dadosUnidades.reduce((total, u) => total + u.faturamento, 0);
+                const taxaGeralConversao = totalVisitas > 0 ? (totalConversoes / totalVisitas * 100).toFixed(1) : 0;
+
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f8fafc; font-weight: bold;">
+                                    <td>TOTAL GERAL</td>
+                                    <td style="text-align: center;">${totalMatriculas}</td>
+                                    <td style="text-align: center;">${totalVisitas}</td>
+                                    <td style="text-align: center;">${totalConversoes}</td>
+                                    <td style="text-align: center; color: #38a169;">${taxaGeralConversao}%</td>
+                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totalFaturamento)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showMessage('✅ Relatório por unidade gerado!', 'success');
+            }, 1500);
+        }
+
+        // Funções utilitárias
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function setCurrentDate() {
+            const today = new Date().toISOString().split('T')[0];
+            const visitDateInput = document.getElementById('visitDate');
+            const newDataInput = document.getElementById('newData');
+            const missionDeadlineInput = document.getElementById('missionDeadline');
+            
+            if (visitDateInput) visitDateInput.value = today;
+            if (newDataInput) newDataInput.value = today;
+            if (missionDeadlineInput) {
+                const nextWeek = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                missionDeadlineInput.value = nextWeek.toISOString().split('T')[0];
+            }
+        }
+
+        function setCurrentMonthForReport() {
+            const now = new Date();
+            const monthString = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            const relatorioMesInput = document.getElementById('relatorioMes');
+            
+            if (relatorioMesInput) relatorioMesInput.value = monthString;
+            
+            // Atualizar displays de mês/ano
+            const monthYear = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            const conversionMonthYear = document.getElementById('conversionMonthYear');
+            const teamMonthYear = document.getElementById('teamMonthYear');
+            
+            if (conversionMonthYear) conversionMonthYear.textContent = monthYear;
+            if (teamMonthYear) teamMonthYear.textContent = monthYear;
+        }
+
+        // Sistema de mensagens
+        function showMessage(message, type = 'info', duration = 3000) {
+            // Remove mensagens existentes
+            const existingMessages = document.querySelectorAll('.success-message, .error-message, .warning-message, .info-message');
+            existingMessages.forEach(msg => msg.remove());
+
+            // Cria nova mensagem
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = message;
+            messageDiv.style.position = 'fixed';
+            messageDiv.style.top = '20px';
+            messageDiv.style.right = '20px';
+            messageDiv.style.zIndex = '9999';
+            messageDiv.style.maxWidth = '400px';
+            messageDiv.style.padding = '12px';
+            messageDiv.style.borderRadius = '8px';
+            messageDiv.style.fontWeight = 'bold';
+
+            document.body.appendChild(messageDiv);
+
+            // Remove automaticamente após o tempo especificado
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, duration);
+        }
+
+        function showLoadingMessage(message) {
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.id = 'loadingOverlay';
+            
+            overlay.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <div style="margin-top: 10px; color: #2d3748; font-weight: bold;">${message}</div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+
+        function hideLoadingMessage() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        // Event listeners para Enter nos campos de login
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginUsername = document.getElementById('loginUsername');
+            const loginPassword = document.getElementById('loginPassword');
+            
+            if (loginUsername) {
+                loginUsername.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        document.getElementById('loginPassword').focus();
+                    }
+                });
+            }
+            
+            if (loginPassword) {
+                loginPassword.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        login();
+                    }
+                });
+            }
+        });
+
+        // Formatação automática de telefone
+        function formatPhone(input) {
+            let value = input.value.replace(/\D/g, '');
+            
+            if (value.length <= 11) {
+                if (value.length <= 10) {
+                    value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+                } else {
+                    value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+                }
+            }
+            
+            input.value = value;
+        }
+
+        // Aplicar formatação de telefone aos campos
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const phoneInputs = document.querySelectorAll('input[type="tel"]');
+                phoneInputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        formatPhone(this);
+                    });
+                });
+            }, 1000);
+        });
+
+        // Backup automático dos dados
+        function autoBackup() {
+            if (currentUser) {
+                saveDataToLocal();
+                console.log('Backup automático realizado:', new Date().toLocaleTimeString());
+            }
+        }
+
+        // Executar backup a cada 5 minutos
+        setInterval(autoBackup, 5 * 60 * 1000);
+
+        // Salvar ao fechar/recarregar a página
+        window.addEventListener('beforeunload', function() {
+            if (currentUser) {
+                saveDataToLocal();
+            }
+        });
+
+        console.log('🎮 Sistema Game Creators carregado com sucesso!');
+        console.log('💡 Sistema de gamificação, relatórios e Google Sheets prontos para uso!');
+    </script>
+</body>
+</html>              !m.cancelado;
                     });
 
                     const unitVisitas = visitas.filter(v => {
