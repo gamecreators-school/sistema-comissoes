@@ -952,13 +952,38 @@
                         <input type="url" id="googleScriptUrl" placeholder="https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec" value="">
                     </div>
                     
-                    <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 12px;">
-                        <strong>📋 Como configurar:</strong><br>
-                        1. Acesse <a href="https://script.google.com" target="_blank">Google Apps Script</a><br>
-                        2. Crie um novo projeto<br>
-                        3. Cole o código fornecido abaixo<br>
-                        4. Publique como aplicativo web<br>
-                        5. Cole a URL aqui
+                    <div style="background: #e6fffa; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 12px; border-left: 4px solid #38a169;">
+                        <strong>📋 INSTRUÇÕES PASSO A PASSO:</strong><br><br>
+                        
+                        <strong>1️⃣ Criar Nova Planilha:</strong><br>
+                        • Acesse <a href="https://sheets.google.com" target="_blank">Google Sheets</a><br>
+                        • Crie uma nova planilha em branco<br>
+                        • Renomeie para "Game Creators Database"<br>
+                        • Copie o ID da URL (entre /d/ e /edit)<br><br>
+                        
+                        <strong>2️⃣ Criar Google Apps Script:</strong><br>
+                        • Acesse <a href="https://script.google.com" target="_blank">Google Apps Script</a><br>
+                        • Clique em "Novo projeto"<br>
+                        • Apague o código padrão<br>
+                        • Cole o código fornecido no botão "Ver Código"<br><br>
+                        
+                        <strong>3️⃣ Configurar ID da Planilha:</strong><br>
+                        • No código, encontre a linha: const SPREADSHEET_ID = 'SUA_PLANILHA_ID_AQUI';<br>
+                        • Substitua SUA_PLANILHA_ID_AQUI pelo ID copiado da planilha<br>
+                        • Salve o projeto (Ctrl+S)<br><br>
+                        
+                        <strong>4️⃣ Publicar como Aplicativo Web:</strong><br>
+                        • Clique em "Implantar" → "Nova implantação"<br>
+                        • Tipo: "Aplicativo da Web"<br>
+                        • Executar como: "Eu (seu email)"<br>
+                        • Quem tem acesso: "Qualquer pessoa"<br>
+                        • Clique em "Implantar"<br><br>
+                        
+                        <strong>5️⃣ Copiar URL e Testar:</strong><br>
+                        • Copie a "URL do aplicativo da Web"<br>
+                        • Cole no campo acima<br>
+                        • Clique em "Salvar Configuração"<br>
+                        • Clique em "Testar Conexão"<br>
                     </div>
                     
                     <div class="quick-actions">
@@ -966,6 +991,7 @@
                         <button class="btn btn-success" onclick="saveGoogleSheetsConfig()">💾 Salvar Configuração</button>
                         <button class="btn btn-warning" onclick="forceSync()">🔄 Sincronizar Agora</button>
                         <button class="btn btn-info" onclick="showGoogleScriptCode()">📝 Ver Código Google Script</button>
+                        <button class="btn btn-danger" onclick="showTroubleshooting()">🔧 Solução de Problemas</button>
                     </div>
                     <div id="syncResult" style="margin-top: 10px;"></div>
                 </div>
@@ -1200,37 +1226,74 @@
             { id: 'level_5', name: 'Veterano', description: 'Alcançar nível 5', icon: '🏆', xp: 250 }
         ];
 
-        // Código do Google Apps Script
+        // Código do Google Apps Script ATUALIZADO E ROBUSTO
         const GOOGLE_SCRIPT_CODE = `
 function doPost(e) {
   try {
+    console.log('Recebendo requisição:', e);
+    
+    // Verificar se os dados foram recebidos
+    if (!e || !e.parameter || !e.parameter.data) {
+      throw new Error('Dados não recebidos na requisição');
+    }
+    
     const data = JSON.parse(e.parameter.data);
     const action = data.action;
     
-    // ID da sua planilha (substitua pelo ID real)
-    const SPREADSHEET_ID = 'SUA_PLANILHA_ID_AQUI';
-    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    console.log('Ação solicitada:', action);
     
+    // ⚠️ IMPORTANTE: SUBSTITUA PELO ID DA SUA PLANILHA!
+    // Exemplo: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms
+    const SPREADSHEET_ID = 'SUA_PLANILHA_ID_AQUI';
+    
+    // Verificar se o ID foi substituído
+    if (SPREADSHEET_ID === 'SUA_PLANILHA_ID_AQUI') {
+      throw new Error('ERRO: Substitua SUA_PLANILHA_ID_AQUI pelo ID real da sua planilha!');
+    }
+    
+    let spreadsheet;
+    try {
+      spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+      console.log('Planilha aberta:', spreadsheet.getName());
+    } catch (error) {
+      throw new Error('Erro ao abrir planilha: ' + error.message + ' - Verifique se o ID está correto');
+    }
+    
+    // Teste de conexão
     if (action === 'test') {
       return ContentService
-        .createTextOutput(JSON.stringify({success: true, message: 'Conexão OK! Sistema Game Creators funcionando!'}))
+        .createTextOutput(JSON.stringify({
+          success: true, 
+          message: 'Conexão OK! Sistema Game Creators funcionando!',
+          planilha: spreadsheet.getName(),
+          timestamp: new Date().toISOString()
+        }))
         .setMimeType(ContentService.MimeType.JSON);
     }
     
+    // Salvar dados
     if (action === 'save') {
-      // Salvar dados nas abas
-      saveUsers(spreadsheet, data.users);
-      saveMatriculas(spreadsheet, data.matriculas);
-      saveVisitas(spreadsheet, data.visitas);
-      saveMissions(spreadsheet, data.missions);
-      saveMetas(spreadsheet, data.metas);
+      console.log('Salvando dados...');
+      
+      saveUsers(spreadsheet, data.users || {});
+      saveMatriculas(spreadsheet, data.matriculas || []);
+      saveVisitas(spreadsheet, data.visitas || []);
+      saveMissions(spreadsheet, data.missions || []);
+      saveMetas(spreadsheet, data.metas || {});
       
       return ContentService
-        .createTextOutput(JSON.stringify({success: true, message: 'Dados salvos com sucesso!'}))
+        .createTextOutput(JSON.stringify({
+          success: true, 
+          message: 'Dados salvos com sucesso!',
+          timestamp: new Date().toISOString()
+        }))
         .setMimeType(ContentService.MimeType.JSON);
     }
     
+    // Carregar dados
     if (action === 'load') {
+      console.log('Carregando dados...');
+      
       const result = {
         users: loadUsers(spreadsheet),
         matriculas: loadMatriculas(spreadsheet),
@@ -1240,210 +1303,303 @@ function doPost(e) {
       };
       
       return ContentService
-        .createTextOutput(JSON.stringify({success: true, data: result}))
+        .createTextOutput(JSON.stringify({
+          success: true, 
+          data: result,
+          timestamp: new Date().toISOString()
+        }))
         .setMimeType(ContentService.MimeType.JSON);
     }
     
+    throw new Error('Ação não reconhecida: ' + action);
+    
   } catch (error) {
+    console.error('Erro no script:', error);
     return ContentService
-      .createTextOutput(JSON.stringify({success: false, error: error.toString()}))
+      .createTextOutput(JSON.stringify({
+        success: false, 
+        error: error.toString(),
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
+// Função GET para testar diretamente no navegador
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      success: true,
+      message: 'Google Apps Script funcionando! Use POST para enviar dados.',
+      timestamp: new Date().toISOString()
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 function saveUsers(spreadsheet, users) {
-  let sheet = spreadsheet.getSheetByName('Usuarios');
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet('Usuarios');
-    sheet.getRange(1, 1, 1, 7).setValues([['Username', 'Name', 'Password', 'Role', 'Unit', 'Level', 'XP']]);
-  }
-  
-  sheet.clear();
-  sheet.getRange(1, 1, 1, 7).setValues([['Username', 'Name', 'Password', 'Role', 'Unit', 'Level', 'XP']]);
-  
-  const data = Object.entries(users).map(([username, user]) => [
-    username, user.name, user.password, user.role, user.unit, user.level, user.xp
-  ]);
-  
-  if (data.length > 0) {
-    sheet.getRange(2, 1, data.length, 7).setValues(data);
-  }
-}
-
-function saveMatriculas(spreadsheet, matriculas) {
-  let sheet = spreadsheet.getSheetByName('Matriculas');
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet('Matriculas');
-  }
-  
-  sheet.clear();
-  const headers = ['ID', 'Data', 'Nome', 'Telefone', 'Curso', 'ValorTotal', 'ValorEntrada', 'Tipo', 'Parcelas', 'Vendedor', 'Gerente', 'Assistente', 'Unidade', 'StatusPagamento', 'Cancelado'];
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  
-  if (matriculas.length > 0) {
-    const data = matriculas.map(m => [
-      m.id, m.data, m.nome, m.telefone, m.curso, m.valorTotal, m.valorEntrada,
-      m.tipo, m.parcelas, m.vendedor, m.gerente, m.assistente, m.unidade, m.statusPagamento, m.cancelado
+  try {
+    let sheet = spreadsheet.getSheetByName('Usuarios');
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet('Usuarios');
+    }
+    
+    sheet.clear();
+    const headers = ['Username', 'Name', 'Password', 'Role', 'Unit', 'Level', 'XP'];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    
+    const data = Object.entries(users).map(([username, user]) => [
+      username, user.name, user.password, user.role, user.unit, user.level || 1, user.xp || 0
     ]);
-    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
-  }
-}
-
-function saveVisitas(spreadsheet, visitas) {
-  let sheet = spreadsheet.getSheetByName('Visitas');
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet('Visitas');
-  }
-  
-  sheet.clear();
-  const headers = ['ID', 'Data', 'Nome', 'Telefone', 'CursoInteresse', 'Atendente', 'Unidade', 'Observacoes', 'Convertido', 'MatriculaID', 'DataConversao'];
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  
-  if (visitas.length > 0) {
-    const data = visitas.map(v => [
-      v.id, v.data, v.nome, v.telefone, v.cursoInteresse, v.atendente, v.unidade, v.observacoes, v.convertido, v.matriculaId, v.dataConversao
-    ]);
-    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
-  }
-}
-
-function saveMissions(spreadsheet, missions) {
-  let sheet = spreadsheet.getSheetByName('Missions');
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet('Missions');
-  }
-  
-  sheet.clear();
-  const headers = ['ID', 'Title', 'Description', 'Type', 'Target', 'Reward', 'Deadline', 'CreatedBy', 'AssignedTo', 'Completed', 'Unit'];
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  
-  if (missions && missions.length > 0) {
-    const data = missions.map(m => [
-      m.id, m.title, m.description, m.type, m.target, m.reward, m.deadline, m.createdBy, m.assignedTo, m.completed, m.unit
-    ]);
-    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
-  }
-}
-
-function saveMetas(spreadsheet, metas) {
-  let sheet = spreadsheet.getSheetByName('Metas');
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet('Metas');
-  }
-  
-  sheet.clear();
-  const headers = ['Mes', 'Unidade', 'MetaMatriculas', 'MetaFaturamento'];
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  
-  if (metas && Object.keys(metas).length > 0) {
-    const data = [];
-    Object.entries(metas).forEach(([mes, unidades]) => {
-      Object.entries(unidades).forEach(([unidade, meta]) => {
-        data.push([mes, unidade, meta.matriculas, meta.faturamento]);
-      });
-    });
     
     if (data.length > 0) {
       sheet.getRange(2, 1, data.length, headers.length).setValues(data);
     }
+    
+    console.log('Usuários salvos:', data.length);
+  } catch (error) {
+    console.error('Erro ao salvar usuários:', error);
+    throw error;
+  }
+}
+
+function saveMatriculas(spreadsheet, matriculas) {
+  try {
+    let sheet = spreadsheet.getSheetByName('Matriculas');
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet('Matriculas');
+    }
+    
+    sheet.clear();
+    const headers = ['ID', 'Data', 'Nome', 'Telefone', 'Curso', 'ValorTotal', 'ValorEntrada', 'Tipo', 'Parcelas', 'Vendedor', 'Gerente', 'Assistente', 'Unidade', 'StatusPagamento', 'Cancelado'];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    
+    if (matriculas.length > 0) {
+      const data = matriculas.map(m => [
+        m.id, m.data, m.nome, m.telefone, m.curso, m.valorTotal || 0, m.valorEntrada || 0,
+        m.tipo, m.parcelas || 1, m.vendedor, m.gerente, m.assistente, m.unidade, 
+        m.statusPagamento || 'Pago', m.cancelado || false
+      ]);
+      sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+    }
+    
+    console.log('Matrículas salvas:', matriculas.length);
+  } catch (error) {
+    console.error('Erro ao salvar matrículas:', error);
+    throw error;
+  }
+}
+
+function saveVisitas(spreadsheet, visitas) {
+  try {
+    let sheet = spreadsheet.getSheetByName('Visitas');
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet('Visitas');
+    }
+    
+    sheet.clear();
+    const headers = ['ID', 'Data', 'Nome', 'Telefone', 'CursoInteresse', 'Atendente', 'Unidade', 'Observacoes', 'Convertido', 'MatriculaID', 'DataConversao'];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    
+    if (visitas.length > 0) {
+      const data = visitas.map(v => [
+        v.id, v.data, v.nome, v.telefone, v.cursoInteresse, v.atendente, v.unidade, 
+        v.observacoes || '', v.convertido || false, v.matriculaId || '', v.dataConversao || ''
+      ]);
+      sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+    }
+    
+    console.log('Visitas salvas:', visitas.length);
+  } catch (error) {
+    console.error('Erro ao salvar visitas:', error);
+    throw error;
+  }
+}
+
+function saveMissions(spreadsheet, missions) {
+  try {
+    let sheet = spreadsheet.getSheetByName('Missions');
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet('Missions');
+    }
+    
+    sheet.clear();
+    const headers = ['ID', 'Title', 'Description', 'Type', 'Target', 'Reward', 'Deadline', 'CreatedBy', 'AssignedTo', 'Completed', 'Unit'];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    
+    if (missions && missions.length > 0) {
+      const data = missions.map(m => [
+        m.id, m.title, m.description, m.type, m.target || 0, m.reward || 0, 
+        m.deadline, m.createdBy, m.assignedTo, m.completed || false, m.unit || ''
+      ]);
+      sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+    }
+    
+    console.log('Missões salvas:', missions ? missions.length : 0);
+  } catch (error) {
+    console.error('Erro ao salvar missões:', error);
+    throw error;
+  }
+}
+
+function saveMetas(spreadsheet, metas) {
+  try {
+    let sheet = spreadsheet.getSheetByName('Metas');
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet('Metas');
+    }
+    
+    sheet.clear();
+    const headers = ['Mes', 'Unidade', 'MetaMatriculas', 'MetaFaturamento'];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    
+    if (metas && Object.keys(metas).length > 0) {
+      const data = [];
+      Object.entries(metas).forEach(([mes, unidades]) => {
+        Object.entries(unidades).forEach(([unidade, meta]) => {
+          data.push([mes, unidade, meta.matriculas || 0, meta.faturamento || 0]);
+        });
+      });
+      
+      if (data.length > 0) {
+        sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+      }
+    }
+    
+    console.log('Metas salvas');
+  } catch (error) {
+    console.error('Erro ao salvar metas:', error);
+    throw error;
   }
 }
 
 function loadUsers(spreadsheet) {
-  const sheet = spreadsheet.getSheetByName('Usuarios');
-  if (!sheet) return {};
-  
-  const data = sheet.getDataRange().getValues();
-  const users = {};
-  
-  for (let i = 1; i < data.length; i++) {
-    const [username, name, password, role, unit, level, xp] = data[i];
-    if (username) {
-      users[username] = { username, name, password, role, unit, level: level || 1, xp: xp || 0 };
+  try {
+    const sheet = spreadsheet.getSheetByName('Usuarios');
+    if (!sheet) return {};
+    
+    const data = sheet.getDataRange().getValues();
+    const users = {};
+    
+    for (let i = 1; i < data.length; i++) {
+      const [username, name, password, role, unit, level, xp] = data[i];
+      if (username) {
+        users[username] = { username, name, password, role, unit, level: level || 1, xp: xp || 0 };
+      }
     }
+    
+    console.log('Usuários carregados:', Object.keys(users).length);
+    return users;
+  } catch (error) {
+    console.error('Erro ao carregar usuários:', error);
+    return {};
   }
-  
-  return users;
 }
 
 function loadMatriculas(spreadsheet) {
-  const sheet = spreadsheet.getSheetByName('Matriculas');
-  if (!sheet) return [];
-  
-  const data = sheet.getDataRange().getValues();
-  const matriculas = [];
-  
-  for (let i = 1; i < data.length; i++) {
-    const [id, data_mat, nome, telefone, curso, valorTotal, valorEntrada, tipo, parcelas, vendedor, gerente, assistente, unidade, statusPagamento, cancelado] = data[i];
-    if (id) {
-      matriculas.push({
-        id, data: data_mat, nome, telefone, curso, valorTotal, valorEntrada, tipo, parcelas, vendedor, gerente, assistente, unidade, statusPagamento, cancelado
-      });
+  try {
+    const sheet = spreadsheet.getSheetByName('Matriculas');
+    if (!sheet) return [];
+    
+    const data = sheet.getDataRange().getValues();
+    const matriculas = [];
+    
+    for (let i = 1; i < data.length; i++) {
+      const [id, data_mat, nome, telefone, curso, valorTotal, valorEntrada, tipo, parcelas, vendedor, gerente, assistente, unidade, statusPagamento, cancelado] = data[i];
+      if (id) {
+        matriculas.push({
+          id, data: data_mat, nome, telefone, curso, valorTotal, valorEntrada, tipo, 
+          parcelas, vendedor, gerente, assistente, unidade, statusPagamento, cancelado
+        });
+      }
     }
+    
+    console.log('Matrículas carregadas:', matriculas.length);
+    return matriculas;
+  } catch (error) {
+    console.error('Erro ao carregar matrículas:', error);
+    return [];
   }
-  
-  return matriculas;
 }
 
 function loadVisitas(spreadsheet) {
-  const sheet = spreadsheet.getSheetByName('Visitas');
-  if (!sheet) return [];
-  
-  const data = sheet.getDataRange().getValues();
-  const visitas = [];
-  
-  for (let i = 1; i < data.length; i++) {
-    const [id, data_vis, nome, telefone, cursoInteresse, atendente, unidade, observacoes, convertido, matriculaId, dataConversao] = data[i];
-    if (id) {
-      visitas.push({
-        id, data: data_vis, nome, telefone, cursoInteresse, atendente, unidade, observacoes, convertido, matriculaId, dataConversao
-      });
+  try {
+    const sheet = spreadsheet.getSheetByName('Visitas');
+    if (!sheet) return [];
+    
+    const data = sheet.getDataRange().getValues();
+    const visitas = [];
+    
+    for (let i = 1; i < data.length; i++) {
+      const [id, data_vis, nome, telefone, cursoInteresse, atendente, unidade, observacoes, convertido, matriculaId, dataConversao] = data[i];
+      if (id) {
+        visitas.push({
+          id, data: data_vis, nome, telefone, cursoInteresse, atendente, unidade, 
+          observacoes, convertido, matriculaId, dataConversao
+        });
+      }
     }
+    
+    console.log('Visitas carregadas:', visitas.length);
+    return visitas;
+  } catch (error) {
+    console.error('Erro ao carregar visitas:', error);
+    return [];
   }
-  
-  return visitas;
 }
 
 function loadMissions(spreadsheet) {
-  const sheet = spreadsheet.getSheetByName('Missions');
-  if (!sheet) return [];
-  
-  const data = sheet.getDataRange().getValues();
-  const missions = [];
-  
-  for (let i = 1; i < data.length; i++) {
-    const [id, title, description, type, target, reward, deadline, createdBy, assignedTo, completed, unit] = data[i];
-    if (id) {
-      missions.push({
-        id, title, description, type, target, reward, deadline, createdBy, assignedTo, completed, unit
-      });
+  try {
+    const sheet = spreadsheet.getSheetByName('Missions');
+    if (!sheet) return [];
+    
+    const data = sheet.getDataRange().getValues();
+    const missions = [];
+    
+    for (let i = 1; i < data.length; i++) {
+      const [id, title, description, type, target, reward, deadline, createdBy, assignedTo, completed, unit] = data[i];
+      if (id) {
+        missions.push({
+          id, title, description, type, target, reward, deadline, createdBy, assignedTo, completed, unit
+        });
+      }
     }
+    
+    console.log('Missões carregadas:', missions.length);
+    return missions;
+  } catch (error) {
+    console.error('Erro ao carregar missões:', error);
+    return [];
   }
-  
-  return missions;
 }
 
 function loadMetas(spreadsheet) {
-  const sheet = spreadsheet.getSheetByName('Metas');
-  if (!sheet) return {};
-  
-  const data = sheet.getDataRange().getValues();
-  const metas = {};
-  
-  for (let i = 1; i < data.length; i++) {
-    const [mes, unidade, metaMatriculas, metaFaturamento] = data[i];
-    if (mes && unidade) {
-      if (!metas[mes]) {
-        metas[mes] = {};
+  try {
+    const sheet = spreadsheet.getSheetByName('Metas');
+    if (!sheet) return {};
+    
+    const data = sheet.getDataRange().getValues();
+    const metas = {};
+    
+    for (let i = 1; i < data.length; i++) {
+      const [mes, unidade, metaMatriculas, metaFaturamento] = data[i];
+      if (mes && unidade) {
+        if (!metas[mes]) {
+          metas[mes] = {};
+        }
+        metas[mes][unidade] = {
+          matriculas: metaMatriculas || 0,
+          faturamento: metaFaturamento || 0
+        };
       }
-      metas[mes][unidade] = {
-        matriculas: metaMatriculas || 0,
-        faturamento: metaFaturamento || 0
-      };
     }
+    
+    console.log('Metas carregadas');
+    return metas;
+  } catch (error) {
+    console.error('Erro ao carregar metas:', error);
+    return {};
   }
-  
-  return metas;
 }
 `;
 
@@ -1506,25 +1662,72 @@ function loadMetas(spreadsheet) {
 
             showLoadingMessage('Testando conexão com Google Sheets...');
             
+            // Teste mais robusto com timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 segundos
+
             const data = { action: 'test' };
             
-            submitToGoogleSheets(data)
-                .then(result => {
-                    hideLoadingMessage();
+            fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: new URLSearchParams({ data: JSON.stringify(data) }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                signal: controller.signal
+            })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                hideLoadingMessage();
+                try {
+                    const result = JSON.parse(text);
                     if (result.success) {
                         showMessage('✅ Conexão com Google Sheets estabelecida!', 'success');
-                        document.getElementById('syncResult').innerHTML = '<div style="color: #38a169; font-weight: bold;">✅ Conectado e funcionando!</div>';
+                        document.getElementById('syncResult').innerHTML = `
+                            <div style="color: #38a169; font-weight: bold;">
+                                ✅ Conectado com sucesso!<br>
+                                <small>Mensagem: ${result.message}</small>
+                            </div>
+                        `;
                         updateSyncStatus('online');
                     } else {
-                        throw new Error(result.error || 'Erro desconhecido');
+                        throw new Error(result.error || 'Erro desconhecido do servidor');
                     }
-                })
-                .catch(error => {
-                    hideLoadingMessage();
-                    showMessage('❌ Erro na conexão: ' + error.message, 'error');
-                    document.getElementById('syncResult').innerHTML = '<div style="color: #e53e3e; font-weight: bold;">❌ Erro: ' + error.message + '</div>';
-                    updateSyncStatus('error');
-                });
+                } catch (parseError) {
+                    throw new Error('Resposta inválida do servidor: ' + text.substring(0, 100));
+                }
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                hideLoadingMessage();
+                
+                let errorMessage = 'Erro desconhecido';
+                
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Timeout - Verifique a URL e configuração do script';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Erro de conexão - Verifique se:\n1. A URL está correta\n2. O script foi publicado como aplicativo web\n3. As permissões estão configuradas';
+                } else if (error.message.includes('HTTP')) {
+                    errorMessage = 'Erro HTTP - ' + error.message;
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showMessage('❌ Erro na conexão: ' + errorMessage, 'error');
+                document.getElementById('syncResult').innerHTML = `
+                    <div style="color: #e53e3e; font-weight: bold;">
+                        ❌ Erro: ${errorMessage}<br>
+                        <small>Verifique as instruções de configuração abaixo</small>
+                    </div>
+                `;
+                updateSyncStatus('error');
+            });
         }
 
         function forceSync() {
@@ -1607,27 +1810,67 @@ function loadMetas(spreadsheet) {
                 });
         }
 
-        // Submissão real para Google Sheets
+        // Submissão mais robusta para Google Sheets
         function submitToGoogleSheets(data) {
             return new Promise((resolve, reject) => {
-                const formData = new FormData();
+                if (!GOOGLE_APPS_SCRIPT_URL) {
+                    reject(new Error('URL do Google Apps Script não configurada'));
+                    return;
+                }
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+
+                const formData = new URLSearchParams();
                 formData.append('data', JSON.stringify(data));
 
                 fetch(GOOGLE_APPS_SCRIPT_URL, {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    signal: controller.signal
                 })
-                .then(response => response.text())
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    return response.text();
+                })
                 .then(text => {
+                    console.log('Response text:', text);
+                    
                     try {
                         const result = JSON.parse(text);
-                        resolve(result);
-                    } catch (e) {
-                        reject(new Error('Resposta inválida do servidor'));
+                        
+                        if (result.success) {
+                            resolve(result);
+                        } else {
+                            reject(new Error(result.error || 'Erro desconhecido do servidor'));
+                        }
+                    } catch (parseError) {
+                        console.error('Erro ao parsear JSON:', parseError);
+                        console.error('Texto recebido:', text);
+                        reject(new Error('Resposta inválida do servidor. Verifique se o script foi publicado corretamente.'));
                     }
                 })
                 .catch(error => {
-                    reject(error);
+                    clearTimeout(timeoutId);
+                    
+                    if (error.name === 'AbortError') {
+                        reject(new Error('Timeout - A requisição demorou mais que 30 segundos'));
+                    } else if (error.message.includes('Failed to fetch')) {
+                        reject(new Error('Falha na conexão. Verifique se a URL está correta e o script foi publicado.'));
+                    } else {
+                        reject(error);
+                    }
                 });
             });
         }
@@ -1646,6 +1889,63 @@ function loadMetas(spreadsheet) {
             textarea.select();
             document.execCommand('copy');
             showMessage('📋 Código copiado para a área de transferência!', 'success');
+        }
+
+        function showTroubleshooting() {
+            const modal = document.createElement('div');
+            modal.className = 'loading-overlay';
+            modal.style.display = 'flex';
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 12px; max-width: 80%; max-height: 80%; overflow-y: auto;">
+                    <h3>🔧 Solução de Problemas - Google Sheets</h3>
+                    
+                    <div style="background: #fed7d7; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #e53e3e;">
+                        <strong>❌ ERRO: "Failed to fetch"</strong><br>
+                        <strong>Causa:</strong> Problema na configuração do Google Apps Script<br><br>
+                        
+                        <strong>SOLUÇÕES:</strong><br>
+                        1️⃣ <strong>Verificar URL:</strong> Deve terminar com /exec<br>
+                        2️⃣ <strong>Republicar o script:</strong> Implantação → Nova implantação<br>
+                        3️⃣ <strong>Permissões:</strong> "Qualquer pessoa" deve ter acesso<br>
+                        4️⃣ <strong>ID da Planilha:</strong> Verifique se foi substituído corretamente<br>
+                    </div>
+                    
+                    <div style="background: #fef5e7; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ed8936;">
+                        <strong>⚠️ ERRO: "Unauthorized"</strong><br>
+                        <strong>Solução:</strong><br>
+                        • Executar como: "Eu (seu email)"<br>
+                        • Autorizar todas as permissões solicitadas<br>
+                        • Clicar em "Avançado" → "Ir para projeto (não seguro)"<br>
+                    </div>
+                    
+                    <div style="background: #bee3f8; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #3182ce;">
+                        <strong>ℹ️ CHECKLIST DE VERIFICAÇÃO:</strong><br>
+                        ✅ Planilha criada no Google Sheets<br>
+                        ✅ ID da planilha copiado corretamente<br>
+                        ✅ Código colado no Google Apps Script<br>
+                        ✅ SPREADSHEET_ID substituído<br>
+                        ✅ Projeto salvo (Ctrl+S)<br>
+                        ✅ Implantado como aplicativo web<br>
+                        ✅ URL copiada e colada aqui<br>
+                        ✅ Configuração salva no sistema<br>
+                    </div>
+                    
+                    <div style="background: #c6f6d5; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #38a169;">
+                        <strong>✅ TESTE MANUAL:</strong><br>
+                        1. Abra a URL do script diretamente no navegador<br>
+                        2. Deve aparecer uma página em branco ou erro de método<br>
+                        3. Se aparecer "404 Not Found", a URL está incorreta<br>
+                        4. Se aparecer código JSON, está funcionando!<br>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button class="btn btn-primary" onclick="this.parentElement.parentElement.parentElement.remove()">✅ Entendi</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
         }
 
         // Sistema de Gamificação
@@ -4003,321 +4303,6 @@ function loadMetas(spreadsheet) {
 
         console.log('🎮 Sistema Game Creators carregado com sucesso!');
         console.log('💡 Sistema de gamificação, relatórios e Google Sheets prontos para uso!');
-    </script>
-</body>
-</html>              !m.cancelado;
-                    });
-
-                    const unitVisitas = visitas.filter(v => {
-                        const dataV = new Date(v.data);
-                        return dataV.getFullYear() === year && 
-                               dataV.getMonth() === (month - 1) && 
-                               v.unidade === unidade;
-                    });
-
-                    const unitUsers = Object.values(users).filter(u => u.unit === unidade && u.role !== 'admin');
-                    const totalRevenue = unitMatriculas.reduce((sum, m) => sum + m.valorEntrada, 0);
-                    const conversao = unitVisitas.length > 0 ? ((unitMatriculas.length / unitVisitas.length) * 100).toFixed(1) : 0;
-
-                    relatorioData[unidade] = {
-                        nome: unidade,
-                        matriculas: unitMatriculas.length,
-                        visitas: unitVisitas.length,
-                        conversao: conversao,
-                        faturamento: totalRevenue,
-                        colaboradores: unitUsers.length,
-                        convencional: unitMatriculas.filter(m => m.tipo === 'Convencional').length,
-                        blackin: unitMatriculas.filter(m => m.tipo === 'Blackin').length,
-                        black: unitMatriculas.filter(m => m.tipo === 'Black').length
-                    };
-                });
-
-                displayRelatorioUnidade(relatorioData, mes);
-            }, 1500);
-        }
-
-        function displayRelatorioUnidade(data, mes) {
-            const resultado = document.getElementById('relatorioResultado');
-            const [year, month] = mes.split('-').map(Number);
-            const monthName = new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-            
-            let html = `
-                <div class="stat-card" style="margin-top: 20px;">
-                    <h3>🏢 Relatório por Unidade - ${monthName}</h3>
-                    
-                    <table class="report-table">
-                        <thead>
-                            <tr>
-                                <th>Unidade</th>
-                                <th>Colaboradores</th>
-                                <th>Visitas</th>
-                                <th>Matrículas</th>
-                                <th>Conversão</th>
-                                <th>Faturamento</th>
-                                <th>Convencional</th>
-                                <th>Blackin</th>
-                                <th>Black</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            let totals = {
-                colaboradores: 0,
-                visitas: 0,
-                matriculas: 0,
-                faturamento: 0,
-                convencional: 0,
-                blackin: 0,
-                black: 0
-            };
-
-            Object.values(data).forEach(unidade => {
-                totals.colaboradores += unidade.colaboradores;
-                totals.visitas += unidade.visitas;
-                totals.matriculas += unidade.matriculas;
-                totals.faturamento += unidade.faturamento;
-                totals.convencional += unidade.convencional;
-                totals.blackin += unidade.blackin;
-                totals.black += unidade.black;
-
-                html += `
-                    <tr>
-                        <td><strong>${unidade.nome}</strong></td>
-                        <td style="text-align: center;">${unidade.colaboradores}</td>
-                        <td style="text-align: center;">${unidade.visitas}</td>
-                        <td style="text-align: center;">${unidade.matriculas}</td>
-                        <td style="text-align: center; font-weight: bold; color: #ed8936;">${unidade.conversao}%</td>
-                        <td style="text-align: right;">${formatCurrency(unidade.faturamento)}</td>
-                        <td style="text-align: center;">${unidade.convencional}</td>
-                        <td style="text-align: center;">${unidade.blackin}</td>
-                        <td style="text-align: center;">${unidade.black}</td>
-                    </tr>
-                `;
-            });
-
-            const conversaoTotal = totals.visitas > 0 ? ((totals.matriculas / totals.visitas) * 100).toFixed(1) : 0;
-
-            html += `
-                        </tbody>
-                        <tfoot style="background: #f8fafc; font-weight: bold;">
-                            <tr>
-                                <td>TOTAL GERAL</td>
-                                <td style="text-align: center;">${totals.colaboradores}</td>
-                                <td style="text-align: center;">${totals.visitas}</td>
-                                <td style="text-align: center;">${totals.matriculas}</td>
-                                <td style="text-align: center; color: #38a169;">${conversaoTotal}%</td>
-                                <td style="text-align: right; color: #38a169;">${formatCurrency(totals.faturamento)}</td>
-                                <td style="text-align: center;">${totals.convencional}</td>
-                                <td style="text-align: center;">${totals.blackin}</td>
-                                <td style="text-align: center;">${totals.black}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
-
-            resultado.innerHTML = html;
-        }
-
-        // Funções utilitárias
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-            }).format(value);
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR');
-        }
-
-        function setCurrentDate() {
-            const today = new Date().toISOString().split('T')[0];
-            const visitDateInput = document.getElementById('visitDate');
-            const newDataInput = document.getElementById('newData');
-            const missionDeadlineInput = document.getElementById('missionDeadline');
-            
-            if (visitDateInput) visitDateInput.value = today;
-            if (newDataInput) newDataInput.value = today;
-            if (missionDeadlineInput) {
-                const nextWeek = new Date();
-                nextWeek.setDate(nextWeek.getDate() + 7);
-                missionDeadlineInput.value = nextWeek.toISOString().split('T')[0];
-            }
-        }
-
-        function setCurrentMonthForReport() {
-            const now = new Date();
-            const monthString = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-            const relatorioMesInput = document.getElementById('relatorioMes');
-            
-            if (relatorioMesInput) relatorioMesInput.value = monthString;
-            
-            // Atualizar displays de mês/ano
-            const monthYear = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-            const conversionMonthYear = document.getElementById('conversionMonthYear');
-            const teamMonthYear = document.getElementById('teamMonthYear');
-            
-            if (conversionMonthYear) conversionMonthYear.textContent = monthYear;
-            if (teamMonthYear) teamMonthYear.textContent = monthYear;
-        }
-
-        // Sistema de mensagens
-        function showMessage(message, type = 'info', duration = 4000) {
-            const existingMessages = document.querySelectorAll('.success-message, .error-message, .warning-message, .info-message');
-            existingMessages.forEach(msg => msg.remove());
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `${type}-message`;
-            messageDiv.textContent = message;
-            messageDiv.style.position = 'fixed';
-            messageDiv.style.top = '20px';
-            messageDiv.style.right = '20px';
-            messageDiv.style.zIndex = '9999';
-            messageDiv.style.maxWidth = '400px';
-            messageDiv.style.padding = '12px';
-            messageDiv.style.borderRadius = '8px';
-            messageDiv.style.fontWeight = 'bold';
-
-            document.body.appendChild(messageDiv);
-
-            setTimeout(() => {
-                if (messageDiv.parentNode) {
-                    messageDiv.remove();
-                }
-            }, duration);
-        }
-
-        function showLoadingMessage(message) {
-            const overlay = document.createElement('div');
-            overlay.className = 'loading-overlay';
-            overlay.id = 'loadingOverlay';
-            
-            overlay.innerHTML = `
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                    <div style="margin-top: 10px; color: #2d3748; font-weight: bold;">${message}</div>
-                </div>
-            `;
-            
-            document.body.appendChild(overlay);
-        }
-
-        function hideLoadingMessage() {
-            const overlay = document.getElementById('loadingOverlay');
-            if (overlay) {
-                overlay.remove();
-            }
-        }
-
-        // Backup automático dos dados
-        function autoBackup() {
-            if (currentUser) {
-                saveDataToLocal();
-                console.log('Backup automático realizado:', new Date().toLocaleTimeString());
-            }
-        }
-
-        // Executar backup a cada 5 minutos
-        setInterval(autoBackup, 5 * 60 * 1000);
-
-        // Salvar ao fechar/recarregar a página
-        window.addEventListener('beforeunload', function() {
-            if (currentUser) {
-                saveDataToLocal();
-            }
-        });
-
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Enter no login
-            const loginUsername = document.getElementById('loginUsername');
-            const loginPassword = document.getElementById('loginPassword');
-            
-            if (loginUsername) {
-                loginUsername.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        document.getElementById('loginPassword').focus();
-                    }
-                });
-            }
-            
-            if (loginPassword) {
-                loginPassword.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        login();
-                    }
-                });
-            }
-
-            // Formatação de telefone
-            const phoneInputs = document.querySelectorAll('input[type="tel"]');
-            phoneInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    let value = this.value.replace(/\D/g, '');
-                    
-                    if (value.length <= 11) {
-                        if (value.length <= 10) {
-                            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-                        } else {
-                            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-                        }
-                    }
-                    
-                    this.value = value;
-                });
-            });
-
-            // Auto-capitalizar nomes
-            const nameInputs = document.querySelectorAll('input[placeholder*="nome"], input[placeholder*="Nome"]');
-            nameInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    const words = this.value.toLowerCase().split(' ');
-                    const capitalizedWords = words.map(word => {
-                        if (word.length > 0) {
-                            return word.charAt(0).toUpperCase() + word.slice(1);
-                        }
-                        return word;
-                    });
-                    this.value = capitalizedWords.join(' ');
-                });
-            });
-        });
-
-        // Atalhos de teclado
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'Enter') {
-                const activeTab = document.querySelector('.tab-content.active');
-                if (activeTab) {
-                    if (activeTab.id === 'visitas') {
-                        addVisit();
-                    } else if (activeTab.id === 'matriculas') {
-                        addMatricula();
-                    } else if (activeTab.id === 'gamificacao') {
-                        createMission();
-                    }
-                }
-            }
-            
-            if (e.key === 'Escape') {
-                const activeTab = document.querySelector('.tab-content.active');
-                if (activeTab) {
-                    if (activeTab.id === 'visitas') {
-                        clearVisitForm();
-                    } else if (activeTab.id === 'matriculas') {
-                        clearMatriculaForm();
-                    } else if (activeTab.id === 'gamificacao') {
-                        clearMissionForm();
-                    }
-                }
-            }
-        });
-
-        console.log('🎮 Sistema Game Creators carregado com sucesso!');
-        console.log('🔐 Usuários de teste: admin@gamecreatorsadm.com (15212602), gerente.nacional@gamecreatorsadm.com (123456)');
-        console.log('🎯 Funcionalidades: Dashboard, Gamificação, Visitas, Ranking, Relatórios e Google Sheets');
     </script>
 </body>
 </html>
