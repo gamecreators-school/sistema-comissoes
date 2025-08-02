@@ -935,8 +935,8 @@
             setupNetworkMonitoring();
         });
 
-        // Google Sheets Integration
-        async function saveToGoogleSheets() {
+        // Google Sheets Integration - Versão SEM CORS
+        function saveToGoogleSheets() {
             if (!GOOGLE_APPS_SCRIPT_URL || !isOnline) {
                 saveDataToLocal();
                 updateSyncStatus('offline');
@@ -946,90 +946,148 @@
             showLoadingMessage('Sincronizando com Google Sheets...');
             updateSyncStatus('syncing');
             
-            try {
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'save',
-                        users: users,
-                        matriculas: matriculas,
-                        visitas: visitas,
-                        userStats: userStats,
-                        timestamp: new Date().toISOString()
-                    })
-                });
+            // Usar form submission para evitar CORS
+            const data = {
+                action: 'save',
+                users: users,
+                matriculas: matriculas,
+                visitas: visitas,
+                userStats: userStats,
+                timestamp: new Date().toISOString()
+            };
 
-                const result = await response.json();
-                
-                if (result.success) {
+            submitToGoogleSheets(data, (success, result) => {
+                if (success) {
                     saveDataToLocal();
                     updateSyncStatus('online');
                     showMessage('✅ Dados sincronizados com Google Sheets!', 'success');
                 } else {
-                    throw new Error(result.error || 'Erro ao sincronizar');
+                    saveDataToLocal();
+                    updateSyncStatus('error');
+                    showMessage('⚠️ Erro na sincronização: ' + (result || 'Erro desconhecido'), 'warning');
                 }
-            } catch (error) {
-                console.error('Erro ao sincronizar:', error);
-                saveDataToLocal();
-                updateSyncStatus('error');
-                showMessage('⚠️ Erro na sincronização. Dados salvos localmente.', 'warning');
-            }
-            
-            hideLoadingMessage();
+                hideLoadingMessage();
+            });
         }
 
-        async function loadFromGoogleSheets() {
-            if (!GOOGLE_APPS_SCRIPT_URL || !isOnline) {
-                throw new Error('Google Sheets não configurado ou offline');
-            }
-
-            try {
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'load'
-                    })
-                });
-
-                const data = await response.json();
-                
-                users = data.users || {};
-                matriculas = data.matriculas || [];
-                visitas = data.visitas || [];
-                userStats = data.userStats || {};
-
-                // Se não houver usuários, criar os padrão
-                if (Object.keys(users).length === 0) {
-                    users = {...defaultUsers};
+        function loadFromGoogleSheets() {
+            return new Promise((resolve, reject) => {
+                if (!GOOGLE_APPS_SCRIPT_URL || !isOnline) {
+                    reject(new Error('Google Sheets não configurado ou offline'));
+                    return;
                 }
 
-                // Garantir que todos os usuários tenham stats
-                Object.keys(users).forEach(username => {
-                    if (!userStats[username]) {
-                        userStats[username] = {
-                            achievements: [],
-                            totalSales: 0,
-                            totalEarnings: 0,
-                            totalVisits: 0,
-                            conversionRate: 0
-                        };
+                const data = { action: 'load' };
+                
+                submitToGoogleSheets(data, (success, result) => {
+                    if (success && result) {
+                        try {
+                            users = result.users || {};
+                            matriculas = result.matriculas || [];
+                            visitas = result.visitas || [];
+                            userStats = result.userStats || {};
+
+                            // Se não houver usuários, criar os padrão
+                            if (Object.keys(users).length === 0) {
+                                users = {...defaultUsers};
+                            }
+
+                            // Garantir que todos os usuários tenham stats
+                            Object.keys(users).forEach(username => {
+                                if (!userStats[username]) {
+                                    userStats[username] = {
+                                        achievements: [],
+                                        totalSales: 0,
+                                        totalEarnings: 0,
+                                        totalVisits: 0,
+                                        conversionRate: 0
+                                    };
+                                }
+                            });
+
+                            saveDataToLocal();
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
+                    } else {
+                        reject(new Error(result || 'Erro ao carregar dados'));
                     }
                 });
+            });
+        }
 
-                saveDataToLocal();
-                
-            } catch (error) {
-                console.error('Erro ao carregar do Google Sheets:', error);
-                throw error;
+        // Função que usa form submission via iframe para evitar CORS
+        function submitToGoogleSheets(data, callback) {
+            const callbackName = 'gsCallback_' + Date.now();
+            const timeoutId = setTimeout(() => {
+                cleanup();
+                callback(false, 'Timeout na conexão');
+            }, 30000);
+
+            function cleanup() {
+                clearTimeout(timeoutId);
+                delete window[callbackName];
+                const iframe = document.getElementById('gs-iframe');
+                if (iframe) {
+                    iframe.remove();
+                }
+                const script = document.getElementById('gs-script');
+                if (script) {
+                    script.remove();
+                }
             }
+
+            window[callbackName] = function(result) {
+                cleanup();
+                if (result && result.success) {
+                    callback(true, result);
+                } else {
+                    callback(false, result ? result.error : 'Erro desconhecido');
+                }
+            };
+
+            // Criar iframe oculto para fazer a requisição
+            const iframe = document.createElement('iframe');
+            iframe.id = 'gs-iframe';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            const form = iframe.contentDocument || iframe.contentWindow.document;
+            form.open();
+            form.write(`
+                <html>
+                <body>
+                <form id="gsForm" action="${GOOGLE_APPS_SCRIPT_URL}" method="post" target="gsTarget">
+                    <input type="hidden" name="data" value='${JSON.stringify(data)}'>
+                    <input type="hidden" name="callback" value="${callbackName}">
+                </form>
+                <iframe name="gsTarget" style="display:none;"></iframe>
+                <script>
+                    document.getElementById('gsForm').submit();
+                    setTimeout(() => {
+                        try {
+                            const result = parent.window.frames['gsTarget'].document.body.innerHTML;
+                            if (result) {
+                                const jsonResult = JSON.parse(result);
+                                parent.window['${callbackName}'](jsonResult);
+                            } else {
+                                parent.window['${callbackName}'](false);
+                            }
+                        } catch (e) {
+                            // Fallback: usar JSONP
+                            const script = parent.document.createElement('script');
+                            script.id = 'gs-script';
+                            script.src = '${GOOGLE_APPS_SCRIPT_URL}?callback=${callbackName}&data=' + encodeURIComponent('${JSON.stringify(data)}');
+                            script.onerror = () => parent.window['${callbackName}'](false);
+                            parent.document.head.appendChild(script);
+                        }
+                    }, 2000);
+                </script>
+                </body>
+                </html>
+            `);
+            form.close();
         }
 
         // Gerenciamento de dados local
@@ -1212,32 +1270,19 @@
 
             showLoadingMessage('Testando conexão...');
             
-            try {
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'test'
-                    })
-                });
-
-                const result = await response.json();
+            const data = { action: 'test' };
+            
+            submitToGoogleSheets(data, (success, result) => {
+                hideLoadingMessage();
                 
-                if (result.success) {
+                if (success) {
                     showMessage('✅ Conexão com Google Sheets OK!', 'success');
                     document.getElementById('syncResult').innerHTML = '<div style="color: #38a169; font-weight: bold;">✅ Conectado com sucesso!</div>';
                 } else {
-                    throw new Error(result.error || 'Erro na conexão');
+                    showMessage('❌ Erro na conexão: ' + (result || 'Erro desconhecido'), 'error');
+                    document.getElementById('syncResult').innerHTML = '<div style="color: #e53e3e; font-weight: bold;">❌ Erro: ' + (result || 'Erro desconhecido') + '</div>';
                 }
-            } catch (error) {
-                showMessage('❌ Erro na conexão: ' + error.message, 'error');
-                document.getElementById('syncResult').innerHTML = '<div style="color: #e53e3e; font-weight: bold;">❌ Erro: ' + error.message + '</div>';
-            }
-            
-            hideLoadingMessage();
+            });
         }
 
         async function forceSync() {
