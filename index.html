@@ -817,6 +817,64 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Botões de ação */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            min-width: auto;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .close-modal {
+            background: var(--danger-gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .dashboard-grid {
@@ -864,6 +922,10 @@
             .quick-actions {
                 flex-direction: column;
             }
+
+            .action-buttons {
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 480px) {
@@ -880,6 +942,24 @@
             .quick-actions .btn {
                 width: 100%;
                 justify-content: center;
+            }
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .btn, .action-buttons {
+                display: none !important;
             }
         }
     </style>
@@ -1084,7 +1164,7 @@
                 
                 <div class="stat-card" style="margin-top: 25px;">
                     <h3>📋 Histórico de Visitas</h3>
-                    <div id="recentVisits" style="max-height: 350px; overflow-y: auto;">
+                    <div id="recentVisits" style="max-height: 450px; overflow-y: auto;">
                         <!-- Preenchido dinamicamente -->
                     </div>
                 </div>
@@ -1139,32 +1219,29 @@
             <div style="padding: 30px;">
                 <h2>👨‍💼 Painel Administrativo</h2>
                 
+                <!-- Gerenciar Unidades -->
+                <div class="stat-card" style="max-width: 600px; margin: 20px 0;">
+                    <h3>🏢 Gerenciar Unidades</h3>
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: end;">
+                        <div class="form-group">
+                            <label>Nome da Nova Unidade:</label>
+                            <input type="text" id="newUnitName" placeholder="Ex: Shopping Iguatemi">
+                        </div>
+                        <button class="btn btn-success" onclick="addNewUnit()">➕ Adicionar Unidade</button>
+                    </div>
+                    <div id="currentUnits" style="margin-top: 15px;">
+                        <h4>Unidades Ativas:</h4>
+                        <div id="unitsList">
+                            <!-- Preenchido dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Configuração de Metas -->
                 <div class="stat-card" style="max-width: 800px; margin: 20px 0;">
                     <h3>🎯 Configuração de Metas Mensais</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <div>
-                            <h4>Shopping Conjunto Nacional</h4>
-                            <div class="form-group">
-                                <label>Meta de Matrículas/Mês:</label>
-                                <input type="number" id="metaMatriculasNacional" min="1" placeholder="Ex: 50" value="">
-                            </div>
-                            <div class="form-group">
-                                <label>Meta de Faturamento/Mês (R$):</label>
-                                <input type="number" id="metaFaturamentoNacional" min="0" step="0.01" placeholder="Ex: 50000" value="">
-                            </div>
-                        </div>
-                        <div>
-                            <h4>JK Shopping</h4>
-                            <div class="form-group">
-                                <label>Meta de Matrículas/Mês:</label>
-                                <input type="number" id="metaMatriculasJK" min="1" placeholder="Ex: 40" value="">
-                            </div>
-                            <div class="form-group">
-                                <label>Meta de Faturamento/Mês (R$):</label>
-                                <input type="number" id="metaFaturamentoJK" min="0" step="0.01" placeholder="Ex: 40000" value="">
-                            </div>
-                        </div>
+                    <div id="metasConfig">
+                        <!-- Preenchido dinamicamente baseado nas unidades existentes -->
                     </div>
                     <div style="margin-top: 15px;">
                         <button class="btn btn-success" onclick="salvarMetas()">💾 Salvar Metas</button>
@@ -1200,8 +1277,7 @@
                     <div class="form-group">
                         <label>Unidade:</label>
                         <select id="newUserUnit">
-                            <option value="Shopping Conjunto Nacional">Shopping Conjunto Nacional</option>
-                            <option value="JK Shopping">JK Shopping</option>
+                            <!-- Preenchido dinamicamente -->
                         </select>
                     </div>
                     <button class="btn btn-success" onclick="addUser()">➕ Adicionar Usuário</button>
@@ -1348,14 +1424,31 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Veio de uma visita?</label>
-                            <select id="newFromVisit">
-                                <option value="">Não, cliente direto</option>
+                            <label>Origem do Cliente:</label>
+                            <select id="newFromVisit" onchange="toggleCustomOrigin()">
+                                <option value="">Cliente Direto</option>
+                                <option value="porta">Cliente Porta</option>
+                                <option value="street">Street Marketing</option>
+                                <option value="agendamento">Agendamento</option>
+                                <option value="evento">Evento</option>
+                                <option value="custom">Outra (especificar)</option>
                             </select>
+                        </div>
+                        <div class="form-group" id="customOriginGroup" style="display: none;">
+                            <label>Especificar Origem:</label>
+                            <input type="text" id="customOriginText" placeholder="Digite a origem personalizada">
                         </div>
                     </div>
                     
                     <button class="btn btn-success" onclick="addMatricula()" style="margin-top: 15px;">➕ Adicionar Matrícula</button>
+                </div>
+
+                <!-- Lista de Matrículas -->
+                <div class="stat-card" style="margin-top: 25px;">
+                    <h3>📊 Matrículas Recentes</h3>
+                    <div id="matriculasList" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Preenchido dinamicamente -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -1374,8 +1467,6 @@
                             <label>Unidade:</label>
                             <select id="relatorioUnidade">
                                 <option value="">Todas</option>
-                                <option value="Shopping Conjunto Nacional">Shopping Conjunto Nacional</option>
-                                <option value="JK Shopping">JK Shopping</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1393,9 +1484,52 @@
                     </div>
                 </div>
 
-                <div id="relatorioResultado">
+                <div id="relatorioResultado" class="print-area">
                     <!-- Preenchido dinamicamente -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar visita -->
+    <div id="editVisitModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Editar Visita</h3>
+                <button class="close-modal" onclick="closeEditVisitModal()">×</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div class="form-group">
+                    <label>📅 Data da Visita:</label>
+                    <input type="date" id="editVisitDate">
+                </div>
+                <div class="form-group">
+                    <label>👤 Nome do Visitante:</label>
+                    <input type="text" id="editVisitName">
+                </div>
+                <div class="form-group">
+                    <label>📱 Telefone:</label>
+                    <input type="tel" id="editVisitPhone">
+                </div>
+                <div class="form-group">
+                    <label>🎓 Curso de Interesse:</label>
+                    <select id="editVisitCourse">
+                        <option value="">Selecione...</option>
+                        <option value="Creators 2D">Creators 2D</option>
+                        <option value="Creators 3D">Creators 3D</option>
+                        <option value="Design Gráfico e Edição">Design Gráfico e Edição</option>
+                        <option value="Creators Dev">Creators Dev</option>
+                        <option value="Jogos Digitais Técnico">Jogos Digitais Técnico</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📝 Observações:</label>
+                    <input type="text" id="editVisitNotes">
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-success" onclick="saveEditVisit()">💾 Salvar Alterações</button>
+                <button class="btn btn-danger" onclick="closeEditVisitModal()">❌ Cancelar</button>
             </div>
         </div>
     </div>
@@ -1414,7 +1548,7 @@
     </div>
 
     <script>
-        // === SISTEMA COMPLETO DO GAME CREATORS PRO ===
+        // === SISTEMA COMPLETO DO GAME CREATORS PRO V2 ===
         // Variáveis globais
         let GOOGLE_APPS_SCRIPT_URL = localStorage.getItem('googleScriptUrl') || '';
         let currentUser = null;
@@ -1426,6 +1560,9 @@
         let missions = [];
         let achievements = [];
         let metas = {};
+        let unidades = [];
+        let visitSourceOptions = [];
+        let editingVisitId = null;
         let isOnline = navigator.onLine;
 
         // Usuários padrão
@@ -1468,6 +1605,9 @@
             }
         };
 
+        // Unidades padrão
+        const defaultUnidades = ['Shopping Conjunto Nacional', 'JK Shopping'];
+
         // Tabelas de comissões
         const COMISSAO_VENDEDOR = [
             { min: 10, max: 20, valor: 35 },
@@ -1501,7 +1641,7 @@
 
         // INICIALIZAÇÃO DO SISTEMA
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Iniciando Game Creators Pro...');
+            console.log('🚀 Iniciando Game Creators Pro V2...');
             loadDataFromLocal();
             setCurrentDate();
             setCurrentMonthForReport();
@@ -1567,8 +1707,8 @@
 
         // SISTEMA DE LOGIN APRIMORADO
         function login() {
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
             const errorDiv = document.getElementById('loginError');
 
             if (!username || !password) {
@@ -1576,8 +1716,13 @@
                 return;
             }
 
+            console.log('Tentando login com:', username);
+            console.log('Usuários disponíveis:', Object.keys(users));
+            
             if (users[username] && users[username].password === password) {
                 currentUser = users[username];
+                
+                console.log('Login bem-sucedido:', currentUser);
                 
                 // Animação de transição suave
                 document.getElementById('loginScreen').style.animation = 'fadeOut 0.5s ease-out';
@@ -1594,6 +1739,7 @@
                 
                 errorDiv.classList.add('hidden');
             } else {
+                console.log('Login falhou para:', username);
                 errorDiv.classList.remove('hidden');
                 showNotification('Credenciais inválidas!', 'error');
             }
@@ -1655,7 +1801,7 @@
             document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
             document.getElementById('userName').textContent = currentUser.name;
             document.getElementById('userLevel').textContent = `Nível ${currentUser.level} - ${getLevelTitle(currentUser.level)}`;
-            document.getElementById('userUnit').textContent = currentUser.unit || 'Shopping Conjunto Nacional';
+            document.getElementById('userUnit').textContent = currentUser.unit || unidades[0] || 'Shopping Conjunto Nacional';
 
             updateSyncStatus('online');
 
@@ -1668,6 +1814,7 @@
             setupDashboard();
             updateUserSelects();
             updateVisitSelects();
+            updateMatriculasList();
         }
 
         function getLevelTitle(level) {
@@ -1738,9 +1885,16 @@
                     break;
                 case 'admin':
                     updateAdminPanel();
+                    updateUnitsConfig();
                     break;
                 case 'equipe':
                     updateTeamDisplay();
+                    break;
+                case 'matriculas':
+                    updateMatriculasList();
+                    break;
+                case 'relatorios':
+                    updateRelatorioUnidades();
                     break;
             }
         }
@@ -1944,7 +2098,7 @@
                     <div class="stat-header">
                         <span class="stat-icon">🏢</span>
                     </div>
-                    <div class="stat-value">2</div>
+                    <div class="stat-value">${unidades.length}</div>
                     <div class="stat-label">Unidades Ativas</div>
                 </div>
 
@@ -1966,6 +2120,11 @@
             createAutoMissions();
             checkAchievements();
             updateMissionProgress();
+            
+            // Mostrar seção de criar missão para admin/gerente
+            if (currentUser.role === 'admin' || currentUser.role === 'gerente') {
+                document.getElementById('createMissionSection').classList.remove('hidden');
+            }
         }
 
         function createAutoMissions() {
@@ -2114,7 +2273,794 @@
             userAchievements.innerHTML = html;
         }
 
-        // FUNÇÕES AUXILIARES (Implementação completa das funções do sistema original)
+        // SISTEMA DE GERENCIAMENTO DE UNIDADES (ADMIN ONLY)
+        function addNewUnit() {
+            if (currentUser.role !== 'admin') {
+                showNotification('❌ Apenas administradores podem adicionar novas unidades!', 'error');
+                return;
+            }
+
+            const newUnitName = document.getElementById('newUnitName').value.trim();
+            
+            if (!newUnitName) {
+                showNotification('Digite o nome da nova unidade!', 'error');
+                return;
+            }
+
+            if (unidades.includes(newUnitName)) {
+                showNotification('Esta unidade já existe!', 'error');
+                return;
+            }
+
+            unidades.push(newUnitName);
+            
+            // Inicializar meta para a nova unidade
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            if (!metas[currentMonth]) {
+                metas[currentMonth] = {};
+            }
+            metas[currentMonth][newUnitName] = {
+                matriculas: 30,
+                faturamento: 30000
+            };
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+
+            updateUnitsConfig();
+            updateUserSelects();
+            updateRelatorioUnidades();
+            setupUnitFilter();
+            
+            showNotification(`✅ Unidade "${newUnitName}" adicionada com sucesso!`, 'success');
+            document.getElementById('newUnitName').value = '';
+        }
+
+        function removeUnit(unitName) {
+            if (currentUser.role !== 'admin') {
+                showNotification('❌ Apenas administradores podem remover unidades!', 'error');
+                return;
+            }
+
+            if (unidades.length <= 1) {
+                showNotification('❌ Não é possível remover todas as unidades!', 'error');
+                return;
+            }
+
+            // Verificar se há usuários nesta unidade
+            const usersInUnit = Object.values(users).filter(u => u.unit === unitName);
+            if (usersInUnit.length > 0) {
+                showNotification(`❌ Não é possível remover esta unidade pois há ${usersInUnit.length} usuário(s) vinculado(s) a ela!`, 'error');
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja remover a unidade "${unitName}"?`)) {
+                unidades = unidades.filter(u => u !== unitName);
+                
+                // Remover metas da unidade
+                Object.keys(metas).forEach(month => {
+                    if (metas[month][unitName]) {
+                        delete metas[month][unitName];
+                    }
+                });
+
+                saveDataToLocal();
+                if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+
+                updateUnitsConfig();
+                updateUserSelects();
+                updateRelatorioUnidades();
+                setupUnitFilter();
+                
+                showNotification(`✅ Unidade "${unitName}" removida com sucesso!`, 'success');
+            }
+        }
+
+        function updateUnitsConfig() {
+            // Atualizar lista de unidades no admin
+            const unitsList = document.getElementById('unitsList');
+            if (unitsList) {
+                let html = '';
+                unidades.forEach(unit => {
+                    const userCount = Object.values(users).filter(u => u.unit === unit).length;
+                    html += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-primary); border-radius: 8px; margin-bottom: 8px;">
+                            <div>
+                                <strong>${unit}</strong>
+                                <div style="font-size: 12px; color: #666;">${userCount} usuário(s)</div>
+                            </div>
+                            <button class="btn btn-danger btn-sm" onclick="removeUnit('${unit}')" ${unidades.length <= 1 ? 'disabled' : ''}>
+                                🗑️ Remover
+                            </button>
+                        </div>
+                    `;
+                });
+                unitsList.innerHTML = html;
+            }
+
+            // Atualizar select de unidades para novos usuários
+            const newUserUnit = document.getElementById('newUserUnit');
+            if (newUserUnit) {
+                newUserUnit.innerHTML = '';
+                unidades.forEach(unit => {
+                    newUserUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+                });
+            }
+
+            // Atualizar configuração de metas
+            updateMetasConfigDisplay();
+        }
+
+        function updateMetasConfigDisplay() {
+            const metasConfig = document.getElementById('metasConfig');
+            if (!metasConfig) return;
+
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            const metasDoMes = metas[currentMonth] || {};
+
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">';
+
+            unidades.forEach(unit => {
+                const metaUnit = metasDoMes[unit] || {};
+                const unitId = unit.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+                
+                html += `
+                    <div>
+                        <h4>${unit}</h4>
+                        <div class="form-group">
+                            <label>Meta de Matrículas/Mês:</label>
+                            <input type="number" id="metaMatriculas${unitId}" min="1" placeholder="Ex: 50" value="${metaUnit.matriculas || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Meta de Faturamento/Mês (R$):</label>
+                            <input type="number" id="metaFaturamento${unitId}" min="0" step="0.01" placeholder="Ex: 50000" value="${metaUnit.faturamento || ''}">
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            metasConfig.innerHTML = html;
+        }
+
+        // SISTEMA DE VISITAS APRIMORADO
+        function addVisit() {
+            const data = document.getElementById('visitDate').value;
+            const nome = document.getElementById('visitName').value.trim();
+            const telefone = document.getElementById('visitPhone').value.trim();
+            const cursoInteresse = document.getElementById('visitCourse').value;
+            const atendente = document.getElementById('visitAttendant').value;
+            const observacoes = document.getElementById('visitNotes').value.trim();
+
+            if (!data || !nome || !telefone || !cursoInteresse || !atendente) {
+                showNotification('Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            const atendenteUser = Object.values(users).find(u => u.name === atendente);
+            const unidade = atendenteUser ? atendenteUser.unit : currentUser.unit;
+
+            const novaVisita = {
+                id: Date.now(),
+                data,
+                nome,
+                telefone,
+                cursoInteresse,
+                atendente,
+                unidade,
+                observacoes,
+                convertido: false,
+                matriculaId: null,
+                dataConversao: null,
+                criadoPor: currentUser.name,
+                dataLancamento: new Date().toISOString()
+            };
+
+            visitas.push(novaVisita);
+            giveXP(atendente, 10);
+            
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+            
+            updateVisitsDisplay();
+            updateMissionProgress();
+            checkAchievements();
+            showNotification('✅ Visita registrada com sucesso!', 'success');
+            clearVisitForm();
+        }
+
+        function editVisit(visitId) {
+            const visita = visitas.find(v => v.id === visitId);
+            if (!visita) {
+                showNotification('Visita não encontrada!', 'error');
+                return;
+            }
+
+            editingVisitId = visitId;
+            
+            document.getElementById('editVisitDate').value = visita.data;
+            document.getElementById('editVisitName').value = visita.nome;
+            document.getElementById('editVisitPhone').value = visita.telefone;
+            document.getElementById('editVisitCourse').value = visita.cursoInteresse;
+            document.getElementById('editVisitNotes').value = visita.observacoes || '';
+            
+            document.getElementById('editVisitModal').style.display = 'flex';
+        }
+
+        function saveEditVisit() {
+            if (!editingVisitId) return;
+            
+            const visita = visitas.find(v => v.id === editingVisitId);
+            if (!visita) {
+                showNotification('Visita não encontrada!', 'error');
+                return;
+            }
+
+            const data = document.getElementById('editVisitDate').value;
+            const nome = document.getElementById('editVisitName').value.trim();
+            const telefone = document.getElementById('editVisitPhone').value.trim();
+            const cursoInteresse = document.getElementById('editVisitCourse').value;
+            const observacoes = document.getElementById('editVisitNotes').value.trim();
+
+            if (!data || !nome || !telefone || !cursoInteresse) {
+                showNotification('Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            visita.data = data;
+            visita.nome = nome;
+            visita.telefone = telefone;
+            visita.cursoInteresse = cursoInteresse;
+            visita.observacoes = observacoes;
+            visita.editadoPor = currentUser.name;
+            visita.dataEdicao = new Date().toISOString();
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+
+            updateVisitsDisplay();
+            closeEditVisitModal();
+            showNotification('✅ Visita editada com sucesso!', 'success');
+        }
+
+        function deleteVisit(visitId) {
+            const visita = visitas.find(v => v.id === visitId);
+            if (!visita) {
+                showNotification('Visita não encontrada!', 'error');
+                return;
+            }
+
+            if (visita.convertido) {
+                showNotification('❌ Não é possível excluir uma visita que já foi convertida em matrícula!', 'error');
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja excluir a visita de "${visita.nome}"?`)) {
+                visitas = visitas.filter(v => v.id !== visitId);
+                
+                saveDataToLocal();
+                if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+                
+                updateVisitsDisplay();
+                showNotification('✅ Visita excluída com sucesso!', 'success');
+            }
+        }
+
+        function closeEditVisitModal() {
+            document.getElementById('editVisitModal').style.display = 'none';
+            editingVisitId = null;
+        }
+
+        function clearVisitForm() {
+            document.getElementById('visitDate').value = '';
+            document.getElementById('visitName').value = '';
+            document.getElementById('visitPhone').value = '';
+            document.getElementById('visitCourse').value = '';
+            document.getElementById('visitNotes').value = '';
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('visitAttendant').value = '';
+            }
+        }
+
+        function convertVisitToMatricula() {
+            showTab('matriculas');
+            showNotification('Preencha os dados da matrícula. Use o campo "Origem do Cliente" para vincular.', 'info');
+        }
+
+        function updateVisitsDisplay() {
+            updateConversionMetrics();
+            updateRecentVisits();
+        }
+
+        function updateConversionMetrics() {
+            const conversionMetrics = document.getElementById('conversionMetrics');
+            if (!conversionMetrics) return;
+
+            const userVisits = getUserVisits();
+            const monthVisits = getCurrentMonthData(userVisits, 'data');
+            const convertedVisits = monthVisits.filter(v => v.convertido);
+            
+            const conversionRate = monthVisits.length > 0 ? (convertedVisits.length / monthVisits.length * 100).toFixed(1) : 0;
+            
+            conversionMetrics.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: var(--text-primary);">${monthVisits.length}</div>
+                        <div style="font-size: 12px; color: #666;">Total de Visitas</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #38a169;">${convertedVisits.length}</div>
+                        <div style="font-size: 12px; color: #666;">Convertidas</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #ed8936;">${conversionRate}%</div>
+                        <div style="font-size: 12px; color: #666;">Taxa de Conversão</div>
+                    </div>
+                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #667eea;">${monthVisits.length - convertedVisits.length}</div>
+                        <div style="font-size: 12px; color: #666;">Pendentes</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateRecentVisits() {
+            const recentVisits = document.getElementById('recentVisits');
+            if (!recentVisits) return;
+
+            const userVisits = getUserVisits();
+            const sortedVisits = userVisits.sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 20);
+            
+            let html = '';
+            if (sortedVisits.length === 0) {
+                html = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma visita registrada ainda.</p>';
+            } else {
+                sortedVisits.forEach(visita => {
+                    html += `
+                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; ${visita.convertido ? 'background: #f0fff4; border-color: #38a169;' : ''}">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <strong>${visita.nome}</strong>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <span style="color: ${visita.convertido ? '#38a169' : '#ed8936'}; font-weight: bold; font-size: 12px;">
+                                            ${visita.convertido ? '✅ Convertido' : '⏳ Pendente'}
+                                        </span>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-info btn-sm" onclick="editVisit(${visita.id})" title="Editar">
+                                                ✏️
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteVisit(${visita.id})" title="Excluir" ${visita.convertido ? 'disabled' : ''}>
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                                📅 ${formatDate(visita.data)} • 🎓 ${visita.cursoInteresse} • 👤 ${visita.atendente}
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                                📞 ${visita.telefone} • 🏢 ${visita.unidade}
+                            </div>
+                            ${visita.observacoes ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">💬 ${visita.observacoes}</div>` : ''}
+                            ${visita.convertido && visita.dataConversao ? `<div style="font-size: 11px; color: #38a169; margin-top: 5px;">✅ Convertido em ${formatDate(visita.dataConversao)}</div>` : ''}
+                        </div>
+                    `;
+                });
+            }
+            
+            recentVisits.innerHTML = html;
+        }
+
+        // SISTEMA DE MATRÍCULAS APRIMORADO
+        function toggleCustomOrigin() {
+            const select = document.getElementById('newFromVisit');
+            const customGroup = document.getElementById('customOriginGroup');
+            
+            if (select.value === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        }
+
+        function addMatricula() {
+            const data = document.getElementById('newData').value;
+            const nome = document.getElementById('newNome').value.trim();
+            const telefone = document.getElementById('newTelefone').value.trim();
+            const curso = document.getElementById('newCurso').value;
+            const valorTotal = parseFloat(document.getElementById('newValorTotal').value);
+            const valorEntrada = parseFloat(document.getElementById('newValorEntrada').value);
+            const tipo = document.getElementById('newTipo').value;
+            const parcelas = parseInt(document.getElementById('newParcelas').value) || 1;
+            const vendedor = document.getElementById('newVendedor').value;
+            const gerente = document.getElementById('newGerente').value;
+            const assistente = document.getElementById('newAssistente').value;
+            const origem = document.getElementById('newFromVisit').value;
+            const customOrigin = document.getElementById('customOriginText').value.trim();
+
+            if (!data || !nome || !curso || !valorTotal || !valorEntrada || !vendedor || !gerente || !assistente) {
+                showNotification('Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            if (origem === 'custom' && !customOrigin) {
+                showNotification('Especifique a origem personalizada!', 'error');
+                return;
+            }
+
+            const gerenteUser = Object.values(users).find(u => u.name === gerente);
+            const unidade = gerenteUser ? gerenteUser.unit : unidades[0] || 'Shopping Conjunto Nacional';
+
+            let origemFinal = '';
+            if (origem === 'custom') {
+                origemFinal = customOrigin;
+            } else if (origem) {
+                const origemLabels = {
+                    'porta': 'Cliente Porta',
+                    'street': 'Street Marketing',
+                    'agendamento': 'Agendamento',
+                    'evento': 'Evento'
+                };
+                origemFinal = origemLabels[origem] || origem;
+            } else {
+                origemFinal = 'Cliente Direto';
+            }
+
+            const novaMatricula = {
+                id: Date.now(),
+                data,
+                nome,
+                telefone,
+                curso,
+                valorTotal,
+                valorEntrada,
+                tipo,
+                parcelas,
+                vendedor,
+                gerente,
+                assistente,
+                unidade,
+                origem: origemFinal,
+                statusPagamento: 'Pago',
+                cancelado: false,
+                fromVisit: null,
+                criadoPor: currentUser.name,
+                dataLancamento: new Date().toISOString()
+            };
+
+            matriculas.push(novaMatricula);
+
+            // Dar XP para os envolvidos
+            giveXP(vendedor, 50);
+            giveXP(gerente, 30);
+            giveXP(assistente, 20);
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+            
+            setupDashboard();
+            updateMissionProgress();
+            checkAchievements();
+            updateMatriculasList();
+            showNotification('✅ Matrícula adicionada com sucesso!', 'success');
+            clearMatriculaForm();
+        }
+
+        function updateMatriculasList() {
+            const matriculasList = document.getElementById('matriculasList');
+            if (!matriculasList) return;
+
+            const userMatriculas = getUserMatriculas();
+            const recentMatriculas = userMatriculas.sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 15);
+
+            let html = '';
+            if (recentMatriculas.length === 0) {
+                html = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma matrícula registrada ainda.</p>';
+            } else {
+                recentMatriculas.forEach(matricula => {
+                    html += `
+                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; ${matricula.cancelado ? 'background: #fed7d7; border-color: #e53e3e;' : 'background: #f0fff4; border-color: #38a169;'}">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <strong>${matricula.nome}</strong>
+                                <div class="action-buttons">
+                                    <button class="btn btn-info btn-sm" onclick="editMatricula(${matricula.id})" title="Editar">
+                                        ✏️
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteMatricula(${matricula.id})" title="Excluir">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                                📅 ${formatDate(matricula.data)} • 🎓 ${matricula.curso} • 💰 ${formatCurrency(matricula.valorEntrada)}
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                                👤 ${matricula.vendedor} • 👔 ${matricula.gerente} • 👩‍💻 ${matricula.assistente}
+                            </div>
+                            <div style="font-size: 12px; color: #666;">
+                                🏢 ${matricula.unidade} • 📊 ${matricula.tipo} • 🎯 ${matricula.origem}
+                            </div>
+                            ${matricula.cancelado ? '<div style="font-size: 11px; color: #e53e3e; margin-top: 5px;">❌ Matrícula Cancelada</div>' : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            matriculasList.innerHTML = html;
+        }
+
+        function editMatricula(matriculaId) {
+            const matricula = matriculas.find(m => m.id === matriculaId);
+            if (!matricula) {
+                showNotification('Matrícula não encontrada!', 'error');
+                return;
+            }
+
+            // Preencher formulário com dados da matrícula
+            document.getElementById('newData').value = matricula.data;
+            document.getElementById('newNome').value = matricula.nome;
+            document.getElementById('newTelefone').value = matricula.telefone || '';
+            document.getElementById('newCurso').value = matricula.curso;
+            document.getElementById('newValorTotal').value = matricula.valorTotal;
+            document.getElementById('newValorEntrada').value = matricula.valorEntrada;
+            document.getElementById('newTipo').value = matricula.tipo;
+            document.getElementById('newParcelas').value = matricula.parcelas || '';
+            document.getElementById('newVendedor').value = matricula.vendedor;
+            document.getElementById('newGerente').value = matricula.gerente;
+            document.getElementById('newAssistente').value = matricula.assistente;
+
+            // Remover a matrícula original para que seja substituída
+            matriculas = matriculas.filter(m => m.id !== matriculaId);
+            
+            showNotification('📝 Matrícula carregada para edição. Faça as alterações e clique em "Adicionar Matrícula".', 'info');
+            
+            // Scroll para o formulário
+            document.querySelector('#matriculas .stat-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteMatricula(matriculaId) {
+            const matricula = matriculas.find(m => m.id === matriculaId);
+            if (!matricula) {
+                showNotification('Matrícula não encontrada!', 'error');
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja excluir a matrícula de "${matricula.nome}"?`)) {
+                matriculas = matriculas.filter(m => m.id !== matriculaId);
+                
+                // Se foi convertida de uma visita, desmarcar a conversão
+                const visitaRelacionada = visitas.find(v => v.matriculaId === matriculaId);
+                if (visitaRelacionada) {
+                    visitaRelacionada.convertido = false;
+                    visitaRelacionada.matriculaId = null;
+                    visitaRelacionada.dataConversao = null;
+                }
+                
+                saveDataToLocal();
+                if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+                
+                setupDashboard();
+                updateMatriculasList();
+                updateVisitsDisplay();
+                showNotification('✅ Matrícula excluída com sucesso!', 'success');
+            }
+        }
+
+        function clearMatriculaForm() {
+            document.getElementById('newData').value = '';
+            document.getElementById('newNome').value = '';
+            document.getElementById('newTelefone').value = '';
+            document.getElementById('newCurso').value = '';
+            document.getElementById('newValorTotal').value = '';
+            document.getElementById('newValorEntrada').value = '';
+            document.getElementById('newTipo').value = 'Convencional';
+            document.getElementById('newParcelas').value = '';
+            document.getElementById('newFromVisit').value = '';
+            document.getElementById('customOriginText').value = '';
+            document.getElementById('customOriginGroup').style.display = 'none';
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('newVendedor').value = '';
+                document.getElementById('newGerente').value = '';
+                document.getElementById('newAssistente').value = '';
+            }
+        }
+
+        // SISTEMA DE RELATÓRIOS APRIMORADO
+        function updateRelatorioUnidades() {
+            const relatorioUnidade = document.getElementById('relatorioUnidade');
+            if (!relatorioUnidade) return;
+
+            relatorioUnidade.innerHTML = '<option value="">Todas</option>';
+            unidades.forEach(unit => {
+                relatorioUnidade.innerHTML += `<option value="${unit}">${unit}</option>`;
+            });
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function gerarRelatorioComissoes() {
+            const mes = document.getElementById('relatorioMes').value;
+            const unidade = document.getElementById('relatorioUnidade').value;
+            const colaborador = document.getElementById('relatorioColaborador').value;
+            
+            if (!mes) {
+                showNotification('Selecione o mês para o relatório!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Gerando relatório de comissões...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
+                
+                const [year, month] = mes.split('-');
+                const filteredData = matriculas.filter(m => {
+                    const matriculaDate = new Date(m.data);
+                    const mesMatch = matriculaDate.getFullYear() == year && matriculaDate.getMonth() == month - 1;
+                    const unidadeMatch = !unidade || m.unidade === unidade;
+                    const colaboradorMatch = !colaborador || m.vendedor === colaborador || m.gerente === colaborador || m.assistente === colaborador;
+                    return mesMatch && unidadeMatch && colaboradorMatch && !m.cancelado;
+                });
+
+                const comissoes = {};
+                
+                filteredData.forEach(m => {
+                    [m.vendedor, m.gerente, m.assistente].forEach((nome, index) => {
+                        if (!nome) return;
+                        
+                        const user = Object.values(users).find(u => u.name === nome);
+                        if (!user) return;
+                        
+                        if (!comissoes[nome]) {
+                            comissoes[nome] = {
+                                nome,
+                                role: user.role,
+                                unidade: user.unit,
+                                matriculas: 0,
+                                comissao: 0
+                            };
+                        }
+                        
+                        comissoes[nome].matriculas++;
+                        
+                        if (user.role === 'vendedor' && comissoes[nome].matriculas >= 10) {
+                            comissoes[nome].comissao = comissoes[nome].matriculas * getCommissionByBand(comissoes[nome].matriculas, COMISSAO_VENDEDOR);
+                        } else if (user.role === 'assistente' && comissoes[nome].matriculas >= 10) {
+                            comissoes[nome].comissao = comissoes[nome].matriculas * getCommissionByBand(comissoes[nome].matriculas, COMISSAO_ASSISTENTE);
+                        } else if (user.role === 'gerente') {
+                            const unitMatriculas = filteredData.filter(m => m.unidade === user.unit).length;
+                            if (unitMatriculas >= 26) {
+                                comissoes[nome].comissao = unitMatriculas * getCommissionByBand(unitMatriculas, COMISSAO_GERENTE);
+                            }
+                        }
+                    });
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3>💰 Relatório de Comissões - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                            <button class="btn btn-primary" onclick="printReport()">🖨️ Imprimir</button>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>👤 Nome</th>
+                                    <th>💼 Cargo</th>
+                                    <th>🏢 Unidade</th>
+                                    <th>📊 Matrículas</th>
+                                    <th>💰 Comissão</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                Object.values(comissoes).forEach(pessoa => {
+                    html += `
+                        <tr>
+                            <td>${pessoa.nome}</td>
+                            <td><span class="role-badge role-${pessoa.role}">${pessoa.role}</span></td>
+                            <td>${pessoa.unidade}</td>
+                            <td style="text-align: center;">${pessoa.matriculas}</td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(pessoa.comissao)}</td>
+                        </tr>
+                    `;
+                });
+
+                const totalComissoes = Object.values(comissoes).reduce((total, p) => total + p.comissao, 0);
+
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: var(--bg-primary); font-weight: bold;">
+                                    <td colspan="4">TOTAL</td>
+                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totalComissoes)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+        // SISTEMA DE USUÁRIOS CORRIGIDO
+        function addUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const username = document.getElementById('newUserUsername').value.trim();
+            const password = document.getElementById('newUserPassword').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            const unit = document.getElementById('newUserUnit').value;
+
+            if (!name || !username || !password) {
+                showNotification('Preencha todos os campos!', 'error');
+                return;
+            }
+
+            if (users[username]) {
+                showNotification('Usuário já existe!', 'error');
+                return;
+            }
+
+            // CORREÇÃO: Criar usuário com estrutura correta
+            users[username] = {
+                name: name,
+                username: username,
+                password: password,
+                role: role,
+                unit: unit,
+                level: 1,
+                xp: 0
+            };
+
+            // Inicializar estatísticas do usuário
+            userStats[username] = {
+                achievements: [],
+                totalSales: 0,
+                totalEarnings: 0,
+                totalVisits: 0,
+                conversionRate: 0
+            };
+
+            console.log('Usuário criado:', users[username]); // Debug
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+            
+            updateAdminPanel();
+            updateUserSelects();
+            showNotification('✅ Usuário adicionado com sucesso!', 'success');
+
+            // Limpar formulário
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserUsername').value = '';
+            document.getElementById('newUserPassword').value = '';
+        }
+
+        function deleteUser(username) {
+            if (currentUser.role !== 'admin') {
+                showNotification('❌ Apenas administradores podem excluir usuários!', 'error');
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja excluir ${users[username].name}?`)) {
+                delete users[username];
+                delete userStats[username];
+                
+                saveDataToLocal();
+                if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+                
+                updateAdminPanel();
+                updateUserSelects();
+                showNotification('✅ Usuário excluído com sucesso!', 'success');
+            }
+        }
+
+        // FUNÇÕES AUXILIARES COMPLETAS
         function getUserMatriculas() {
             if (currentUser.role === 'admin') {
                 return selectedUnit === 'all' ? matriculas : getUnitData(selectedUnit);
@@ -2336,8 +3282,8 @@
         }
 
         function createMission() {
-            const title = document.getElementById('missionTitle').value;
-            const description = document.getElementById('missionDescription').value;
+            const title = document.getElementById('missionTitle').value.trim();
+            const description = document.getElementById('missionDescription').value.trim();
             const type = document.getElementById('missionType').value;
             const target = parseInt(document.getElementById('missionTarget').value);
             const reward = parseInt(document.getElementById('missionReward').value);
@@ -2384,231 +3330,6 @@
             document.getElementById('missionDeadline').value = '';
         }
 
-        // SISTEMA DE VISITAS COMPLETO
-        function addVisit() {
-            const data = document.getElementById('visitDate').value;
-            const nome = document.getElementById('visitName').value;
-            const telefone = document.getElementById('visitPhone').value;
-            const cursoInteresse = document.getElementById('visitCourse').value;
-            const atendente = document.getElementById('visitAttendant').value;
-            const observacoes = document.getElementById('visitNotes').value;
-
-            if (!data || !nome || !telefone || !cursoInteresse || !atendente) {
-                showNotification('Preencha todos os campos obrigatórios!', 'error');
-                return;
-            }
-
-            const atendenteUser = Object.values(users).find(u => u.name === atendente);
-            const unidade = atendenteUser ? atendenteUser.unit : currentUser.unit;
-
-            const novaVisita = {
-                id: Date.now(),
-                data,
-                nome,
-                telefone,
-                cursoInteresse,
-                atendente,
-                unidade,
-                observacoes,
-                convertido: false,
-                matriculaId: null,
-                dataConversao: null,
-                criadoPor: currentUser.name,
-                dataLancamento: new Date().toISOString()
-            };
-
-            visitas.push(novaVisita);
-            giveXP(atendente, 10);
-            
-            saveDataToLocal();
-            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
-            
-            updateVisitsDisplay();
-            updateVisitSelects();
-            updateMissionProgress();
-            checkAchievements();
-            showNotification('✅ Visita registrada com sucesso!', 'success');
-            clearVisitForm();
-        }
-
-        function clearVisitForm() {
-            document.getElementById('visitDate').value = '';
-            document.getElementById('visitName').value = '';
-            document.getElementById('visitPhone').value = '';
-            document.getElementById('visitCourse').value = '';
-            document.getElementById('visitNotes').value = '';
-            
-            if (currentUser.role === 'admin') {
-                document.getElementById('visitAttendant').value = '';
-            }
-        }
-
-        function convertVisitToMatricula() {
-            showTab('matriculas');
-            showNotification('Preencha os dados da matrícula. Use o campo "Veio de uma visita?" para vincular.', 'info');
-        }
-
-        function updateVisitsDisplay() {
-            updateConversionMetrics();
-            updateRecentVisits();
-        }
-
-        function updateConversionMetrics() {
-            const conversionMetrics = document.getElementById('conversionMetrics');
-            if (!conversionMetrics) return;
-
-            const userVisits = getUserVisits();
-            const monthVisits = getCurrentMonthData(userVisits, 'data');
-            const convertedVisits = monthVisits.filter(v => v.convertido);
-            
-            const conversionRate = monthVisits.length > 0 ? (convertedVisits.length / monthVisits.length * 100).toFixed(1) : 0;
-            
-            conversionMetrics.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
-                        <div style="font-size: 24px; font-weight: bold; color: var(--text-primary);">${monthVisits.length}</div>
-                        <div style="font-size: 12px; color: #666;">Total de Visitas</div>
-                    </div>
-                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
-                        <div style="font-size: 24px; font-weight: bold; color: #38a169;">${convertedVisits.length}</div>
-                        <div style="font-size: 12px; color: #666;">Convertidas</div>
-                    </div>
-                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
-                        <div style="font-size: 24px; font-weight: bold; color: #ed8936;">${conversionRate}%</div>
-                        <div style="font-size: 12px; color: #666;">Taxa de Conversão</div>
-                    </div>
-                    <div style="text-align: center; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
-                        <div style="font-size: 24px; font-weight: bold; color: #667eea;">${monthVisits.length - convertedVisits.length}</div>
-                        <div style="font-size: 12px; color: #666;">Pendentes</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function updateRecentVisits() {
-            const recentVisits = document.getElementById('recentVisits');
-            if (!recentVisits) return;
-
-            const userVisits = getUserVisits();
-            const sortedVisits = userVisits.sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 10);
-            
-            let html = '';
-            if (sortedVisits.length === 0) {
-                html = '<p style="text-align: center; color: #666; padding: 20px;">Nenhuma visita registrada ainda.</p>';
-            } else {
-                sortedVisits.forEach(visita => {
-                    html += `
-                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; ${visita.convertido ? 'background: #f0fff4; border-color: #38a169;' : ''}">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                <strong>${visita.nome}</strong>
-                                <span style="color: ${visita.convertido ? '#38a169' : '#ed8936'}; font-weight: bold;">
-                                    ${visita.convertido ? '✅ Convertido' : '⏳ Pendente'}
-                                </span>
-                            </div>
-                            <div style="font-size: 12px; color: #666;">
-                                ${formatDate(visita.data)} • ${visita.cursoInteresse} • ${visita.atendente}
-                            </div>
-                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                                📞 ${visita.telefone}
-                            </div>
-                            ${visita.observacoes ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">${visita.observacoes}</div>` : ''}
-                        </div>
-                    `;
-                });
-            }
-            
-            recentVisits.innerHTML = html;
-        }
-
-        // SISTEMA DE MATRÍCULAS
-        function addMatricula() {
-            const data = document.getElementById('newData').value;
-            const nome = document.getElementById('newNome').value;
-            const telefone = document.getElementById('newTelefone').value;
-            const curso = document.getElementById('newCurso').value;
-            const valorTotal = parseFloat(document.getElementById('newValorTotal').value);
-            const valorEntrada = parseFloat(document.getElementById('newValorEntrada').value);
-            const tipo = document.getElementById('newTipo').value;
-            const parcelas = parseInt(document.getElementById('newParcelas').value) || 1;
-            const vendedor = document.getElementById('newVendedor').value;
-            const gerente = document.getElementById('newGerente').value;
-            const assistente = document.getElementById('newAssistente').value;
-            const fromVisitId = document.getElementById('newFromVisit').value;
-
-            if (!data || !nome || !curso || !valorTotal || !valorEntrada || !vendedor || !gerente || !assistente) {
-                showNotification('Preencha todos os campos obrigatórios!', 'error');
-                return;
-            }
-
-            const gerenteUser = Object.values(users).find(u => u.name === gerente);
-            const unidade = gerenteUser ? gerenteUser.unit : 'Shopping Conjunto Nacional';
-
-            const novaMatricula = {
-                id: Date.now(),
-                data,
-                nome,
-                telefone,
-                curso,
-                valorTotal,
-                valorEntrada,
-                tipo,
-                parcelas,
-                vendedor,
-                gerente,
-                assistente,
-                unidade,
-                statusPagamento: 'Pago',
-                cancelado: false,
-                fromVisit: fromVisitId ? parseInt(fromVisitId) : null,
-                criadoPor: currentUser.name,
-                dataLancamento: new Date().toISOString()
-            };
-
-            matriculas.push(novaMatricula);
-
-            // Se veio de uma visita, marcar como convertida
-            if (fromVisitId) {
-                const visita = visitas.find(v => v.id === parseInt(fromVisitId));
-                if (visita) {
-                    visita.convertido = true;
-                    visita.matriculaId = novaMatricula.id;
-                    visita.dataConversao = data;
-                    giveXP(visita.atendente, 30);
-                }
-            }
-
-            giveXP(vendedor, 50);
-            giveXP(gerente, 30);
-            giveXP(assistente, 20);
-
-            saveDataToLocal();
-            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
-            
-            setupDashboard();
-            updateMissionProgress();
-            checkAchievements();
-            showNotification('✅ Matrícula adicionada com sucesso!', 'success');
-            clearMatriculaForm();
-        }
-
-        function clearMatriculaForm() {
-            document.getElementById('newData').value = '';
-            document.getElementById('newNome').value = '';
-            document.getElementById('newTelefone').value = '';
-            document.getElementById('newCurso').value = '';
-            document.getElementById('newValorTotal').value = '';
-            document.getElementById('newValorEntrada').value = '';
-            document.getElementById('newTipo').value = 'Convencional';
-            document.getElementById('newParcelas').value = '';
-            document.getElementById('newFromVisit').value = '';
-            
-            if (currentUser.role === 'admin') {
-                document.getElementById('newVendedor').value = '';
-                document.getElementById('newGerente').value = '';
-                document.getElementById('newAssistente').value = '';
-            }
-        }
-
         function giveXP(userName, amount) {
             const user = Object.values(users).find(u => u.name === userName);
             if (user) {
@@ -2617,7 +3338,11 @@
                 if (newLevel > user.level) {
                     const oldLevel = user.level;
                     user.level = newLevel;
-                    showNotification(`🎉 ${userName} subiu para o nível ${newLevel}!`, 'success');
+                    if (userName === currentUser.name) {
+                        showNotification(`🎉 Você subiu para o nível ${newLevel}!`, 'success');
+                    } else {
+                        showNotification(`🎉 ${userName} subiu para o nível ${newLevel}!`, 'success');
+                    }
                 }
             }
         }
@@ -2812,6 +3537,9 @@
                 } else if (currentUser.role === 'gerente') {
                     gerenteSelect.value = currentUser.name;
                     gerenteSelect.disabled = true;
+                } else if (currentUser.role === 'assistente') {
+                    assistenteSelect.value = currentUser.name;
+                    assistenteSelect.disabled = true;
                 }
             }
 
@@ -2829,7 +3557,6 @@
 
         function updateVisitSelects() {
             const visitAttendantSelect = document.getElementById('visitAttendant');
-            const fromVisitSelect = document.getElementById('newFromVisit');
             
             if (visitAttendantSelect) {
                 visitAttendantSelect.innerHTML = '<option value="">Selecione...</option>';
@@ -2847,20 +3574,11 @@
                     visitAttendantSelect.disabled = true;
                 }
             }
-            
-            if (fromVisitSelect) {
-                fromVisitSelect.innerHTML = '<option value="">Não, cliente direto</option>';
-                
-                const pendingVisits = visitas.filter(v => !v.convertido);
-                pendingVisits.forEach(visita => {
-                    fromVisitSelect.innerHTML += `<option value="${visita.id}">${visita.nome} - ${formatDate(visita.data)}</option>`;
-                });
-            }
         }
 
         function setupUnitFilter() {
             const unitSelectors = document.getElementById('unitSelectors');
-            const units = ['all', 'Shopping Conjunto Nacional', 'JK Shopping'];
+            const units = ['all', ...unidades];
             
             let html = '';
             units.forEach(unit => {
@@ -2881,53 +3599,6 @@
         }
 
         // SISTEMA DE ADMINISTRAÇÃO
-        function addUser() {
-            const name = document.getElementById('newUserName').value;
-            const username = document.getElementById('newUserUsername').value;
-            const password = document.getElementById('newUserPassword').value;
-            const role = document.getElementById('newUserRole').value;
-            const unit = document.getElementById('newUserUnit').value;
-
-            if (!name || !username || !password) {
-                showNotification('Preencha todos os campos!', 'error');
-                return;
-            }
-
-            if (users[username]) {
-                showNotification('Usuário já existe!', 'error');
-                return;
-            }
-
-            users[username] = {
-                name,
-                username,
-                password,
-                role,
-                unit,
-                level: 1,
-                xp: 0
-            };
-
-            userStats[username] = {
-                achievements: [],
-                totalSales: 0,
-                totalEarnings: 0,
-                totalVisits: 0,
-                conversionRate: 0
-            };
-
-            saveDataToLocal();
-            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
-            
-            updateAdminPanel();
-            updateUserSelects();
-            showNotification('✅ Usuário adicionado com sucesso!', 'success');
-
-            document.getElementById('newUserName').value = '';
-            document.getElementById('newUserUsername').value = '';
-            document.getElementById('newUserPassword').value = '';
-        }
-
         function updateAdminPanel() {
             const userManagementBody = document.getElementById('userManagementBody');
             let html = '';
@@ -2965,22 +3636,400 @@
             userManagementBody.innerHTML = html;
         }
 
-        function deleteUser(username) {
-            if (confirm(`Tem certeza que deseja excluir ${users[username].name}?`)) {
-                delete users[username];
-                delete userStats[username];
+        // SISTEMA DE METAS
+        function generateDefaultMetas() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            
+            if (!metas[currentMonth]) {
+                metas[currentMonth] = {};
+                unidades.forEach(unidade => {
+                    metas[currentMonth][unidade] = {
+                        matriculas: 50,
+                        faturamento: 50000
+                    };
+                });
                 saveDataToLocal();
-                if (GOOGLE_APPS_SCRIPT_URL) forceSync();
-                
-                updateAdminPanel();
-                updateUserSelects();
-                showNotification('✅ Usuário excluído com sucesso!', 'success');
             }
+        }
+
+        function salvarMetas() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            
+            if (!metas[currentMonth]) {
+                metas[currentMonth] = {};
+            }
+
+            unidades.forEach(unidade => {
+                const unitId = unidade.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+                const metaMatriculas = parseInt(document.getElementById(`metaMatriculas${unitId}`).value) || 0;
+                const metaFaturamento = parseFloat(document.getElementById(`metaFaturamento${unitId}`).value) || 0;
+
+                metas[currentMonth][unidade] = {
+                    matriculas: metaMatriculas,
+                    faturamento: metaFaturamento
+                };
+            });
+
+            saveDataToLocal();
+            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
+
+            setupDashboard();
+
+            showNotification('🎯 Metas salvas com sucesso!', 'success');
+            document.getElementById('metasStatus').innerHTML = '<div style="color: #38a169; font-weight: bold;">✅ Metas salvas e sincronizadas!</div>';
+        }
+
+        function carregarMetas() {
+            updateMetasConfigDisplay();
+        // SISTEMA DE RELATÓRIOS CONTINUAÇÃO
+        function gerarRelatorioConversao() {
+            const mes = document.getElementById('relatorioMes').value;
+            const unidade = document.getElementById('relatorioUnidade').value;
+            const colaborador = document.getElementById('relatorioColaborador').value;
+            
+            if (!mes) {
+                showNotification('Selecione o mês para o relatório!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Gerando relatório de conversão...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
+                
+                const [year, month] = mes.split('-');
+                
+                const filteredVisitas = visitas.filter(v => {
+                    const visitaDate = new Date(v.data);
+                    const mesMatch = visitaDate.getFullYear() == year && visitaDate.getMonth() == month - 1;
+                    const unidadeMatch = !unidade || v.unidade === unidade;
+                    const colaboradorMatch = !colaborador || v.atendente === colaborador;
+                    return mesMatch && unidadeMatch && colaboradorMatch;
+                });
+
+                const conversaoData = {};
+                
+                filteredVisitas.forEach(v => {
+                    if (!conversaoData[v.atendente]) {
+                        conversaoData[v.atendente] = {
+                            nome: v.atendente,
+                            unidade: v.unidade,
+                            visitas: 0,
+                            conversoes: 0
+                        };
+                    }
+                    conversaoData[v.atendente].visitas++;
+                    if (v.convertido) {
+                        conversaoData[v.atendente].conversoes++;
+                    }
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3>📈 Relatório de Conversão - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                            <button class="btn btn-primary" onclick="printReport()">🖨️ Imprimir</button>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>👤 Atendente</th>
+                                    <th>🏢 Unidade</th>
+                                    <th>👥 Visitas</th>
+                                    <th>✅ Conversões</th>
+                                    <th>📈 Taxa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                Object.values(conversaoData).forEach(pessoa => {
+                    const taxa = pessoa.visitas > 0 ? (pessoa.conversoes / pessoa.visitas * 100).toFixed(1) : 0;
+                    html += `
+                        <tr>
+                            <td>${pessoa.nome}</td>
+                            <td>${pessoa.unidade}</td>
+                            <td style="text-align: center;">${pessoa.visitas}</td>
+                            <td style="text-align: center;">${pessoa.conversoes}</td>
+                            <td style="text-align: center; font-weight: bold; color: ${taxa >= 50 ? '#38a169' : '#e53e3e'};">${taxa}%</td>
+                        </tr>
+                    `;
+                });
+
+                const totalVisitas = Object.values(conversaoData).reduce((total, p) => total + p.visitas, 0);
+                const totalConversoes = Object.values(conversaoData).reduce((total, p) => total + p.conversoes, 0);
+                const taxaGeral = totalVisitas > 0 ? (totalConversoes / totalVisitas * 100).toFixed(1) : 0;
+
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: var(--bg-primary); font-weight: bold;">
+                                    <td colspan="2">TOTAL GERAL</td>
+                                    <td style="text-align: center;">${totalVisitas}</td>
+                                    <td style="text-align: center;">${totalConversoes}</td>
+                                    <td style="text-align: center; color: #38a169;">${taxaGeral}%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showNotification('✅ Relatório de conversão gerado!', 'success');
+            }, 1500);
+        }
+
+        function gerarRelatorioUnidade() {
+            const mes = document.getElementById('relatorioMes').value;
+            
+            if (!mes) {
+                showNotification('Selecione o mês para o relatório!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Gerando relatório por unidade...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
+                
+                const [year, month] = mes.split('-');
+                const monthName = new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                
+                const dadosUnidades = {};
+
+                unidades.forEach(unidade => {
+                    const matriculasUnidade = matriculas.filter(m => {
+                        const matriculaDate = new Date(m.data);
+                        return matriculaDate.getFullYear() == year && 
+                               matriculaDate.getMonth() == month - 1 && 
+                               m.unidade === unidade && 
+                               !m.cancelado;
+                    });
+
+                    const visitasUnidade = visitas.filter(v => {
+                        const visitaDate = new Date(v.data);
+                        return visitaDate.getFullYear() == year && 
+                               visitaDate.getMonth() == month - 1 && 
+                               v.unidade === unidade;
+                    });
+
+                    const colaboradoresUnidade = Object.values(users).filter(u => 
+                        u.unit === unidade && u.role !== 'admin'
+                    ).length;
+
+                    const faturamento = matriculasUnidade.reduce((total, m) => total + (m.valorEntrada || 0), 0);
+                    const conversoes = visitasUnidade.filter(v => v.convertido).length;
+                    const taxaConversao = visitasUnidade.length > 0 ? (conversoes / visitasUnidade.length * 100).toFixed(1) : 0;
+
+                    const convencional = matriculasUnidade.filter(m => m.tipo === 'Convencional').length;
+                    const blackin = matriculasUnidade.filter(m => m.tipo === 'Blackin').length;
+                    const black = matriculasUnidade.filter(m => m.tipo === 'Black').length;
+
+                    dadosUnidades[unidade] = {
+                        nome: unidade,
+                        colaboradores: colaboradoresUnidade,
+                        visitas: visitasUnidade.length,
+                        matriculas: matriculasUnidade.length,
+                        conversao: taxaConversao,
+                        faturamento: faturamento,
+                        convencional: convencional,
+                        blackin: blackin,
+                        black: black
+                    };
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3>🏢 Relatório por Unidade - ${monthName}</h3>
+                            <button class="btn btn-primary" onclick="printReport()">🖨️ Imprimir</button>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>🏢 Unidade</th>
+                                    <th>👨‍💼 Colaboradores</th>
+                                    <th>👥 Visitas</th>
+                                    <th>📊 Matrículas</th>
+                                    <th>📈 Conversão</th>
+                                    <th>💰 Faturamento</th>
+                                    <th>📋 Convencional</th>
+                                    <th>🖤 Blackin</th>
+                                    <th>⚫ Black</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                let totals = {
+                    colaboradores: 0,
+                    visitas: 0,
+                    matriculas: 0,
+                    faturamento: 0,
+                    convencional: 0,
+                    blackin: 0,
+                    black: 0
+                };
+
+                Object.values(dadosUnidades).forEach(unidade => {
+                    totals.colaboradores += unidade.colaboradores;
+                    totals.visitas += unidade.visitas;
+                    totals.matriculas += unidade.matriculas;
+                    totals.faturamento += unidade.faturamento;
+                    totals.convencional += unidade.convencional;
+                    totals.blackin += unidade.blackin;
+                    totals.black += unidade.black;
+
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold;">${unidade.nome}</td>
+                            <td style="text-align: center;">${unidade.colaboradores}</td>
+                            <td style="text-align: center;">${unidade.visitas}</td>
+                            <td style="text-align: center;">${unidade.matriculas}</td>
+                            <td style="text-align: center; font-weight: bold; color: ${unidade.conversao >= 50 ? '#38a169' : '#e53e3e'};">${unidade.conversao}%</td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(unidade.faturamento)}</td>
+                            <td style="text-align: center;">${unidade.convencional}</td>
+                            <td style="text-align: center;">${unidade.blackin}</td>
+                            <td style="text-align: center;">${unidade.black}</td>
+                        </tr>
+                    `;
+                });
+
+                const conversaoTotal = totals.visitas > 0 ? ((totals.matriculas / totals.visitas) * 100).toFixed(1) : 0;
+
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: var(--bg-primary); font-weight: bold;">
+                                    <td>TOTAL GERAL</td>
+                                    <td style="text-align: center;">${totals.colaboradores}</td>
+                                    <td style="text-align: center;">${totals.visitas}</td>
+                                    <td style="text-align: center;">${totals.matriculas}</td>
+                                    <td style="text-align: center; color: #38a169;">${conversaoTotal}%</td>
+                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totals.faturamento)}</td>
+                                    <td style="text-align: center;">${totals.convencional}</td>
+                                    <td style="text-align: center;">${totals.blackin}</td>
+                                    <td style="text-align: center;">${totals.black}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showNotification('✅ Relatório por unidade gerado!', 'success');
+            }, 1500);
+        }
+
+        function gerarRelatorioMetas() {
+            const mes = document.getElementById('relatorioMes').value;
+            
+            if (!mes) {
+                showNotification('Selecione o mês para o relatório!', 'error');
+                return;
+            }
+
+            showLoadingMessage('Gerando relatório de metas...');
+            
+            setTimeout(() => {
+                hideLoadingMessage();
+                
+                const [year, month] = mes.split('-');
+                const metasDoMes = metas[mes] || {};
+                
+                const dadosComparacao = [];
+
+                unidades.forEach(unidade => {
+                    const matriculasUnidade = matriculas.filter(m => {
+                        const matriculaDate = new Date(m.data);
+                        return matriculaDate.getFullYear() == year && 
+                               matriculaDate.getMonth() == month - 1 && 
+                               m.unidade === unidade && 
+                               !m.cancelado;
+                    });
+
+                    const faturamento = matriculasUnidade.reduce((total, m) => total + (m.valorEntrada || 0), 0);
+                    const metaUnidade = metasDoMes[unidade] || {};
+
+                    const progressMatriculas = metaUnidade.matriculas ? (matriculasUnidade.length / metaUnidade.matriculas * 100) : 0;
+                    const progressFaturamento = metaUnidade.faturamento ? (faturamento / metaUnidade.faturamento * 100) : 0;
+
+                    dadosComparacao.push({
+                        unidade,
+                        matriculasReal: matriculasUnidade.length,
+                        matriculasMeta: metaUnidade.matriculas || 0,
+                        progressMatriculas,
+                        faturamentoReal: faturamento,
+                        faturamentoMeta: metaUnidade.faturamento || 0,
+                        progressFaturamento
+                    });
+                });
+
+                const relatorioResultado = document.getElementById('relatorioResultado');
+                let html = `
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3>🎯 Relatório Metas vs Realizado - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
+                            <button class="btn btn-primary" onclick="printReport()">🖨️ Imprimir</button>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>🏢 Unidade</th>
+                                    <th>📊 Matrículas Real</th>
+                                    <th>🎯 Meta Matrículas</th>
+                                    <th>📈 Progress %</th>
+                                    <th>💰 Faturamento Real</th>
+                                    <th>🎯 Meta Faturamento</th>
+                                    <th>📈 Progress %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                dadosComparacao.forEach(unidade => {
+                    const statusMatriculas = unidade.progressMatriculas >= 100 ? '✅' : unidade.progressMatriculas >= 80 ? '⚠️' : '❌';
+                    const statusFaturamento = unidade.progressFaturamento >= 100 ? '✅' : unidade.progressFaturamento >= 80 ? '⚠️' : '❌';
+                    const corMatriculas = unidade.progressMatriculas >= 100 ? '#38a169' : unidade.progressMatriculas >= 80 ? '#ed8936' : '#e53e3e';
+                    const corFaturamento = unidade.progressFaturamento >= 100 ? '#38a169' : unidade.progressFaturamento >= 80 ? '#ed8936' : '#e53e3e';
+
+                    html += `
+                        <tr>
+                            <td style="font-weight: bold;">${unidade.unidade}</td>
+                            <td style="text-align: center; font-weight: bold;">${unidade.matriculasReal}</td>
+                            <td style="text-align: center;">${unidade.matriculasMeta}</td>
+                            <td style="text-align: center;">
+                                <span style="color: ${corMatriculas}; font-weight: bold;">
+                                    ${statusMatriculas} ${unidade.progressMatriculas.toFixed(1)}%
+                                </span>
+                            </td>
+                            <td style="text-align: right; font-weight: bold;">${formatCurrency(unidade.faturamentoReal)}</td>
+                            <td style="text-align: right;">${formatCurrency(unidade.faturamentoMeta)}</td>
+                            <td style="text-align: center;">
+                                <span style="color: ${corFaturamento}; font-weight: bold;">
+                                    ${statusFaturamento} ${unidade.progressFaturamento.toFixed(1)}%
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                relatorioResultado.innerHTML = html;
+                showNotification('✅ Relatório de metas gerado!', 'success');
+            }, 1500);
         }
 
         // GOOGLE SHEETS INTEGRAÇÃO
         function saveGoogleSheetsConfig() {
-            const url = document.getElementById('googleScriptUrl').value;
+            const url = document.getElementById('googleScriptUrl').value.trim();
             if (!url) {
                 showNotification('Digite a URL do Google Apps Script!', 'error');
                 return;
@@ -3082,6 +4131,7 @@
                 visitas: visitas,
                 missions: missions,
                 metas: metas,
+                unidades: unidades,
                 timestamp: new Date().toISOString()
             };
 
@@ -3202,6 +4252,7 @@ function doPost(e) {
       if (data.visitas) saveVisitas(spreadsheet, data.visitas);
       if (data.missions) saveMissions(spreadsheet, data.missions);
       if (data.metas) saveMetas(spreadsheet, data.metas);
+      if (data.unidades) saveUnidades(spreadsheet, data.unidades);
       
       return ContentService
         .createTextOutput(JSON.stringify({
@@ -3240,7 +4291,91 @@ function saveUsers(spreadsheet, users) {
   }
 }
 
-// Adicione outras funções save conforme necessário
+function saveMatriculas(spreadsheet, matriculas) {
+  let sheet = spreadsheet.getSheetByName('Matriculas');
+  if (!sheet) sheet = spreadsheet.insertSheet('Matriculas');
+  
+  sheet.clear();
+  const headers = ['ID', 'Data', 'Nome', 'Telefone', 'Curso', 'ValorTotal', 'ValorEntrada', 'Tipo', 'Parcelas', 'Vendedor', 'Gerente', 'Assistente', 'Unidade', 'Origem', 'Status', 'Cancelado'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  const data = matriculas.map(m => [
+    m.id, m.data, m.nome, m.telefone, m.curso, m.valorTotal, m.valorEntrada, m.tipo, m.parcelas, m.vendedor, m.gerente, m.assistente, m.unidade, m.origem, m.statusPagamento, m.cancelado
+  ]);
+  
+  if (data.length > 0) {
+    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+  }
+}
+
+function saveVisitas(spreadsheet, visitas) {
+  let sheet = spreadsheet.getSheetByName('Visitas');
+  if (!sheet) sheet = spreadsheet.insertSheet('Visitas');
+  
+  sheet.clear();
+  const headers = ['ID', 'Data', 'Nome', 'Telefone', 'CursoInteresse', 'Atendente', 'Unidade', 'Observacoes', 'Convertido', 'MatriculaID', 'DataConversao'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  const data = visitas.map(v => [
+    v.id, v.data, v.nome, v.telefone, v.cursoInteresse, v.atendente, v.unidade, v.observacoes, v.convertido, v.matriculaId, v.dataConversao
+  ]);
+  
+  if (data.length > 0) {
+    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+  }
+}
+
+function saveMissions(spreadsheet, missions) {
+  let sheet = spreadsheet.getSheetByName('Missions');
+  if (!sheet) sheet = spreadsheet.insertSheet('Missions');
+  
+  sheet.clear();
+  const headers = ['ID', 'Title', 'Description', 'Type', 'Target', 'Reward', 'Deadline', 'CreatedBy', 'AssignedTo', 'Unit', 'Completed'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  const data = missions.map(m => [
+    m.id, m.title, m.description, m.type, m.target, m.reward, m.deadline, m.createdBy, m.assignedTo, m.unit, m.completed || false
+  ]);
+  
+  if (data.length > 0) {
+    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+  }
+}
+
+function saveMetas(spreadsheet, metas) {
+  let sheet = spreadsheet.getSheetByName('Metas');
+  if (!sheet) sheet = spreadsheet.insertSheet('Metas');
+  
+  sheet.clear();
+  const headers = ['Mes', 'Unidade', 'MetaMatriculas', 'MetaFaturamento'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  const data = [];
+  Object.entries(metas).forEach(([mes, metasMes]) => {
+    Object.entries(metasMes).forEach(([unidade, meta]) => {
+      data.push([mes, unidade, meta.matriculas, meta.faturamento]);
+    });
+  });
+  
+  if (data.length > 0) {
+    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+  }
+}
+
+function saveUnidades(spreadsheet, unidades) {
+  let sheet = spreadsheet.getSheetByName('Unidades');
+  if (!sheet) sheet = spreadsheet.insertSheet('Unidades');
+  
+  sheet.clear();
+  const headers = ['Nome'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  
+  const data = unidades.map(u => [u]);
+  
+  if (data.length > 0) {
+    sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+  }
+}
             `;
             document.getElementById('scriptModal').style.display = 'flex';
         }
@@ -3287,517 +4422,6 @@ function saveUsers(spreadsheet, users) {
             document.body.appendChild(modal);
         }
 
-        // SISTEMA DE METAS
-        function generateDefaultMetas() {
-            const currentMonth = new Date().toISOString().substring(0, 7);
-            
-            if (!metas[currentMonth]) {
-                metas[currentMonth] = {
-                    'Shopping Conjunto Nacional': {
-                        matriculas: 50,
-                        faturamento: 50000
-                    },
-                    'JK Shopping': {
-                        matriculas: 40,
-                        faturamento: 40000
-                    }
-                };
-                saveDataToLocal();
-            }
-        }
-
-        function salvarMetas() {
-            const currentMonth = new Date().toISOString().substring(0, 7);
-            
-            const metaMatriculasNacional = parseInt(document.getElementById('metaMatriculasNacional').value) || 0;
-            const metaFaturamentoNacional = parseFloat(document.getElementById('metaFaturamentoNacional').value) || 0;
-            const metaMatriculasJK = parseInt(document.getElementById('metaMatriculasJK').value) || 0;
-            const metaFaturamentoJK = parseFloat(document.getElementById('metaFaturamentoJK').value) || 0;
-
-            if (!metas[currentMonth]) {
-                metas[currentMonth] = {};
-            }
-
-            metas[currentMonth]['Shopping Conjunto Nacional'] = {
-                matriculas: metaMatriculasNacional,
-                faturamento: metaFaturamentoNacional
-            };
-
-            metas[currentMonth]['JK Shopping'] = {
-                matriculas: metaMatriculasJK,
-                faturamento: metaFaturamentoJK
-            };
-
-            saveDataToLocal();
-            if (GOOGLE_APPS_SCRIPT_URL) forceSync();
-
-            setupDashboard();
-
-            showNotification('🎯 Metas salvas com sucesso!', 'success');
-            document.getElementById('metasStatus').innerHTML = '<div style="color: #38a169; font-weight: bold;">✅ Metas salvas e sincronizadas!</div>';
-        }
-
-        function carregarMetas() {
-            const currentMonth = new Date().toISOString().substring(0, 7);
-            const metasDoMes = metas[currentMonth] || {};
-
-            const metaNacional = metasDoMes['Shopping Conjunto Nacional'] || {};
-            const metaJK = metasDoMes['JK Shopping'] || {};
-
-            document.getElementById('metaMatriculasNacional').value = metaNacional.matriculas || '';
-            document.getElementById('metaFaturamentoNacional').value = metaNacional.faturamento || '';
-            document.getElementById('metaMatriculasJK').value = metaJK.matriculas || '';
-            document.getElementById('metaFaturamentoJK').value = metaJK.faturamento || '';
-
-            showNotification('🔄 Metas carregadas!', 'info');
-            document.getElementById('metasStatus').innerHTML = '<div style="color: #667eea; font-weight: bold;">📋 Metas do mês carregadas!</div>';
-        }
-
-        // SISTEMA DE RELATÓRIOS COMPLETO
-        function gerarRelatorioComissoes() {
-            const mes = document.getElementById('relatorioMes').value;
-            const unidade = document.getElementById('relatorioUnidade').value;
-            const colaborador = document.getElementById('relatorioColaborador').value;
-            
-            if (!mes) {
-                showNotification('Selecione o mês para o relatório!', 'error');
-                return;
-            }
-
-            showLoadingMessage('Gerando relatório de comissões...');
-            
-            setTimeout(() => {
-                hideLoadingMessage();
-                
-                const [year, month] = mes.split('-');
-                const filteredData = matriculas.filter(m => {
-                    const matriculaDate = new Date(m.data);
-                    const mesMatch = matriculaDate.getFullYear() == year && matriculaDate.getMonth() == month - 1;
-                    const unidadeMatch = !unidade || m.unidade === unidade;
-                    const colaboradorMatch = !colaborador || m.vendedor === colaborador || m.gerente === colaborador || m.assistente === colaborador;
-                    return mesMatch && unidadeMatch && colaboradorMatch && !m.cancelado;
-                });
-
-                const comissoes = {};
-                
-                filteredData.forEach(m => {
-                    [m.vendedor, m.gerente, m.assistente].forEach((nome, index) => {
-                        if (!nome) return;
-                        
-                        const user = Object.values(users).find(u => u.name === nome);
-                        if (!user) return;
-                        
-                        if (!comissoes[nome]) {
-                            comissoes[nome] = {
-                                nome,
-                                role: user.role,
-                                unidade: user.unit,
-                                matriculas: 0,
-                                comissao: 0
-                            };
-                        }
-                        
-                        comissoes[nome].matriculas++;
-                        
-                        if (user.role === 'vendedor' && comissoes[nome].matriculas >= 10) {
-                            comissoes[nome].comissao = comissoes[nome].matriculas * getCommissionByBand(comissoes[nome].matriculas, COMISSAO_VENDEDOR);
-                        } else if (user.role === 'assistente' && comissoes[nome].matriculas >= 10) {
-                            comissoes[nome].comissao = comissoes[nome].matriculas * getCommissionByBand(comissoes[nome].matriculas, COMISSAO_ASSISTENTE);
-                        } else if (user.role === 'gerente') {
-                            const unitMatriculas = filteredData.filter(m => m.unidade === user.unit).length;
-                            if (unitMatriculas >= 26) {
-                                comissoes[nome].comissao = unitMatriculas * getCommissionByBand(unitMatriculas, COMISSAO_GERENTE);
-                            }
-                        }
-                    });
-                });
-
-                const relatorioResultado = document.getElementById('relatorioResultado');
-                let html = `
-                    <div class="stat-card" style="margin-top: 20px;">
-                        <h3>💰 Relatório de Comissões - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>👤 Nome</th>
-                                    <th>💼 Cargo</th>
-                                    <th>🏢 Unidade</th>
-                                    <th>📊 Matrículas</th>
-                                    <th>💰 Comissão</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                Object.values(comissoes).forEach(pessoa => {
-                    html += `
-                        <tr>
-                            <td>${pessoa.nome}</td>
-                            <td><span class="role-badge role-${pessoa.role}">${pessoa.role}</span></td>
-                            <td>${pessoa.unidade}</td>
-                            <td style="text-align: center;">${pessoa.matriculas}</td>
-                            <td style="text-align: right; font-weight: bold;">${formatCurrency(pessoa.comissao)}</td>
-                        </tr>
-                    `;
-                });
-
-                const totalComissoes = Object.values(comissoes).reduce((total, p) => total + p.comissao, 0);
-
-                html += `
-                            </tbody>
-                            <tfoot>
-                                <tr style="background: var(--bg-primary); font-weight: bold;">
-                                    <td colspan="4">TOTAL</td>
-                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totalComissoes)}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                `;
-
-                relatorioResultado.innerHTML = html;
-                showNotification('✅ Relatório de comissões gerado!', 'success');
-            }, 1500);
-        }
-
-        function gerarRelatorioConversao() {
-            const mes = document.getElementById('relatorioMes').value;
-            const unidade = document.getElementById('relatorioUnidade').value;
-            const colaborador = document.getElementById('relatorioColaborador').value;
-            
-            if (!mes) {
-                showNotification('Selecione o mês para o relatório!', 'error');
-                return;
-            }
-
-            showLoadingMessage('Gerando relatório de conversão...');
-            
-            setTimeout(() => {
-                hideLoadingMessage();
-                
-                const [year, month] = mes.split('-');
-                
-                const filteredVisitas = visitas.filter(v => {
-                    const visitaDate = new Date(v.data);
-                    const mesMatch = visitaDate.getFullYear() == year && visitaDate.getMonth() == month - 1;
-                    const unidadeMatch = !unidade || v.unidade === unidade;
-                    const colaboradorMatch = !colaborador || v.atendente === colaborador;
-                    return mesMatch && unidadeMatch && colaboradorMatch;
-                });
-
-                const conversaoData = {};
-                
-                filteredVisitas.forEach(v => {
-                    if (!conversaoData[v.atendente]) {
-                        conversaoData[v.atendente] = {
-                            nome: v.atendente,
-                            unidade: v.unidade,
-                            visitas: 0,
-                            conversoes: 0
-                        };
-                    }
-                    conversaoData[v.atendente].visitas++;
-                    if (v.convertido) {
-                        conversaoData[v.atendente].conversoes++;
-                    }
-                });
-
-                const relatorioResultado = document.getElementById('relatorioResultado');
-                let html = `
-                    <div class="stat-card" style="margin-top: 20px;">
-                        <h3>📈 Relatório de Conversão - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>👤 Atendente</th>
-                                    <th>🏢 Unidade</th>
-                                    <th>👥 Visitas</th>
-                                    <th>✅ Conversões</th>
-                                    <th>📈 Taxa</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                Object.values(conversaoData).forEach(pessoa => {
-                    const taxa = pessoa.visitas > 0 ? (pessoa.conversoes / pessoa.visitas * 100).toFixed(1) : 0;
-                    html += `
-                        <tr>
-                            <td>${pessoa.nome}</td>
-                            <td>${pessoa.unidade}</td>
-                            <td style="text-align: center;">${pessoa.visitas}</td>
-                            <td style="text-align: center;">${pessoa.conversoes}</td>
-                            <td style="text-align: center; font-weight: bold; color: ${taxa >= 50 ? '#38a169' : '#e53e3e'};">${taxa}%</td>
-                        </tr>
-                    `;
-                });
-
-                const totalVisitas = Object.values(conversaoData).reduce((total, p) => total + p.visitas, 0);
-                const totalConversoes = Object.values(conversaoData).reduce((total, p) => total + p.conversoes, 0);
-                const taxaGeral = totalVisitas > 0 ? (totalConversoes / totalVisitas * 100).toFixed(1) : 0;
-
-                html += `
-                            </tbody>
-                            <tfoot>
-                                <tr style="background: var(--bg-primary); font-weight: bold;">
-                                    <td colspan="2">TOTAL GERAL</td>
-                                    <td style="text-align: center;">${totalVisitas}</td>
-                                    <td style="text-align: center;">${totalConversoes}</td>
-                                    <td style="text-align: center; color: #38a169;">${taxaGeral}%</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                `;
-
-                relatorioResultado.innerHTML = html;
-                showNotification('✅ Relatório de conversão gerado!', 'success');
-            }, 1500);
-        }
-
-        function gerarRelatorioUnidade() {
-            const mes = document.getElementById('relatorioMes').value;
-            
-            if (!mes) {
-                showNotification('Selecione o mês para o relatório!', 'error');
-                return;
-            }
-
-            showLoadingMessage('Gerando relatório por unidade...');
-            
-            setTimeout(() => {
-                hideLoadingMessage();
-                
-                const [year, month] = mes.split('-');
-                const monthName = new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-                
-                const unidades = ['Shopping Conjunto Nacional', 'JK Shopping'];
-                const dadosUnidades = {};
-
-                unidades.forEach(unidade => {
-                    const matriculasUnidade = matriculas.filter(m => {
-                        const matriculaDate = new Date(m.data);
-                        return matriculaDate.getFullYear() == year && 
-                               matriculaDate.getMonth() == month - 1 && 
-                               m.unidade === unidade && 
-                               !m.cancelado;
-                    });
-
-                    const visitasUnidade = visitas.filter(v => {
-                        const visitaDate = new Date(v.data);
-                        return visitaDate.getFullYear() == year && 
-                               visitaDate.getMonth() == month - 1 && 
-                               v.unidade === unidade;
-                    });
-
-                    const colaboradoresUnidade = Object.values(users).filter(u => 
-                        u.unit === unidade && u.role !== 'admin'
-                    ).length;
-
-                    const faturamento = matriculasUnidade.reduce((total, m) => total + (m.valorEntrada || 0), 0);
-                    const conversoes = visitasUnidade.filter(v => v.convertido).length;
-                    const taxaConversao = visitasUnidade.length > 0 ? (conversoes / visitasUnidade.length * 100).toFixed(1) : 0;
-
-                    const convencional = matriculasUnidade.filter(m => m.tipo === 'Convencional').length;
-                    const blackin = matriculasUnidade.filter(m => m.tipo === 'Blackin').length;
-                    const black = matriculasUnidade.filter(m => m.tipo === 'Black').length;
-
-                    dadosUnidades[unidade] = {
-                        nome: unidade,
-                        colaboradores: colaboradoresUnidade,
-                        visitas: visitasUnidade.length,
-                        matriculas: matriculasUnidade.length,
-                        conversao: taxaConversao,
-                        faturamento: faturamento,
-                        convencional: convencional,
-                        blackin: blackin,
-                        black: black
-                    };
-                });
-
-                const relatorioResultado = document.getElementById('relatorioResultado');
-                let html = `
-                    <div class="stat-card" style="margin-top: 20px;">
-                        <h3>🏢 Relatório por Unidade - ${monthName}</h3>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>🏢 Unidade</th>
-                                    <th>👨‍💼 Colaboradores</th>
-                                    <th>👥 Visitas</th>
-                                    <th>📊 Matrículas</th>
-                                    <th>📈 Conversão</th>
-                                    <th>💰 Faturamento</th>
-                                    <th>📋 Convencional</th>
-                                    <th>🖤 Blackin</th>
-                                    <th>⚫ Black</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                let totals = {
-                    colaboradores: 0,
-                    visitas: 0,
-                    matriculas: 0,
-                    faturamento: 0,
-                    convencional: 0,
-                    blackin: 0,
-                    black: 0
-                };
-
-                Object.values(dadosUnidades).forEach(unidade => {
-                    totals.colaboradores += unidade.colaboradores;
-                    totals.visitas += unidade.visitas;
-                    totals.matriculas += unidade.matriculas;
-                    totals.faturamento += unidade.faturamento;
-                    totals.convencional += unidade.convencional;
-                    totals.blackin += unidade.blackin;
-                    totals.black += unidade.black;
-
-                    html += `
-                        <tr>
-                            <td style="font-weight: bold;">${unidade.nome}</td>
-                            <td style="text-align: center;">${unidade.colaboradores}</td>
-                            <td style="text-align: center;">${unidade.visitas}</td>
-                            <td style="text-align: center;">${unidade.matriculas}</td>
-                            <td style="text-align: center; font-weight: bold; color: ${unidade.conversao >= 50 ? '#38a169' : '#e53e3e'};">${unidade.conversao}%</td>
-                            <td style="text-align: right; font-weight: bold;">${formatCurrency(unidade.faturamento)}</td>
-                            <td style="text-align: center;">${unidade.convencional}</td>
-                            <td style="text-align: center;">${unidade.blackin}</td>
-                            <td style="text-align: center;">${unidade.black}</td>
-                        </tr>
-                    `;
-                });
-
-                const conversaoTotal = totals.visitas > 0 ? ((totals.matriculas / totals.visitas) * 100).toFixed(1) : 0;
-
-                html += `
-                            </tbody>
-                            <tfoot>
-                                <tr style="background: var(--bg-primary); font-weight: bold;">
-                                    <td>TOTAL GERAL</td>
-                                    <td style="text-align: center;">${totals.colaboradores}</td>
-                                    <td style="text-align: center;">${totals.visitas}</td>
-                                    <td style="text-align: center;">${totals.matriculas}</td>
-                                    <td style="text-align: center; color: #38a169;">${conversaoTotal}%</td>
-                                    <td style="text-align: right; color: #38a169;">${formatCurrency(totals.faturamento)}</td>
-                                    <td style="text-align: center;">${totals.convencional}</td>
-                                    <td style="text-align: center;">${totals.blackin}</td>
-                                    <td style="text-align: center;">${totals.black}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                `;
-
-                relatorioResultado.innerHTML = html;
-                showNotification('✅ Relatório por unidade gerado!', 'success');
-            }, 1500);
-        }
-
-        function gerarRelatorioMetas() {
-            const mes = document.getElementById('relatorioMes').value;
-            
-            if (!mes) {
-                showNotification('Selecione o mês para o relatório!', 'error');
-                return;
-            }
-
-            showLoadingMessage('Gerando relatório de metas...');
-            
-            setTimeout(() => {
-                hideLoadingMessage();
-                
-                const [year, month] = mes.split('-');
-                const metasDoMes = metas[mes] || {};
-                
-                const unidades = ['Shopping Conjunto Nacional', 'JK Shopping'];
-                const dadosComparacao = [];
-
-                unidades.forEach(unidade => {
-                    const matriculasUnidade = matriculas.filter(m => {
-                        const matriculaDate = new Date(m.data);
-                        return matriculaDate.getFullYear() == year && 
-                               matriculaDate.getMonth() == month - 1 && 
-                               m.unidade === unidade && 
-                               !m.cancelado;
-                    });
-
-                    const faturamento = matriculasUnidade.reduce((total, m) => total + (m.valorEntrada || 0), 0);
-                    const metaUnidade = metasDoMes[unidade] || {};
-
-                    const progressMatriculas = metaUnidade.matriculas ? (matriculasUnidade.length / metaUnidade.matriculas * 100) : 0;
-                    const progressFaturamento = metaUnidade.faturamento ? (faturamento / metaUnidade.faturamento * 100) : 0;
-
-                    dadosComparacao.push({
-                        unidade,
-                        matriculasReal: matriculasUnidade.length,
-                        matriculasMeta: metaUnidade.matriculas || 0,
-                        progressMatriculas,
-                        faturamentoReal: faturamento,
-                        faturamentoMeta: metaUnidade.faturamento || 0,
-                        progressFaturamento
-                    });
-                });
-
-                const relatorioResultado = document.getElementById('relatorioResultado');
-                let html = `
-                    <div class="stat-card" style="margin-top: 20px;">
-                        <h3>🎯 Relatório Metas vs Realizado - ${new Date(year, month-1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h3>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>🏢 Unidade</th>
-                                    <th>📊 Matrículas Real</th>
-                                    <th>🎯 Meta Matrículas</th>
-                                    <th>📈 Progress %</th>
-                                    <th>💰 Faturamento Real</th>
-                                    <th>🎯 Meta Faturamento</th>
-                                    <th>📈 Progress %</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                dadosComparacao.forEach(unidade => {
-                    const statusMatriculas = unidade.progressMatriculas >= 100 ? '✅' : unidade.progressMatriculas >= 80 ? '⚠️' : '❌';
-                    const statusFaturamento = unidade.progressFaturamento >= 100 ? '✅' : unidade.progressFaturamento >= 80 ? '⚠️' : '❌';
-                    const corMatriculas = unidade.progressMatriculas >= 100 ? '#38a169' : unidade.progressMatriculas >= 80 ? '#ed8936' : '#e53e3e';
-                    const corFaturamento = unidade.progressFaturamento >= 100 ? '#38a169' : unidade.progressFaturamento >= 80 ? '#ed8936' : '#e53e3e';
-
-                    html += `
-                        <tr>
-                            <td style="font-weight: bold;">${unidade.unidade}</td>
-                            <td style="text-align: center; font-weight: bold;">${unidade.matriculasReal}</td>
-                            <td style="text-align: center;">${unidade.matriculasMeta}</td>
-                            <td style="text-align: center;">
-                                <span style="color: ${corMatriculas}; font-weight: bold;">
-                                    ${statusMatriculas} ${unidade.progressMatriculas.toFixed(1)}%
-                                </span>
-                            </td>
-                            <td style="text-align: right; font-weight: bold;">${formatCurrency(unidade.faturamentoReal)}</td>
-                            <td style="text-align: right;">${formatCurrency(unidade.faturamentoMeta)}</td>
-                            <td style="text-align: center;">
-                                <span style="color: ${corFaturamento}; font-weight: bold;">
-                                    ${statusFaturamento} ${unidade.progressFaturamento.toFixed(1)}%
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                html += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-
-                relatorioResultado.innerHTML = html;
-                showNotification('✅ Relatório de metas gerado!', 'success');
-            }, 1500);
-        }
-
         // SISTEMA DE ARMAZENAMENTO LOCAL
         function loadDataFromLocal() {
             try {
@@ -3807,11 +4431,18 @@ function saveUsers(spreadsheet, users) {
                 const savedUserStats = localStorage.getItem('userStats');
                 const savedMissions = localStorage.getItem('missions');
                 const savedMetas = localStorage.getItem('metas');
+                const savedUnidades = localStorage.getItem('unidades');
 
                 if (savedUsers) {
                     users = JSON.parse(savedUsers);
                 } else {
                     users = {...defaultUsers};
+                }
+
+                if (savedUnidades) {
+                    unidades = JSON.parse(savedUnidades);
+                } else {
+                    unidades = [...defaultUnidades];
                 }
 
                 if (savedMatriculas) {
@@ -3857,9 +4488,11 @@ function saveUsers(spreadsheet, users) {
                 });
 
                 console.log('📊 Dados carregados do localStorage');
+                console.log('👥 Usuários:', Object.keys(users));
             } catch (error) {
                 console.error('❌ Erro ao carregar dados locais:', error);
                 users = {...defaultUsers};
+                unidades = [...defaultUnidades];
                 matriculas = generateSampleData();
                 visitas = generateSampleVisits();
                 userStats = {};
@@ -3871,6 +4504,7 @@ function saveUsers(spreadsheet, users) {
         function saveDataToLocal() {
             try {
                 localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('unidades', JSON.stringify(unidades));
                 localStorage.setItem('matriculas', JSON.stringify(matriculas));
                 localStorage.setItem('visitas', JSON.stringify(visitas));
                 localStorage.setItem('userStats', JSON.stringify(userStats));
@@ -3892,7 +4526,7 @@ function saveUsers(spreadsheet, users) {
             for (let i = 0; i < 25; i++) {
                 const randomDay = Math.floor(Math.random() * 28) + 1;
                 const date = new Date(currentYear, currentMonth, randomDay);
-                const unit = i % 2 === 0 ? 'Shopping Conjunto Nacional' : 'JK Shopping';
+                const unit = unidades[i % unidades.length];
                 
                 sampleData.push({
                     id: Date.now() + i,
@@ -3904,10 +4538,11 @@ function saveUsers(spreadsheet, users) {
                     valorEntrada: Math.floor(Math.random() * 500) + 200,
                     tipo: ['Convencional', 'Blackin', 'Black'][Math.floor(Math.random() * 3)],
                     parcelas: Math.floor(Math.random() * 12) + 1,
-                    vendedor: unit === 'Shopping Conjunto Nacional' ? 'João Santos' : 'Paula Oliveira',
-                    gerente: unit === 'Shopping Conjunto Nacional' ? 'Maria Silva' : 'Carlos Lima',
-                    assistente: unit === 'Shopping Conjunto Nacional' ? 'Ana Costa' : 'Paula Oliveira',
+                    vendedor: unit === unidades[0] ? 'João Santos' : 'Paula Oliveira',
+                    gerente: unit === unidades[0] ? 'Maria Silva' : 'Carlos Lima',
+                    assistente: unit === unidades[0] ? 'Ana Costa' : 'Pedro Mendes',
                     unidade: unit,
+                    origem: ['Cliente Direto', 'Cliente Porta', 'Street Marketing', 'Agendamento', 'Evento'][Math.floor(Math.random() * 5)],
                     statusPagamento: 'Pago',
                     cancelado: false,
                     fromVisit: Math.random() > 0.7
@@ -3926,7 +4561,7 @@ function saveUsers(spreadsheet, users) {
             for (let i = 0; i < 40; i++) {
                 const randomDay = Math.floor(Math.random() * 28) + 1;
                 const date = new Date(currentYear, currentMonth, randomDay);
-                const unit = i % 2 === 0 ? 'Shopping Conjunto Nacional' : 'JK Shopping';
+                const unit = unidades[i % unidades.length];
                 const converted = Math.random() > 0.7;
                 
                 sampleVisits.push({
@@ -3935,7 +4570,7 @@ function saveUsers(spreadsheet, users) {
                     nome: `Visitante ${i + 1}`,
                     telefone: `(11) 8888-${String(i).padStart(4, '0')}`,
                     cursoInteresse: ['Creators 2D', 'Creators 3D', 'Design Gráfico'][Math.floor(Math.random() * 3)],
-                    atendente: unit === 'Shopping Conjunto Nacional' ? 'João Santos' : 'Paula Oliveira',
+                    atendente: unit === unidades[0] ? 'João Santos' : 'Paula Oliveira',
                     unidade: unit,
                     observacoes: 'Visitante interessado',
                     convertido: converted,
@@ -4073,8 +4708,9 @@ function saveUsers(spreadsheet, users) {
             }
         });
 
-        console.log('🎮 Sistema Game Creators Pro carregado com sucesso!');
+        console.log('🎮 Sistema Game Creators Pro V2 carregado com sucesso!');
         console.log('💡 Sistema completo com todas as funcionalidades implementadas!');
+        console.log('✅ Novas funcionalidades: Gerenciamento de Unidades, Edição/Exclusão de Visitas, Origens Personalizadas, Relatórios com Impressão');
     </script>
 </body>
 </html>
