@@ -656,6 +656,38 @@
             order: 3;
         }
 
+        /* Commission breakdown card */
+        .commission-breakdown {
+            background: linear-gradient(135deg, #f0fff4, #e6fffa);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #38a169;
+        }
+
+        .commission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(56, 161, 105, 0.2);
+        }
+
+        .commission-item:last-child {
+            border-bottom: none;
+        }
+
+        .commission-type {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .commission-value {
+            font-weight: bold;
+            color: #38a169;
+            font-size: 16px;
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .dashboard-grid {
@@ -978,6 +1010,13 @@
                             <input type="number" id="newParcelas" min="1" max="24" placeholder="Ex: 6, 10, 12...">
                         </div>
                         <div class="form-group">
+                            <label>Matrícula com Primeira Parcela:</label>
+                            <select id="newFirstPayment" required>
+                                <option value="true">Sim (Matrícula + 1ª Parcela)</option>
+                                <option value="false">Não (Apenas Matrícula)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label>Vendedor:</label>
                             <select id="newVendedor" required>
                                 <option value="">Selecione...</option>
@@ -1236,36 +1275,84 @@
                     <h3>📊 Integração com Google Sheets</h3>
                     <p style="color: #666; margin-bottom: 20px;">Configure a sincronização automática com planilhas do Google para backup e integração de dados.</p>
                     
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <div class="form-group">
-                            <label>🔗 URL da Planilha Google:</label>
-                            <input type="url" id="googleSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." style="font-size: 12px;">
+                    <!-- Método 1: Conexão Automática por ID -->
+                    <div style="background: linear-gradient(135deg, #e3f2fd, #f0f9ff); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 15px;">🚀 Método Rápido - Conexão por ID</h4>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Use este método se você executou o script de setup automático</p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>🆔 ID da Planilha:</label>
+                                <input type="text" id="googleSheetId" placeholder="1ABC123DEF456..." style="font-family: monospace; font-size: 12px;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>🔑 API Key:</label>
+                                <input type="password" id="googleApiKeyId" placeholder="GC_2024_SECURE_KEY...">
+                            </div>
+                            <button class="btn btn-success" onclick="connectBySpreadsheetId()">🔗 Conectar por ID</button>
                         </div>
-                        <div class="form-group">
-                            <label>🔑 API Key do Google:</label>
-                            <input type="password" id="googleApiKey" placeholder="AIza...">
-                        </div>
-                        <div class="form-group">
-                            <label>📋 Nome da Aba:</label>
-                            <input type="text" id="googleSheetTab" placeholder="Sheet1" value="Sheet1">
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 8px;">
+                            <small style="color: #1976d2;">
+                                💡 <strong>Como obter o ID:</strong> Execute a função <code>createGameCreatorsDatabase()</code> no Apps Script e copie o ID gerado
+                            </small>
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0;">
-                        <button class="btn btn-primary" onclick="testGoogleConnection()">🔍 Testar Conexão</button>
-                        <button class="btn btn-success" onclick="exportToGoogleSheets()">📤 Exportar</button>
-                        <button class="btn btn-warning" onclick="importFromGoogleSheets()">📥 Importar</button>
-                        <button class="btn btn-info" onclick="syncWithGoogleSheets()">🔄 Sincronizar</button>
+                    <!-- Método 2: Conexão Manual -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #6c757d;">
+                        <h4 style="color: #495057; margin-bottom: 15px;">⚙️ Método Manual - Configuração Completa</h4>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                            <div class="form-group">
+                                <label>🔗 URL da Planilha Google:</label>
+                                <input type="url" id="googleSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." style="font-size: 12px;">
+                            </div>
+                            <div class="form-group">
+                                <label>🔑 API Key do Google:</label>
+                                <input type="password" id="googleApiKey" placeholder="Sua chave API...">
+                            </div>
+                            <div class="form-group">
+                                <label>📋 Nome da Aba:</label>
+                                <input type="text" id="googleSheetTab" placeholder="Matriculas" value="Matriculas">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                            <button class="btn btn-primary" onclick="testGoogleConnection()">🔍 Testar Conexão</button>
+                            <button class="btn btn-success" onclick="exportToGoogleSheets()">📤 Exportar</button>
+                            <button class="btn btn-warning" onclick="importFromGoogleSheets()">📥 Importar</button>
+                            <button class="btn btn-info" onclick="syncWithGoogleSheets()">🔄 Sincronizar</button>
+                        </div>
                     </div>
 
-                    <div id="googleSheetsStatus" style="padding: 15px; border-radius: 8px; margin-top: 15px; background: var(--bg-primary);">
-                        <h4>📊 Status da Integração</h4>
-                        <div id="googleConnectionStatus" style="margin: 10px 0;">
+                    <!-- Status da Integração -->
+                    <div id="googleSheetsStatus" style="padding: 20px; border-radius: 12px; margin-top: 20px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h4 style="color: #1976d2; margin-bottom: 15px;">📊 Status da Integração</h4>
+                        <div id="googleConnectionStatus" style="margin: 10px 0; font-weight: 600;">
                             <span style="color: #666;">🔴 Não Conectado</span>
+                        </div>
+                        <div id="googleConnectionDetails" style="font-size: 14px; color: #666; margin: 10px 0;">
+                            Status: Aguardando conexão
                         </div>
                         <div id="googleLastSync" style="font-size: 12px; color: #666;">
                             Última sincronização: Nunca
                         </div>
+                    </div>
+
+                    <!-- Instruções de Setup -->
+                    <div style="background: linear-gradient(135deg, #fff3e0, #fef7ed); padding: 20px; border-radius: 12px; margin-top: 20px; border-left: 4px solid #ff9800;">
+                        <h4 style="color: #e65100; margin-bottom: 15px;">📋 Instruções de Setup Automático</h4>
+                        <ol style="color: #bf360c; line-height: 1.6;">
+                            <li>Acesse <a href="https://script.google.com" target="_blank" style="color: #1976d2;">Google Apps Script</a></li>
+                            <li>Crie um novo projeto</li>
+                            <li>Cole o código de setup automático fornecido</li>
+                            <li>Mude a API_KEY na linha 8 do código</li>
+                            <li>Execute a função <code>createGameCreatorsDatabase()</code></li>
+                            <li>Copie o ID da planilha gerado</li>
+                            <li>Faça deploy como Web App (Execute as: Me, Access: Anyone)</li>
+                            <li>Use o ID aqui no sistema</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -1293,9 +1380,14 @@
         let googleSheetsConfig = {
             url: '',
             apiKey: '',
-            tabName: 'Sheet1',
+            tabName: 'Matriculas',
             connected: false,
-            lastSync: null
+            lastSync: null,
+            // Novos campos para conexão por ID
+            spreadsheetId: '',
+            webAppUrl: '',
+            spreadsheetName: '',
+            connectionMethod: 'manual' // 'manual' ou 'id'
         };
 
         // Inicialização
@@ -1676,15 +1768,24 @@
             };
         }
 
-        // Sistema de comissões NOVO
-        function calculateCommissions(matricula, userRole, userMatriculasCount, isFirstPayment = true) {
-            const { valorEntrada, tipo } = matricula;
+        // SISTEMA DE COMISSÕES OFICIAL - ATUALIZADO CONFORME DOCUMENTO
+
+        /**
+         * Calcula comissões seguindo as regras oficiais do documento
+         * @param {Object} matricula - Dados da matrícula
+         * @param {string} userRole - Papel do usuário (vendedor, gerente, assistente)
+         * @param {number} userMatriculasCount - Número de matrículas do usuário no mês
+         * @param {boolean} isFirstPayment - Se inclui primeira parcela
+         * @returns {number} Valor da comissão
+         */
+        function calculateOfficialCommissions(matricula, userRole, userMatriculasCount, isFirstPayment = true) {
+            const { tipo } = matricula;
             
             let commission = 0;
             let bonus = 0;
 
             if (userRole === 'vendedor') {
-                // Comissão vendedor: a partir da 10ª matrícula
+                // VENDEDOR: A partir da 10ª matrícula
                 if (userMatriculasCount >= 10) {
                     if (userMatriculasCount >= 41) {
                         commission = 70;
@@ -1693,7 +1794,7 @@
                     } else if (userMatriculasCount >= 21) {
                         commission = 50;
                     } else {
-                        commission = 35;
+                        commission = 35; // De 10 a 20
                     }
                     
                     // Se for só matrícula (sem primeira parcela), pagar 50%
@@ -1702,20 +1803,20 @@
                     }
                 }
                 
-                // Bônus Blackin/Black
+                // Bônus Blackin/Black (dividido entre vendedor e gerente)
                 if (tipo === 'Blackin') {
-                    bonus = 25; // 50 dividido entre vendedor e gerente
+                    bonus = 25; // R$ 50 dividido por 2
                 } else if (tipo === 'Black') {
-                    bonus = 50; // 100 dividido entre vendedor e gerente
+                    bonus = 50; // R$ 100 dividido por 2
                 }
 
             } else if (userRole === 'gerente') {
-                // Comissão gerente: a partir da 26ª matrícula
+                // GERENTE: A partir da 26ª matrícula
                 if (userMatriculasCount >= 26) {
                     if (userMatriculasCount >= 53) {
-                        commission = 80;
+                        commission = 80; // De 53 a 78
                     } else {
-                        commission = 50;
+                        commission = 50; // De 26 a 52
                     }
                     
                     // Se for só matrícula (sem primeira parcela), pagar 50%
@@ -1726,23 +1827,13 @@
                 
                 // Bônus Blackin/Black (50% do bônus)
                 if (tipo === 'Blackin') {
-                    bonus = 25; // 50% de 50
+                    bonus = 25; // 50% de R$ 50
                 } else if (tipo === 'Black') {
-                    bonus = 50; // 50% de 100
-                }
-                
-                // Comissão por faturamento (calculada mensalmente)
-                const monthlyRevenue = calculateMonthlyRevenue(currentUser.unit);
-                if (monthlyRevenue >= 80000) {
-                    bonus += monthlyRevenue * 0.03; // 3%
-                } else if (monthlyRevenue >= 49054.20) {
-                    bonus += monthlyRevenue * 0.02; // 2%
-                } else if (monthlyRevenue >= 31445) {
-                    bonus += monthlyRevenue * 0.01; // 1%
+                    bonus = 50; // 50% de R$ 100
                 }
 
             } else if (userRole === 'assistente') {
-                // Comissão assistente: a partir da 10ª matrícula
+                // ASSISTENTE: A partir da 10ª matrícula
                 if (userMatriculasCount >= 10) {
                     if (userMatriculasCount >= 41) {
                         commission = 30;
@@ -1751,7 +1842,7 @@
                     } else if (userMatriculasCount >= 21) {
                         commission = 15;
                     } else {
-                        commission = 10;
+                        commission = 10; // De 10 a 20
                     }
                     
                     // Se for só matrícula (sem primeira parcela), pagar 50%
@@ -1764,7 +1855,13 @@
             return commission + bonus;
         }
 
-        function calculateDailyBonus(userRole, dailyMatriculas) {
+        /**
+         * Calcula bônus diário oficial
+         * @param {string} userRole - Papel do usuário
+         * @param {number} dailyMatriculas - Número de matrículas no dia
+         * @returns {number} Valor do bônus diário
+         */
+        function calculateOfficialDailyBonus(userRole, dailyMatriculas) {
             if (userRole === 'vendedor') {
                 if (dailyMatriculas >= 3) return 100;
                 if (dailyMatriculas >= 2) return 50;
@@ -1773,6 +1870,46 @@
                 if (dailyMatriculas >= 2) return 20;
             }
             return 0;
+        }
+
+        /**
+         * Calcula comissão por faturamento (apenas gerente)
+         * @param {number} monthlyRevenue - Faturamento mensal
+         * @returns {number} Comissão por faturamento
+         */
+        function calculateRevenueCommission(monthlyRevenue) {
+            if (monthlyRevenue >= 80000) {
+                return monthlyRevenue * 0.03; // 3%
+            } else if (monthlyRevenue >= 49054.20) {
+                return monthlyRevenue * 0.02; // 2%
+            } else if (monthlyRevenue >= 31445) {
+                return monthlyRevenue * 0.01; // 1%
+            }
+            return 0;
+        }
+
+        /**
+         * Verifica se a unidade ganhou bônus por atingir ambas as metas
+         * @param {string} unit - Nome da unidade
+         * @returns {boolean} Se ganhou o bônus de R$ 1.000
+         */
+        function checkUnitBonus(unit) {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            const unitGoal = gameData.unitGoals[unit] || { matriculas: 50, faturamento: 80000 };
+            
+            const unitMatriculas = gameData.matriculas.filter(m => {
+                const date = new Date(m.data);
+                return date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear &&
+                       m.unidade === unit;
+            });
+            
+            const currentMatriculas = unitMatriculas.length;
+            const currentFaturamento = unitMatriculas.reduce((sum, m) => sum + (m.valorTotal || 0), 0);
+            
+            return currentMatriculas >= unitGoal.matriculas && currentFaturamento >= unitGoal.faturamento;
         }
 
         function calculateMonthlyRevenue(unit) {
@@ -2233,6 +2370,7 @@
                 valorEntrada: parseFloat(document.getElementById('newValorEntrada').value),
                 tipo: document.getElementById('newTipo').value,
                 parcelas: parseInt(document.getElementById('newParcelas').value) || 1,
+                hasFirstPayment: document.getElementById('newFirstPayment').value === 'true',
                 vendedor: document.getElementById('newVendedor').value,
                 gerente: document.getElementById('newGerente').value,
                 assistente: document.getElementById('newAssistente').value,
@@ -2254,16 +2392,18 @@
                 return;
             }
 
-            // Calcular comissões com novo sistema
-            const comissoes = calculateNewCommissions(matriculaData);
+            // Calcular comissões com sistema oficial
+            const comissoes = calculateOfficialMatriculaCommissions(matriculaData);
             matriculaData.comissaoVendedor = comissoes.vendedor;
             matriculaData.comissaoGerente = comissoes.gerente;
             matriculaData.comissaoAssistente = comissoes.assistente;
 
-            gameData.matriculas.push(matriculaData);
-            
             // Calcular bônus diário
-            const dailyBonus = calculateDailyBonuses(matriculaData.data);
+            const bonusDiario = calculateDailyBonusesForDate(matriculaData.data, matriculaData);
+            matriculaData.bonusDiarioVendedor = bonusDiario.vendedor;
+            matriculaData.bonusDiarioAssistente = bonusDiario.assistente;
+
+            gameData.matriculas.push(matriculaData);
             
             // Atribuir XP aos envolvidos
             awardXP(matriculaData.vendedor, 50);
@@ -2275,14 +2415,14 @@
             showNotification('Matrícula adicionada com sucesso!', 'success');
             
             // Exibir comissões calculadas
-            showNotification(`Comissões: Vendedor R${comissoes.vendedor.toFixed(2)}, Gerente R${comissoes.gerente.toFixed(2)}, Assistente R${comissoes.assistente.toFixed(2)}`, 'info');
+            showCommissionBreakdown(comissoes, bonusDiario);
 
             clearMatriculaForm();
             loadMatriculasList();
             updateDashboard();
         }
 
-        function calculateNewCommissions(matricula) {
+        function calculateOfficialMatriculaCommissions(matricula) {
             const currentMonth = new Date().getMonth();
             const currentYear = new Date().getFullYear();
             const matriculaDate = new Date(matricula.data);
@@ -2309,31 +2449,36 @@
                        m.assistente === matricula.assistente;
             }).length + 1;
 
-            // Assumindo que tem primeira parcela (pode ser configurado depois)
-            const isFirstPayment = true;
-            
-            const vendedorCommission = calculateCommissions(matricula, 'vendedor', vendedorMatriculas, isFirstPayment);
-            const gerenteCommission = calculateCommissions(matricula, 'gerente', gerenteMatriculas, isFirstPayment);
-            const assistenteCommission = calculateCommissions(matricula, 'assistente', assistenteMatriculas, isFirstPayment);
+            const vendedorCommission = calculateOfficialCommissions(matricula, 'vendedor', vendedorMatriculas, matricula.hasFirstPayment);
+            const gerenteCommission = calculateOfficialCommissions(matricula, 'gerente', gerenteMatriculas, matricula.hasFirstPayment);
+            const assistenteCommission = calculateOfficialCommissions(matricula, 'assistente', assistenteMatriculas, matricula.hasFirstPayment);
+
+            // Adicionar comissão por faturamento para gerente
+            let gerenteRevenueCommission = 0;
+            if (matricula.gerente) {
+                const monthlyRevenue = calculateMonthlyRevenue(matricula.unidade);
+                gerenteRevenueCommission = calculateRevenueCommission(monthlyRevenue + matricula.valorTotal);
+            }
 
             return {
                 vendedor: vendedorCommission,
-                gerente: gerenteCommission,
+                gerente: gerenteCommission + gerenteRevenueCommission,
                 assistente: assistenteCommission
             };
         }
 
-        function calculateDailyBonuses(dataMatricula) {
+        function calculateDailyBonusesForDate(dataMatricula, newMatricula) {
             const targetDate = new Date(dataMatricula).toDateString();
             
-            // Contar matrículas do dia para cada pessoa
+            // Contar matrículas do dia (incluindo a nova)
             const dailyMatriculas = gameData.matriculas.filter(m => 
                 new Date(m.data).toDateString() === targetDate
             );
-
-            const bonuses = {};
             
-            // Agrupar por vendedor/assistente
+            // Adicionar a nova matrícula à contagem
+            dailyMatriculas.push(newMatricula);
+
+            // Agrupar por vendedor e assistente
             const vendedorCount = {};
             const assistenteCount = {};
             
@@ -2342,22 +2487,68 @@
                 assistenteCount[m.assistente] = (assistenteCount[m.assistente] || 0) + 1;
             });
 
-            // Calcular bônus
-            Object.entries(vendedorCount).forEach(([vendedor, count]) => {
-                const bonus = calculateDailyBonus('vendedor', count);
-                if (bonus > 0) {
-                    bonuses[vendedor] = (bonuses[vendedor] || 0) + bonus;
-                }
-            });
-            
-            Object.entries(assistenteCount).forEach(([assistente, count]) => {
-                const bonus = calculateDailyBonus('assistente', count);
-                if (bonus > 0) {
-                    bonuses[assistente] = (bonuses[assistente] || 0) + bonus;
-                }
-            });
+            return {
+                vendedor: calculateOfficialDailyBonus('vendedor', vendedorCount[newMatricula.vendedor] || 0),
+                assistente: calculateOfficialDailyBonus('assistente', assistenteCount[newMatricula.assistente] || 0)
+            };
+        }
 
-            return bonuses;
+        function showCommissionBreakdown(comissoes, bonusDiario) {
+            const totalVendedor = comissoes.vendedor + bonusDiario.vendedor;
+            const totalGerente = comissoes.gerente;
+            const totalAssistente = comissoes.assistente + bonusDiario.assistente;
+
+            const breakdownHtml = `
+                <div class="commission-breakdown">
+                    <h4 style="margin-bottom: 15px; color: #38a169;">💰 Detalhamento das Comissões</h4>
+                    
+                    <div class="commission-item">
+                        <span class="commission-type">👨‍💼 Vendedor</span>
+                        <div>
+                            <span class="commission-value">R$ ${totalVendedor.toFixed(2)}</span>
+                            ${bonusDiario.vendedor > 0 ? `<br><small style="color: #ed8936;">+ R$ ${bonusDiario.vendedor.toFixed(2)} (bônus diário)</small>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="commission-item">
+                        <span class="commission-type">👔 Gerente</span>
+                        <span class="commission-value">R$ ${totalGerente.toFixed(2)}</span>
+                    </div>
+                    
+                    <div class="commission-item">
+                        <span class="commission-type">👩‍💻 Assistente</span>
+                        <div>
+                            <span class="commission-value">R$ ${totalAssistente.toFixed(2)}</span>
+                            ${bonusDiario.assistente > 0 ? `<br><small style="color: #ed8936;">+ R$ ${bonusDiario.assistente.toFixed(2)} (bônus diário)</small>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div style="border-top: 2px solid #38a169; margin-top: 15px; padding-top: 15px;">
+                        <div class="commission-item">
+                            <span class="commission-type" style="font-size: 18px;">💵 TOTAL GERAL</span>
+                            <span class="commission-value" style="font-size: 20px;">R$ ${(totalVendedor + totalGerente + totalAssistente).toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Mostrar modal com breakdown
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px;">
+                    <div class="modal-header">
+                        <h3>📊 Comissões Calculadas</h3>
+                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    ${breakdownHtml}
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-success" onclick="this.closest('.modal').remove()">✅ Entendi</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
 
         function awardXP(userName, xpAmount) {
@@ -2383,6 +2574,7 @@
             document.getElementById('newValorEntrada').value = '';
             document.getElementById('newTipo').value = '';
             document.getElementById('newParcelas').value = '';
+            document.getElementById('newFirstPayment').value = 'true';
             document.getElementById('newVendedor').value = '';
             document.getElementById('newGerente').value = '';
             document.getElementById('newAssistente').value = '';
@@ -2446,6 +2638,7 @@
                             <th>💰 Valor</th>
                             <th>👨‍💼 Vendedor</th>
                             <th>📊 Tipo</th>
+                            <th>💳 1ª Parcela</th>
                             <th>🔧 Ações</th>
                         </tr>
                     </thead>
@@ -2456,12 +2649,17 @@
                                 <td>${matricula.nome}</td>
                                 <td>${matricula.telefone}</td>
                                 <td>${matricula.curso}</td>
-                                <td>R$ ${matricula.valorTotal.toFixed(2)}</td>
+                                <td>R$ ${matricula.valorTotal?.toFixed(2) || '0.00'}</td>
                                 <td>${matricula.vendedor}</td>
                                 <td>
                                     <span style="padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; ${matricula.tipo === 'Black' ? 'background: rgba(229, 62, 62, 0.1); color: #e53e3e;' : 
                                         matricula.tipo === 'Blackin' ? 'background: rgba(237, 137, 54, 0.1); color: #ed8936;' : 'background: rgba(56, 161, 105, 0.1); color: #38a169;'}">
                                         ${matricula.tipo}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; ${matricula.hasFirstPayment ? 'background: rgba(56, 161, 105, 0.1); color: #38a169;' : 'background: rgba(237, 137, 54, 0.1); color: #ed8936;'}">
+                                        ${matricula.hasFirstPayment ? '✅ Sim' : '⚠️ Não'}
                                     </span>
                                 </td>
                                 <td>
@@ -2500,14 +2698,18 @@
                         <p><strong>💳 Entrada:</strong> R$ ${matricula.valorEntrada?.toFixed(2)}</p>
                         <p><strong>📊 Tipo:</strong> ${matricula.tipo}</p>
                         <p><strong>📝 Parcelas:</strong> ${matricula.parcelas || 1}x</p>
+                        <p><strong>💳 Com 1ª Parcela:</strong> ${matricula.hasFirstPayment ? 'Sim' : 'Não'}</p>
                         <p><strong>👨‍💼 Vendedor:</strong> ${matricula.vendedor}</p>
                         <p><strong>👔 Gerente:</strong> ${matricula.gerente}</p>
                         <p><strong>👩‍💻 Assistente:</strong> ${matricula.assistente}</p>
                         <p><strong>🏢 Unidade:</strong> ${matricula.unidade}</p>
                         <hr style="margin: 15px 0;">
-                        <p><strong>💰 Comissão Vendedor:</strong> R$ ${matricula.comissaoVendedor?.toFixed(2) || '0.00'}</p>
-                        <p><strong>💰 Comissão Gerente:</strong> R$ ${matricula.comissaoGerente?.toFixed(2) || '0.00'}</p>
-                        <p><strong>💰 Comissão Assistente:</strong> R$ ${matricula.comissaoAssistente?.toFixed(2) || '0.00'}</p>
+                        <h4 style="color: #38a169; margin-bottom: 10px;">💰 Comissões Calculadas</h4>
+                        <p><strong>💰 Comissão Vendedor:</strong> R$ ${(matricula.comissaoVendedor || 0).toFixed(2)}</p>
+                        <p><strong>💰 Comissão Gerente:</strong> R$ ${(matricula.comissaoGerente || 0).toFixed(2)}</p>
+                        <p><strong>💰 Comissão Assistente:</strong> R$ ${(matricula.comissaoAssistente || 0).toFixed(2)}</p>
+                        ${(matricula.bonusDiarioVendedor || 0) > 0 ? `<p><strong>🎁 Bônus Diário Vendedor:</strong> R$ ${matricula.bonusDiarioVendedor.toFixed(2)}</p>` : ''}
+                        ${(matricula.bonusDiarioAssistente || 0) > 0 ? `<p><strong>🎁 Bônus Diário Assistente:</strong> R$ ${matricula.bonusDiarioAssistente.toFixed(2)}</p>` : ''}
                     </div>
                 </div>
             `;
@@ -2661,9 +2863,9 @@
 
             const comissao = matriculas.reduce((sum, m) => {
                 let userCommission = 0;
-                if (m.vendedor === user.name) userCommission += m.comissaoVendedor || 0;
+                if (m.vendedor === user.name) userCommission += (m.comissaoVendedor || 0) + (m.bonusDiarioVendedor || 0);
                 if (m.gerente === user.name) userCommission += m.comissaoGerente || 0;
-                if (m.assistente === user.name) userCommission += m.comissaoAssistente || 0;
+                if (m.assistente === user.name) userCommission += (m.comissaoAssistente || 0) + (m.bonusDiarioAssistente || 0);
                 return sum + userCommission;
             }, 0);
 
@@ -3348,6 +3550,85 @@
         }
 
         // Google Sheets Integration
+        function connectBySpreadsheetId() {
+            const spreadsheetId = document.getElementById('googleSheetId').value.trim();
+            const apiKey = document.getElementById('googleApiKeyId').value.trim();
+            
+            if (!spreadsheetId || !apiKey) {
+                showNotification('Preencha o ID da planilha e a API Key', 'warning');
+                return;
+            }
+
+            showLoadingOverlay('Conectando com Google Sheets...');
+            document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #ed8936;">🟡 Conectando...</span>';
+            document.getElementById('googleConnectionDetails').innerHTML = 'Verificando planilha e configurações...';
+
+            // Construir URL da Web App (será fornecida após deploy)
+            const webAppUrl = prompt('Cole a URL da Web App aqui (obtenha após fazer deploy no Apps Script):');
+            
+            if (!webAppUrl) {
+                hideLoadingOverlay();
+                showNotification('URL da Web App é necessária', 'warning');
+                return;
+            }
+
+            // Fazer requisição para conectar por ID
+            const requestData = {
+                action: 'connect_by_id',
+                spreadsheetId: spreadsheetId,
+                apiKey: apiKey
+            };
+
+            fetch(webAppUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoadingOverlay();
+                
+                if (data.success) {
+                    googleSheetsConfig.connected = true;
+                    googleSheetsConfig.spreadsheetId = spreadsheetId;
+                    googleSheetsConfig.apiKey = apiKey;
+                    googleSheetsConfig.webAppUrl = webAppUrl;
+                    googleSheetsConfig.spreadsheetUrl = data.spreadsheetUrl;
+                    googleSheetsConfig.spreadsheetName = data.spreadsheetName;
+                    googleSheetsConfig.connectionMethod = 'id';
+                    
+                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #38a169;">✅ Conectado com sucesso!</span>';
+                    document.getElementById('googleConnectionDetails').innerHTML = `
+                        <strong>📊 Planilha:</strong> ${data.spreadsheetName}<br>
+                        <strong>🆔 ID:</strong> ${spreadsheetId}<br>
+                        <strong>📋 Abas:</strong> ${data.sheets.join(', ')}<br>
+                        <strong>⚙️ Configurada:</strong> ${data.isConfigured ? '✅ Sim' : '⚠️ Parcial'}
+                    `;
+                    
+                    if (!data.isConfigured && data.missingSheets.length > 0) {
+                        showNotification(`Planilha conectada, mas faltam abas: ${data.missingSheets.join(', ')}`, 'warning');
+                    } else {
+                        showNotification('Conexão estabelecida com sucesso! Planilha totalmente configurada.', 'success');
+                    }
+                    
+                    saveGoogleSheetsConfig();
+                } else {
+                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #e53e3e;">❌ Erro na conexão</span>';
+                    document.getElementById('googleConnectionDetails').innerHTML = `Erro: ${data.error}`;
+                    showNotification(`Erro: ${data.error}`, 'error');
+                }
+            })
+            .catch(error => {
+                hideLoadingOverlay();
+                document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #e53e3e;">❌ Erro de rede</span>';
+                document.getElementById('googleConnectionDetails').innerHTML = `Erro de conexão: ${error.message}`;
+                showNotification('Erro de rede. Verifique a URL da Web App.', 'error');
+                console.error('Erro na conexão:', error);
+            });
+        }
+
         function testGoogleConnection() {
             const apiKey = document.getElementById('googleApiKey').value;
             const url = document.getElementById('googleSheetUrl').value;
@@ -3360,7 +3641,7 @@
             showLoadingOverlay('Testando conexão com Google Sheets...');
             document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #ed8936;">🟡 Testando conexão...</span>';
 
-            // Simular teste de conexão
+            // Simular teste de conexão (substituir por chamada real à Web App)
             setTimeout(() => {
                 const success = Math.random() > 0.3; // 70% chance de sucesso para demo
                 
@@ -3371,13 +3652,16 @@
                     googleSheetsConfig.url = url;
                     googleSheetsConfig.apiKey = apiKey;
                     googleSheetsConfig.tabName = document.getElementById('googleSheetTab').value;
+                    googleSheetsConfig.connectionMethod = 'manual';
                     
                     document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #38a169;">🟢 Conectado com sucesso!</span>';
+                    document.getElementById('googleConnectionDetails').innerHTML = 'Conexão manual estabelecida via URL';
                     showNotification('Conexão com Google Sheets estabelecida!', 'success');
                     
                     saveGoogleSheetsConfig();
                 } else {
                     document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #e53e3e;">🔴 Erro na conexão</span>';
+                    document.getElementById('googleConnectionDetails').innerHTML = 'Verifique a API Key e permissões';
                     showNotification('Erro ao conectar. Verifique a API Key e permissões', 'error');
                 }
             }, 2000);
@@ -3391,16 +3675,54 @@
 
             showLoadingOverlay('Exportando dados para Google Sheets...');
             
-            setTimeout(() => {
-                const exportCount = gameData.matriculas.length + gameData.visitas.length;
-                
-                googleSheetsConfig.lastSync = new Date().toISOString();
-                document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                
-                hideLoadingOverlay();
-                showNotification(`${exportCount} registros exportados com sucesso!`, 'success');
-                saveGoogleSheetsConfig();
-            }, 3000);
+            const exportData = {
+                action: 'export',
+                apiKey: googleSheetsConfig.apiKey,
+                matriculas: gameData.matriculas,
+                visitas: gameData.visitas,
+                users: gameData.users
+            };
+
+            // Se conectado por ID, usar Web App URL
+            if (googleSheetsConfig.webAppUrl) {
+                fetch(googleSheetsConfig.webAppUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(exportData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoadingOverlay();
+                    
+                    if (data.success) {
+                        googleSheetsConfig.lastSync = new Date().toISOString();
+                        document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
+                        showNotification(`${data.recordsExported} registros exportados com sucesso!`, 'success');
+                        saveGoogleSheetsConfig();
+                    } else {
+                        showNotification(`Erro na exportação: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    hideLoadingOverlay();
+                    showNotification('Erro de rede na exportação', 'error');
+                    console.error('Erro na exportação:', error);
+                });
+            } else {
+                // Simulação para conexão manual
+                setTimeout(() => {
+                    const exportCount = gameData.matriculas.length + gameData.visitas.length;
+                    
+                    googleSheetsConfig.lastSync = new Date().toISOString();
+                    document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
+                    
+                    hideLoadingOverlay();
+                    showNotification(`${exportCount} registros exportados com sucesso!`, 'success');
+                    saveGoogleSheetsConfig();
+                }, 3000);
+            }
         }
 
         function importFromGoogleSheets() {
@@ -3411,17 +3733,64 @@
 
             showLoadingOverlay('Importando dados do Google Sheets...');
             
-            setTimeout(() => {
-                const importCount = Math.floor(Math.random() * 10) + 5; // 5-15 registros simulados
-                
-                googleSheetsConfig.lastSync = new Date().toISOString();
-                document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                
-                hideLoadingOverlay();
-                showNotification(`${importCount} registros importados com sucesso!`, 'success');
-                updateDashboard();
-                saveGoogleSheetsConfig();
-            }, 3000);
+            const requestData = {
+                action: 'import',
+                apiKey: googleSheetsConfig.apiKey
+            };
+
+            // Se conectado por ID, usar Web App URL
+            if (googleSheetsConfig.webAppUrl) {
+                fetch(googleSheetsConfig.webAppUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoadingOverlay();
+                    
+                    if (data.success) {
+                        // Mesclar dados importados
+                        if (data.data.matriculas) {
+                            gameData.matriculas = [...gameData.matriculas, ...data.data.matriculas];
+                        }
+                        if (data.data.visitas) {
+                            gameData.visitas = [...gameData.visitas, ...data.data.visitas];
+                        }
+                        
+                        saveGameData();
+                        
+                        googleSheetsConfig.lastSync = new Date().toISOString();
+                        document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
+                        
+                        showNotification(`${data.recordsImported} registros importados com sucesso!`, 'success');
+                        updateDashboard();
+                        saveGoogleSheetsConfig();
+                    } else {
+                        showNotification(`Erro na importação: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    hideLoadingOverlay();
+                    showNotification('Erro de rede na importação', 'error');
+                    console.error('Erro na importação:', error);
+                });
+            } else {
+                // Simulação para conexão manual
+                setTimeout(() => {
+                    const importCount = Math.floor(Math.random() * 10) + 5;
+                    
+                    googleSheetsConfig.lastSync = new Date().toISOString();
+                    document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
+                    
+                    hideLoadingOverlay();
+                    showNotification(`${importCount} registros importados com sucesso!`, 'success');
+                    updateDashboard();
+                    saveGoogleSheetsConfig();
+                }, 3000);
+            }
         }
 
         function syncWithGoogleSheets() {
@@ -3432,14 +3801,52 @@
 
             showLoadingOverlay('Sincronizando dados...');
             
-            setTimeout(() => {
-                googleSheetsConfig.lastSync = new Date().toISOString();
-                document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                
-                hideLoadingOverlay();
-                showNotification('Sincronização concluída!', 'success');
-                saveGoogleSheetsConfig();
-            }, 4000);
+            const syncData = {
+                action: 'sync',
+                apiKey: googleSheetsConfig.apiKey,
+                matriculas: gameData.matriculas,
+                visitas: gameData.visitas,
+                users: gameData.users
+            };
+
+            // Se conectado por ID, usar Web App URL
+            if (googleSheetsConfig.webAppUrl) {
+                fetch(googleSheetsConfig.webAppUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(syncData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoadingOverlay();
+                    
+                    if (data.success) {
+                        googleSheetsConfig.lastSync = new Date().toISOString();
+                        document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
+                        showNotification('Sincronização concluída com sucesso!', 'success');
+                        saveGoogleSheetsConfig();
+                    } else {
+                        showNotification(`Erro na sincronização: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    hideLoadingOverlay();
+                    showNotification('Erro de rede na sincronização', 'error');
+                    console.error('Erro na sincronização:', error);
+                });
+            } else {
+                // Simulação para conexão manual
+                setTimeout(() => {
+                    googleSheetsConfig.lastSync = new Date().toISOString();
+                    document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
+                    
+                    hideLoadingOverlay();
+                    showNotification('Sincronização concluída!', 'success');
+                    saveGoogleSheetsConfig();
+                }, 4000);
+            }
         }
 
         function saveGoogleSheetsConfig() {
@@ -3451,15 +3858,44 @@
             if (saved) {
                 googleSheetsConfig = { ...googleSheetsConfig, ...JSON.parse(saved) };
                 
-                document.getElementById('googleSheetUrl').value = googleSheetsConfig.url || '';
-                document.getElementById('googleApiKey').value = googleSheetsConfig.apiKey || '';
-                document.getElementById('googleSheetTab').value = googleSheetsConfig.tabName || 'Sheet1';
-                
-                if (googleSheetsConfig.connected) {
-                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #38a169;">🟢 Conectado</span>';
+                // Preencher campos da conexão manual
+                if (document.getElementById('googleSheetUrl')) {
+                    document.getElementById('googleSheetUrl').value = googleSheetsConfig.url || '';
+                }
+                if (document.getElementById('googleApiKey')) {
+                    document.getElementById('googleApiKey').value = googleSheetsConfig.apiKey || '';
+                }
+                if (document.getElementById('googleSheetTab')) {
+                    document.getElementById('googleSheetTab').value = googleSheetsConfig.tabName || 'Matriculas';
                 }
                 
-                if (googleSheetsConfig.lastSync) {
+                // Preencher campos da conexão por ID
+                if (document.getElementById('googleSheetId')) {
+                    document.getElementById('googleSheetId').value = googleSheetsConfig.spreadsheetId || '';
+                }
+                if (document.getElementById('googleApiKeyId')) {
+                    document.getElementById('googleApiKeyId').value = googleSheetsConfig.apiKey || '';
+                }
+                
+                // Atualizar status da conexão
+                if (googleSheetsConfig.connected) {
+                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #38a169;">🟢 Conectado</span>';
+                    
+                    let details = 'Conexão ativa';
+                    if (googleSheetsConfig.spreadsheetName) {
+                        details = `📊 ${googleSheetsConfig.spreadsheetName}`;
+                        if (googleSheetsConfig.connectionMethod === 'id') {
+                            details += `<br>🆔 Conectado por ID`;
+                        }
+                    }
+                    
+                    if (document.getElementById('googleConnectionDetails')) {
+                        document.getElementById('googleConnectionDetails').innerHTML = details;
+                    }
+                }
+                
+                // Atualizar última sincronização
+                if (googleSheetsConfig.lastSync && document.getElementById('googleLastSync')) {
                     document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date(googleSheetsConfig.lastSync).toLocaleString()}`;
                 }
             }
