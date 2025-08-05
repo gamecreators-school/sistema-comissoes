@@ -615,6 +615,47 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Hall da Fama */
+        .hall-of-fame {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            margin: 25px 0;
+        }
+
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .podium-place {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .podium-place.first {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 193, 7, 0.3));
+            order: 2;
+            transform: scale(1.1);
+        }
+
+        .podium-place.second {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.3), rgba(169, 169, 169, 0.3));
+            order: 1;
+        }
+
+        .podium-place.third {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.3), rgba(184, 115, 51, 0.3));
+            order: 3;
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .dashboard-grid {
@@ -734,6 +775,14 @@
                 <div class="stat-card">
                     <h3>🎮 Meu Progresso Gamer</h3>
                     <div id="userProgress">
+                        <!-- Preenchido dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Hall da Fama -->
+                <div class="hall-of-fame">
+                    <h3 style="text-align: center; margin-bottom: 20px;">🏆 Hall da Fama</h3>
+                    <div class="podium" id="hallOfFame">
                         <!-- Preenchido dinamicamente -->
                     </div>
                 </div>
@@ -1015,6 +1064,14 @@
                     </div>
                 </div>
 
+                <!-- Metas da Unidade -->
+                <div class="stat-card" style="margin-top: 25px;">
+                    <h3>🎯 Metas da Unidade</h3>
+                    <div id="unitGoals">
+                        <!-- Preenchido dinamicamente -->
+                    </div>
+                </div>
+
                 <!-- Comunicação da Equipe -->
                 <div class="stat-card" style="margin-top: 25px;">
                     <h3>💬 Comunicação da Equipe</h3>
@@ -1083,6 +1140,35 @@
         <div id="admin" class="tab-content">
             <div style="padding: 30px;">
                 <h2>👨‍💼 Painel Administrativo</h2>
+                
+                <!-- Configurar Metas por Unidade -->
+                <div class="stat-card" style="margin: 20px 0;">
+                    <h3>🎯 Configurar Metas por Unidade</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>Unidade:</label>
+                            <select id="goalUnit">
+                                <!-- Preenchido dinamicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Meta de Matrículas (mês):</label>
+                            <input type="number" id="goalMatriculas" min="1" placeholder="Ex: 50">
+                        </div>
+                        <div class="form-group">
+                            <label>Meta de Faturamento (R$):</label>
+                            <input type="number" id="goalFaturamento" step="0.01" min="0" placeholder="Ex: 80000">
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="setUnitGoals()">🎯 Definir Metas</button>
+                    
+                    <div id="currentGoals" style="margin-top: 20px;">
+                        <h4>Metas Atuais:</h4>
+                        <div id="goalsList">
+                            <!-- Preenchido dinamicamente -->
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- Gerenciar Unidades -->
                 <div class="stat-card" style="margin: 20px 0;">
@@ -1199,7 +1285,8 @@
             visitas: [],
             units: ['Shopping Conjunto Nacional', 'Shopping Eldorado', 'Shopping Morumbi'],
             missions: [],
-            chatMessages: []
+            chatMessages: [],
+            unitGoals: {}
         };
 
         // Configuração do Google Sheets
@@ -1248,6 +1335,16 @@
             }
             if (!gameData.chatMessages) {
                 gameData.chatMessages = [];
+            }
+            if (!gameData.unitGoals) {
+                gameData.unitGoals = {};
+                // Metas padrão
+                gameData.units.forEach(unit => {
+                    gameData.unitGoals[unit] = {
+                        matriculas: 50,
+                        faturamento: 80000
+                    };
+                });
             }
         }
 
@@ -1561,7 +1658,14 @@
                        v.atendente === currentUser.name;
             });
 
-            const comissao = matriculas.reduce((sum, m) => sum + (m.comissaoVendedor || 0) + (m.comissaoGerente || 0) + (m.comissaoAssistente || 0), 0);
+            const comissao = matriculas.reduce((sum, m) => {
+                let userCommission = 0;
+                if (m.vendedor === currentUser.name) userCommission += m.comissaoVendedor || 0;
+                if (m.gerente === currentUser.name) userCommission += m.comissaoGerente || 0;
+                if (m.assistente === currentUser.name) userCommission += m.comissaoAssistente || 0;
+                return sum + userCommission;
+            }, 0);
+
             const conversao = visitas.length > 0 ? matriculas.length / visitas.length : 0;
 
             return {
@@ -1572,9 +1676,123 @@
             };
         }
 
+        // Sistema de comissões NOVO
+        function calculateCommissions(matricula, userRole, userMatriculasCount, isFirstPayment = true) {
+            const { valorEntrada, tipo } = matricula;
+            
+            let commission = 0;
+            let bonus = 0;
+
+            if (userRole === 'vendedor') {
+                // Comissão vendedor: a partir da 10ª matrícula
+                if (userMatriculasCount >= 10) {
+                    if (userMatriculasCount >= 41) {
+                        commission = 70;
+                    } else if (userMatriculasCount >= 31) {
+                        commission = 60;
+                    } else if (userMatriculasCount >= 21) {
+                        commission = 50;
+                    } else {
+                        commission = 35;
+                    }
+                    
+                    // Se for só matrícula (sem primeira parcela), pagar 50%
+                    if (!isFirstPayment) {
+                        commission *= 0.5;
+                    }
+                }
+                
+                // Bônus Blackin/Black
+                if (tipo === 'Blackin') {
+                    bonus = 25; // 50 dividido entre vendedor e gerente
+                } else if (tipo === 'Black') {
+                    bonus = 50; // 100 dividido entre vendedor e gerente
+                }
+
+            } else if (userRole === 'gerente') {
+                // Comissão gerente: a partir da 26ª matrícula
+                if (userMatriculasCount >= 26) {
+                    if (userMatriculasCount >= 53) {
+                        commission = 80;
+                    } else {
+                        commission = 50;
+                    }
+                    
+                    // Se for só matrícula (sem primeira parcela), pagar 50%
+                    if (!isFirstPayment) {
+                        commission *= 0.5;
+                    }
+                }
+                
+                // Bônus Blackin/Black (50% do bônus)
+                if (tipo === 'Blackin') {
+                    bonus = 25; // 50% de 50
+                } else if (tipo === 'Black') {
+                    bonus = 50; // 50% de 100
+                }
+                
+                // Comissão por faturamento (calculada mensalmente)
+                const monthlyRevenue = calculateMonthlyRevenue(currentUser.unit);
+                if (monthlyRevenue >= 80000) {
+                    bonus += monthlyRevenue * 0.03; // 3%
+                } else if (monthlyRevenue >= 49054.20) {
+                    bonus += monthlyRevenue * 0.02; // 2%
+                } else if (monthlyRevenue >= 31445) {
+                    bonus += monthlyRevenue * 0.01; // 1%
+                }
+
+            } else if (userRole === 'assistente') {
+                // Comissão assistente: a partir da 10ª matrícula
+                if (userMatriculasCount >= 10) {
+                    if (userMatriculasCount >= 41) {
+                        commission = 30;
+                    } else if (userMatriculasCount >= 31) {
+                        commission = 25;
+                    } else if (userMatriculasCount >= 21) {
+                        commission = 15;
+                    } else {
+                        commission = 10;
+                    }
+                    
+                    // Se for só matrícula (sem primeira parcela), pagar 50%
+                    if (!isFirstPayment) {
+                        commission *= 0.5;
+                    }
+                }
+            }
+
+            return commission + bonus;
+        }
+
+        function calculateDailyBonus(userRole, dailyMatriculas) {
+            if (userRole === 'vendedor') {
+                if (dailyMatriculas >= 3) return 100;
+                if (dailyMatriculas >= 2) return 50;
+            } else if (userRole === 'assistente') {
+                if (dailyMatriculas >= 3) return 40;
+                if (dailyMatriculas >= 2) return 20;
+            }
+            return 0;
+        }
+
+        function calculateMonthlyRevenue(unit) {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            return gameData.matriculas
+                .filter(m => {
+                    const date = new Date(m.data);
+                    return date.getMonth() === currentMonth && 
+                           date.getFullYear() === currentYear &&
+                           m.unidade === unit;
+                })
+                .reduce((sum, m) => sum + (m.valorTotal || 0), 0);
+        }
+
         // Gamificação
         function updateGamification() {
             updateUserProgress();
+            updateHallOfFame();
             updateActiveMissions();
             
             if (currentUser.role === 'admin' || currentUser.role === 'gerente') {
@@ -1611,6 +1829,36 @@
                     </div>
                 </div>
             `;
+        }
+
+        function updateHallOfFame() {
+            const hallDiv = document.getElementById('hallOfFame');
+            
+            // Obter top 3 usuários por XP
+            const sortedUsers = Object.values(gameData.users)
+                .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+                .slice(0, 3);
+
+            if (sortedUsers.length === 0) {
+                hallDiv.innerHTML = '<p style="text-align: center; color: white;">Nenhum usuário encontrado</p>';
+                return;
+            }
+
+            hallDiv.innerHTML = sortedUsers.map((user, index) => {
+                const position = index + 1;
+                const positionClass = position === 1 ? 'first' : position === 2 ? 'second' : 'third';
+                const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : '🥉';
+                
+                return `
+                    <div class="podium-place ${positionClass}">
+                        <div style="font-size: 40px; margin-bottom: 10px;">${medal}</div>
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">${user.name}</div>
+                        <div style="font-size: 14px; opacity: 0.9; margin-bottom: 10px;">${user.role}</div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;">${user.xp || 0} XP</div>
+                        <div style="font-size: 12px; margin-top: 5px; opacity: 0.8;">Nível ${user.level || 1}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function updateActiveMissions() {
@@ -1652,7 +1900,13 @@
                     <div style="border: 2px solid ${isCompleted ? '#38a169' : '#e2e8f0'}; border-radius: 12px; padding: 20px; margin-bottom: 15px; background: ${isCompleted ? 'linear-gradient(135deg, #e6fffa, #f0fff4)' : '#f8f9fa'};">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <div style="font-weight: bold; color: var(--text-primary); font-size: 16px;">${mission.title}</div>
-                            <div style="background: #38a169; color: white; padding: 6px 16px; border-radius: 25px; font-size: 12px; font-weight: 600;">${mission.reward} XP</div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div style="background: #38a169; color: white; padding: 6px 16px; border-radius: 25px; font-size: 12px; font-weight: 600;">${mission.reward} XP</div>
+                                ${(currentUser.role === 'admin' || currentUser.role === 'gerente') ? `
+                                    <button class="btn btn-warning btn-sm" onclick="editMission('${mission.id}')">✏️</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteMission('${mission.id}')">🗑️</button>
+                                ` : ''}
+                            </div>
                         </div>
                         <p style="color: #666; margin-bottom: 15px;">${mission.description}</p>
                         <div>
@@ -1707,6 +1961,34 @@
             document.getElementById('missionDeadline').value = '';
             
             updateActiveMissions();
+        }
+
+        function editMission(missionId) {
+            const mission = gameData.missions.find(m => m.id === missionId);
+            if (!mission) return;
+            
+            const newTitle = prompt('Título da missão:', mission.title);
+            const newDescription = prompt('Descrição:', mission.description);
+            const newTarget = prompt('Meta (número):', mission.target);
+            const newReward = prompt('Recompensa (XP):', mission.reward);
+            
+            if (newTitle !== null) mission.title = newTitle;
+            if (newDescription !== null) mission.description = newDescription;
+            if (newTarget !== null) mission.target = parseInt(newTarget);
+            if (newReward !== null) mission.reward = parseInt(newReward);
+            
+            saveGameData();
+            showNotification('Missão atualizada!', 'success');
+            updateActiveMissions();
+        }
+
+        function deleteMission(missionId) {
+            if (confirm('Tem certeza que deseja excluir esta missão?')) {
+                gameData.missions = gameData.missions.filter(m => m.id !== missionId);
+                saveGameData();
+                showNotification('Missão excluída', 'info');
+                updateActiveMissions();
+            }
         }
 
         // Sistema de visitas
@@ -1972,45 +2254,125 @@
                 return;
             }
 
-            // Calcular comissões
-            const comissoes = calculateCommissions(matriculaData);
+            // Calcular comissões com novo sistema
+            const comissoes = calculateNewCommissions(matriculaData);
             matriculaData.comissaoVendedor = comissoes.vendedor;
             matriculaData.comissaoGerente = comissoes.gerente;
             matriculaData.comissaoAssistente = comissoes.assistente;
 
             gameData.matriculas.push(matriculaData);
+            
+            // Calcular bônus diário
+            const dailyBonus = calculateDailyBonuses(matriculaData.data);
+            
+            // Atribuir XP aos envolvidos
+            awardXP(matriculaData.vendedor, 50);
+            awardXP(matriculaData.gerente, 30);
+            awardXP(matriculaData.assistente, 20);
+            
             saveGameData();
 
             showNotification('Matrícula adicionada com sucesso!', 'success');
+            
+            // Exibir comissões calculadas
+            showNotification(`Comissões: Vendedor R${comissoes.vendedor.toFixed(2)}, Gerente R${comissoes.gerente.toFixed(2)}, Assistente R${comissoes.assistente.toFixed(2)}`, 'info');
 
-            // Limpar formulário
             clearMatriculaForm();
             loadMatriculasList();
             updateDashboard();
         }
 
-        function calculateCommissions(matricula) {
-            const baseCommission = matricula.valorEntrada * 0.1; // 10% base
+        function calculateNewCommissions(matricula) {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const matriculaDate = new Date(matricula.data);
+            
+            // Contar matrículas do mês para cada função
+            const vendedorMatriculas = gameData.matriculas.filter(m => {
+                const date = new Date(m.data);
+                return date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear &&
+                       m.vendedor === matricula.vendedor;
+            }).length + 1; // +1 para incluir a atual
+            
+            const gerenteMatriculas = gameData.matriculas.filter(m => {
+                const date = new Date(m.data);
+                return date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear &&
+                       m.gerente === matricula.gerente;
+            }).length + 1;
+            
+            const assistenteMatriculas = gameData.matriculas.filter(m => {
+                const date = new Date(m.data);
+                return date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear &&
+                       m.assistente === matricula.assistente;
+            }).length + 1;
 
-            let multiplier = 1;
-            switch(matricula.tipo) {
-                case 'Blackin':
-                    multiplier = 1.2;
-                    break;
-                case 'Black':
-                    multiplier = 1.5;
-                    break;
-                default:
-                    multiplier = 1;
-            }
-
-            const totalCommission = baseCommission * multiplier;
+            // Assumindo que tem primeira parcela (pode ser configurado depois)
+            const isFirstPayment = true;
+            
+            const vendedorCommission = calculateCommissions(matricula, 'vendedor', vendedorMatriculas, isFirstPayment);
+            const gerenteCommission = calculateCommissions(matricula, 'gerente', gerenteMatriculas, isFirstPayment);
+            const assistenteCommission = calculateCommissions(matricula, 'assistente', assistenteMatriculas, isFirstPayment);
 
             return {
-                vendedor: totalCommission * 0.6,  // 60% para vendedor
-                gerente: totalCommission * 0.25,  // 25% para gerente
-                assistente: totalCommission * 0.15 // 15% para assistente
+                vendedor: vendedorCommission,
+                gerente: gerenteCommission,
+                assistente: assistenteCommission
             };
+        }
+
+        function calculateDailyBonuses(dataMatricula) {
+            const targetDate = new Date(dataMatricula).toDateString();
+            
+            // Contar matrículas do dia para cada pessoa
+            const dailyMatriculas = gameData.matriculas.filter(m => 
+                new Date(m.data).toDateString() === targetDate
+            );
+
+            const bonuses = {};
+            
+            // Agrupar por vendedor/assistente
+            const vendedorCount = {};
+            const assistenteCount = {};
+            
+            dailyMatriculas.forEach(m => {
+                vendedorCount[m.vendedor] = (vendedorCount[m.vendedor] || 0) + 1;
+                assistenteCount[m.assistente] = (assistenteCount[m.assistente] || 0) + 1;
+            });
+
+            // Calcular bônus
+            Object.entries(vendedorCount).forEach(([vendedor, count]) => {
+                const bonus = calculateDailyBonus('vendedor', count);
+                if (bonus > 0) {
+                    bonuses[vendedor] = (bonuses[vendedor] || 0) + bonus;
+                }
+            });
+            
+            Object.entries(assistenteCount).forEach(([assistente, count]) => {
+                const bonus = calculateDailyBonus('assistente', count);
+                if (bonus > 0) {
+                    bonuses[assistente] = (bonuses[assistente] || 0) + bonus;
+                }
+            });
+
+            return bonuses;
+        }
+
+        function awardXP(userName, xpAmount) {
+            const userEntry = Object.entries(gameData.users).find(([key, user]) => user.name === userName);
+            if (userEntry) {
+                const [username, user] = userEntry;
+                user.xp = (user.xp || 0) + xpAmount;
+                
+                // Calcular novo nível
+                const newLevel = Math.floor(user.xp / 1000) + 1;
+                if (newLevel > user.level) {
+                    user.level = newLevel;
+                    showNotification(`${userName} subiu para o nível ${newLevel}! 🎉`, 'success');
+                }
+            }
         }
 
         function clearMatriculaForm() {
@@ -2189,6 +2551,7 @@
             
             document.getElementById('teamUnitName').textContent = currentUnit;
             loadTeamGrid();
+            updateUnitGoals();
         }
 
         function loadTeamGrid() {
@@ -2216,11 +2579,66 @@
                             📊 ${stats.matriculas} matrículas<br>
                             👥 ${stats.visitas} visitas<br>
                             ⭐ ${member.xp || 0} XP<br>
-                            📈 ${(stats.conversao * 100).toFixed(1)}% conversão
+                            📈 ${(stats.conversao * 100).toFixed(1)}% conversão<br>
+                            💰 R$ ${stats.comissao.toFixed(2)}
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function updateUnitGoals() {
+            const goalsDiv = document.getElementById('unitGoals');
+            const unitGoal = gameData.unitGoals[currentUnit] || { matriculas: 50, faturamento: 80000 };
+            
+            // Calcular progresso atual
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            const unitMatriculas = gameData.matriculas.filter(m => {
+                const date = new Date(m.data);
+                return date.getMonth() === currentMonth && 
+                       date.getFullYear() === currentYear &&
+                       m.unidade === currentUnit;
+            });
+            
+            const currentMatriculas = unitMatriculas.length;
+            const currentFaturamento = unitMatriculas.reduce((sum, m) => sum + (m.valorTotal || 0), 0);
+            
+            const matriculasProgress = (currentMatriculas / unitGoal.matriculas) * 100;
+            const faturamentoProgress = (currentFaturamento / unitGoal.faturamento) * 100;
+            
+            // Verificar se atingiu ambas as metas para bônus
+            const bothGoalsAchieved = currentMatriculas >= unitGoal.matriculas && currentFaturamento >= unitGoal.faturamento;
+            
+            goalsDiv.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div style="padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #e6fffa, #f0fff4); border-left: 4px solid #38a169;">
+                        <h4 style="margin-bottom: 15px;">📊 Meta de Matrículas</h4>
+                        <div style="font-size: 24px; font-weight: bold; color: #38a169; margin-bottom: 10px;">${currentMatriculas} / ${unitGoal.matriculas}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(matriculasProgress, 100)}%;"></div>
+                        </div>
+                        <div class="progress-text">${matriculasProgress.toFixed(1)}% da meta</div>
+                    </div>
+                    
+                    <div style="padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #ebf8ff, #f7fafc); border-left: 4px solid #3182ce;">
+                        <h4 style="margin-bottom: 15px;">💰 Meta de Faturamento</h4>
+                        <div style="font-size: 20px; font-weight: bold; color: #3182ce; margin-bottom: 10px;">R$ ${currentFaturamento.toLocaleString()} / R$ ${unitGoal.faturamento.toLocaleString()}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(faturamentoProgress, 100)}%; background: var(--info-gradient);"></div>
+                        </div>
+                        <div class="progress-text">${faturamentoProgress.toFixed(1)}% da meta</div>
+                    </div>
+                </div>
+                
+                ${bothGoalsAchieved ? `
+                    <div style="margin-top: 20px; padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #fff5f5, #fed7d7); border-left: 4px solid #e53e3e; text-align: center;">
+                        <h4 style="color: #e53e3e; margin-bottom: 10px;">🎉 PARABÉNS! BÔNUS DESBLOQUEADO!</h4>
+                        <p style="font-size: 18px; font-weight: bold; color: #e53e3e;">Unidade ganhou bônus de R$ 1.000,00 por atingir ambas as metas!</p>
+                    </div>
+                ` : ''}
+            `;
         }
 
         function calculateUserStatsForUser(user) {
@@ -2499,12 +2917,19 @@
                         unitUsers.some(user => user.name === v.atendente)
                     );
                     
+                    const unitGoal = gameData.unitGoals[unit] || { matriculas: 50, faturamento: 80000 };
+                    const currentFaturamento = unitMatriculas.reduce((sum, m) => sum + (m.valorTotal || 0), 0);
+                    
                     unitStats[unit] = {
                         usuarios: unitUsers.length,
                         matriculas: unitMatriculas.length,
                         visitas: unitVisitas.length,
                         conversao: unitVisitas.length > 0 ? (unitMatriculas.length / unitVisitas.length) * 100 : 0,
-                        receita: unitMatriculas.reduce((sum, m) => sum + (m.valorTotal || 0), 0)
+                        receita: currentFaturamento,
+                        metaMatriculas: unitGoal.matriculas,
+                        metaFaturamento: unitGoal.faturamento,
+                        progressoMatriculas: (unitMatriculas.length / unitGoal.matriculas) * 100,
+                        progressoFaturamento: (currentFaturamento / unitGoal.faturamento) * 100
                     };
                 });
                 
@@ -2518,8 +2943,12 @@
                                     <th>Usuários</th>
                                     <th>Visitas</th>
                                     <th>Matrículas</th>
-                                    <th>Conversão</th>
+                                    <th>Meta Mat.</th>
+                                    <th>Progresso Mat.</th>
                                     <th>Receita</th>
+                                    <th>Meta Fat.</th>
+                                    <th>Progresso Fat.</th>
+                                    <th>Conversão</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2529,8 +2958,20 @@
                                         <td>${stats.usuarios}</td>
                                         <td>${stats.visitas}</td>
                                         <td>${stats.matriculas}</td>
-                                        <td>${stats.conversao.toFixed(1)}%</td>
+                                        <td>${stats.metaMatriculas}</td>
+                                        <td>
+                                            <span style="color: ${stats.progressoMatriculas >= 100 ? '#38a169' : stats.progressoMatriculas >= 75 ? '#ed8936' : '#e53e3e'}; font-weight: bold;">
+                                                ${stats.progressoMatriculas.toFixed(1)}%
+                                            </span>
+                                        </td>
                                         <td>R$ ${stats.receita.toLocaleString()}</td>
+                                        <td>R$ ${stats.metaFaturamento.toLocaleString()}</td>
+                                        <td>
+                                            <span style="color: ${stats.progressoFaturamento >= 100 ? '#38a169' : stats.progressoFaturamento >= 75 ? '#ed8936' : '#e53e3e'}; font-weight: bold;">
+                                                ${stats.progressoFaturamento.toFixed(1)}%
+                                            </span>
+                                        </td>
+                                        <td>${stats.conversao.toFixed(1)}%</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -2665,6 +3106,78 @@
             loadUnitsList();
             loadUserManagementTable();
             populateNewUserUnit();
+            populateGoalUnits();
+            loadCurrentGoals();
+        }
+
+        function populateGoalUnits() {
+            const goalUnitSelect = document.getElementById('goalUnit');
+            if (goalUnitSelect) {
+                goalUnitSelect.innerHTML = gameData.units.map(unit => 
+                    `<option value="${unit}">${unit}</option>`
+                ).join('');
+            }
+        }
+
+        function setUnitGoals() {
+            const unit = document.getElementById('goalUnit').value;
+            const matriculas = parseInt(document.getElementById('goalMatriculas').value);
+            const faturamento = parseFloat(document.getElementById('goalFaturamento').value);
+            
+            if (!unit || !matriculas || !faturamento) {
+                showNotification('Preencha todos os campos das metas', 'warning');
+                return;
+            }
+            
+            if (!gameData.unitGoals) gameData.unitGoals = {};
+            gameData.unitGoals[unit] = {
+                matriculas: matriculas,
+                faturamento: faturamento
+            };
+            
+            saveGameData();
+            showNotification(`Metas definidas para ${unit}!`, 'success');
+            
+            // Limpar formulário
+            document.getElementById('goalMatriculas').value = '';
+            document.getElementById('goalFaturamento').value = '';
+            
+            loadCurrentGoals();
+        }
+
+        function loadCurrentGoals() {
+            const goalsListDiv = document.getElementById('goalsList');
+            
+            if (!gameData.unitGoals || Object.keys(gameData.unitGoals).length === 0) {
+                goalsListDiv.innerHTML = '<p style="color: #666;">Nenhuma meta definida</p>';
+                return;
+            }
+            
+            goalsListDiv.innerHTML = Object.entries(gameData.unitGoals).map(([unit, goals]) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin: 10px 0; background: white;">
+                    <div>
+                        <strong>${unit}</strong><br>
+                        <small>📊 ${goals.matriculas} matrículas | 💰 R$ ${goals.faturamento.toLocaleString()}</small>
+                    </div>
+                    <button class="btn btn-warning btn-sm" onclick="editUnitGoal('${unit}')">✏️ Editar</button>
+                </div>
+            `).join('');
+        }
+
+        function editUnitGoal(unit) {
+            const currentGoal = gameData.unitGoals[unit];
+            const newMatriculas = prompt('Nova meta de matrículas:', currentGoal.matriculas);
+            const newFaturamento = prompt('Nova meta de faturamento:', currentGoal.faturamento);
+            
+            if (newMatriculas !== null && newFaturamento !== null) {
+                gameData.unitGoals[unit] = {
+                    matriculas: parseInt(newMatriculas),
+                    faturamento: parseFloat(newFaturamento)
+                };
+                saveGameData();
+                showNotification(`Metas de ${unit} atualizadas!`, 'success');
+                loadCurrentGoals();
+            }
         }
 
         function loadUnitsList() {
@@ -2692,21 +3205,39 @@
             }
             
             gameData.units.push(unitName);
+            
+            // Definir metas padrão para nova unidade
+            if (!gameData.unitGoals) gameData.unitGoals = {};
+            gameData.unitGoals[unitName] = {
+                matriculas: 50,
+                faturamento: 80000
+            };
+            
             saveGameData();
             
             showNotification(`Unidade "${unitName}" adicionada com sucesso!`, 'success');
             document.getElementById('newUnitName').value = '';
             loadUnitsList();
             populateNewUserUnit();
+            populateGoalUnits();
+            loadCurrentGoals();
         }
 
         function removeUnit(unitName) {
             if (confirm(`Tem certeza que deseja remover a unidade "${unitName}"?`)) {
                 gameData.units = gameData.units.filter(unit => unit !== unitName);
+                
+                // Remover metas da unidade
+                if (gameData.unitGoals && gameData.unitGoals[unitName]) {
+                    delete gameData.unitGoals[unitName];
+                }
+                
                 saveGameData();
                 showNotification(`Unidade "${unitName}" removida`, 'info');
                 loadUnitsList();
                 populateNewUserUnit();
+                populateGoalUnits();
+                loadCurrentGoals();
             }
         }
 
