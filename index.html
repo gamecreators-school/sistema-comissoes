@@ -688,6 +688,71 @@
             font-size: 16px;
         }
 
+        /* Estilo para sistema de permissões */
+        .permissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .permission-group {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .permission-group h5 {
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .permission-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .permission-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.1);
+        }
+
+        /* Estilo para abas personalizadas */
+        .custom-tab-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin: 10px 0;
+            transition: var(--transition);
+        }
+
+        .custom-tab-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .dashboard-grid {
@@ -1245,11 +1310,12 @@
                         </div>
                         <div class="form-group">
                             <label>Tipo:</label>
-                            <select id="newUserRole">
+                            <select id="newUserRole" onchange="updatePermissionsByRole()">
                                 <option value="vendedor">👨‍💼 Vendedor</option>
                                 <option value="gerente">👔 Gerente</option>
                                 <option value="assistente">👩‍💻 Assistente</option>
                                 <option value="admin">🔧 Admin</option>
+                                <option value="custom">🎛️ Personalizado</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1259,7 +1325,160 @@
                             </select>
                         </div>
                     </div>
-                    <button class="btn btn-success" onclick="addUser()">➕ Adicionar Usuário</button>
+                    
+                    <!-- Sistema de Permissões Personalizadas -->
+                    <div id="customPermissions" style="margin-top: 20px; display: none;">
+                        <h4 style="margin-bottom: 15px;">🔐 Permissões Personalizadas</h4>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #667eea;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                                <div>
+                                    <h5 style="color: #38a169; margin-bottom: 10px;">📊 Funcionalidades Básicas</h5>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_dashboard" style="margin-right: 10px;">
+                                        📊 Dashboard
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_gamificacao" style="margin-right: 10px;">
+                                        🎮 Gamificação
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_ranking" style="margin-right: 10px;">
+                                        🏆 Ranking
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_chat" style="margin-right: 10px;">
+                                        💬 Chat
+                                    </label>
+                                </div>
+                                
+                                <div>
+                                    <h5 style="color: #3182ce; margin-bottom: 10px;">👥 Gestão de Visitação</h5>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_visitas" style="margin-right: 10px;">
+                                        👥 Ver Visitas
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_visitas_edit" style="margin-right: 10px;">
+                                        ✏️ Editar Visitas
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_visitas_delete" style="margin-right: 10px;">
+                                        🗑️ Excluir Visitas
+                                    </label>
+                                </div>
+                                
+                                <div>
+                                    <h5 style="color: #ed8936; margin-bottom: 10px;">📚 Gestão de Matrículas</h5>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_matriculas" style="margin-right: 10px;">
+                                        📚 Ver Matrículas
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_matriculas_edit" style="margin-right: 10px;">
+                                        ✏️ Editar Matrículas
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_matriculas_delete" style="margin-right: 10px;">
+                                        🗑️ Excluir Matrículas
+                                    </label>
+                                </div>
+                                
+                                <div>
+                                    <h5 style="color: #38a169; margin-bottom: 10px;">💰 Gestão de Comissões</h5>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_comissoes_edit" style="margin-right: 10px;">
+                                        💰 Editar Comissões
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_comissoes_delete" style="margin-right: 10px;">
+                                        🗑️ Excluir Comissões
+                                    </label>
+                                </div>
+                                
+                                <div>
+                                    <h5 style="color: #e53e3e; margin-bottom: 10px;">👔 Funções Gerenciais</h5>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_equipe" style="margin-right: 10px;">
+                                        👥 Gestão de Equipe
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_relatorios" style="margin-right: 10px;">
+                                        📊 Relatórios
+                                    </label>
+                                </div>
+                                
+                                <div>
+                                    <h5 style="color: #9333ea; margin-bottom: 10px;">🔧 Administração</h5>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_admin" style="margin-right: 10px;">
+                                        ⚙️ Painel Admin
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_admin_users" style="margin-right: 10px;">
+                                        👥 Gerenciar Usuários
+                                    </label>
+                                    <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" id="perm_admin_tabs" style="margin-right: 10px;">
+                                        📋 Gerenciar Abas
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px; text-align: center;">
+                                <button class="btn btn-info btn-sm" onclick="selectAllPermissions()">✅ Selecionar Todas</button>
+                                <button class="btn btn-warning btn-sm" onclick="clearAllPermissions()">❌ Limpar Todas</button>
+                                <button class="btn btn-success btn-sm" onclick="applyRolePermissions()">🎯 Aplicar Padrão do Cargo</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="addUser()" style="margin-top: 15px;">➕ Adicionar Usuário</button>
+                </div>
+
+                <!-- Criador de Abas Personalizadas -->
+                <div class="stat-card" style="margin: 20px 0;">
+                    <h3>📋 Gerenciar Abas Personalizadas</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Crie abas personalizadas para adicionar novas funcionalidades ao sistema.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label>📛 Nome da Aba:</label>
+                            <input type="text" id="customTabName" placeholder="Ex: Relatório de Vendas" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📱 Ícone:</label>
+                            <input type="text" id="customTabIcon" placeholder="Ex: 📊, 🎯, 💼" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📝 Descrição:</label>
+                            <input type="text" id="customTabDescription" placeholder="Breve descrição da aba...">
+                        </div>
+                        <div class="form-group">
+                            <label>🔐 Permissão Necessária:</label>
+                            <select id="customTabPermission">
+                                <option value="">Todos podem ver</option>
+                                ${Object.entries(PERMISSIONS).map(([key, perm]) => 
+                                    `<option value="${perm}">${key}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>📋 Conteúdo da Aba (HTML):</label>
+                        <textarea id="customTabContent" rows="6" style="font-family: monospace; font-size: 12px;" placeholder="Digite o HTML que será exibido na aba..."></textarea>
+                        <small style="color: #666;">💡 Você pode usar HTML básico: &lt;h3&gt;, &lt;p&gt;, &lt;div&gt;, &lt;button&gt;, etc.</small>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="createCustomTab()">➕ Criar Aba Personalizada</button>
+                    
+                    <!-- Lista de Abas Personalizadas -->
+                    <div id="customTabsList" style="margin-top: 25px;">
+                        <h4>Abas Personalizadas Existentes:</h4>
+                        <div id="existingCustomTabs">
+                            <!-- Preenchido dinamicamente -->
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Lista de Usuários -->
@@ -1373,7 +1592,52 @@
             units: ['Shopping Conjunto Nacional', 'Shopping Eldorado', 'Shopping Morumbi'],
             missions: [],
             chatMessages: [],
-            unitGoals: {}
+            unitGoals: {},
+            customTabs: [], // Abas personalizadas criadas pelo admin
+            userPermissions: {} // Permissões específicas por usuário
+        };
+
+        // Sistema de permissões
+        const PERMISSIONS = {
+            DASHBOARD: 'dashboard',
+            GAMIFICACAO: 'gamificacao',
+            VISITAS: 'visitas',
+            VISITAS_EDIT: 'visitas_edit',
+            VISITAS_DELETE: 'visitas_delete',
+            MATRICULAS: 'matriculas',
+            MATRICULAS_EDIT: 'matriculas_edit',
+            MATRICULAS_DELETE: 'matriculas_delete',
+            COMISSOES_EDIT: 'comissoes_edit',
+            COMISSOES_DELETE: 'comissoes_delete',
+            EQUIPE: 'equipe',
+            RANKING: 'ranking',
+            RELATORIOS: 'relatorios',
+            CHAT: 'chat',
+            ADMIN: 'admin',
+            ADMIN_USERS: 'admin_users',
+            ADMIN_UNITS: 'admin_units',
+            ADMIN_GOALS: 'admin_goals',
+            ADMIN_SHEETS: 'admin_sheets',
+            ADMIN_TABS: 'admin_tabs'
+        };
+
+        // Permissões padrão por cargo
+        const DEFAULT_PERMISSIONS = {
+            admin: Object.values(PERMISSIONS),
+            gerente: [
+                PERMISSIONS.DASHBOARD, PERMISSIONS.GAMIFICACAO, PERMISSIONS.VISITAS,
+                PERMISSIONS.VISITAS_EDIT, PERMISSIONS.VISITAS_DELETE, PERMISSIONS.MATRICULAS,
+                PERMISSIONS.MATRICULAS_EDIT, PERMISSIONS.EQUIPE, PERMISSIONS.RANKING,
+                PERMISSIONS.RELATORIOS, PERMISSIONS.CHAT
+            ],
+            vendedor: [
+                PERMISSIONS.DASHBOARD, PERMISSIONS.GAMIFICACAO, PERMISSIONS.VISITAS,
+                PERMISSIONS.VISITAS_EDIT, PERMISSIONS.MATRICULAS, PERMISSIONS.RANKING, PERMISSIONS.CHAT
+            ],
+            assistente: [
+                PERMISSIONS.DASHBOARD, PERMISSIONS.GAMIFICACAO, PERMISSIONS.VISITAS,
+                PERMISSIONS.MATRICULAS, PERMISSIONS.RANKING, PERMISSIONS.CHAT
+            ]
         };
 
         // Configuração do Google Sheets
@@ -1449,7 +1713,8 @@
                     role: 'admin',
                     unit: 'Shopping Conjunto Nacional',
                     xp: 5000,
-                    level: 10
+                    level: 10,
+                    permissions: DEFAULT_PERMISSIONS.admin
                 },
                 {
                     username: 'gerente@gamecreatorsadm.com',
@@ -1458,7 +1723,8 @@
                     role: 'gerente',
                     unit: 'Shopping Conjunto Nacional',
                     xp: 3500,
-                    level: 7
+                    level: 7,
+                    permissions: DEFAULT_PERMISSIONS.gerente
                 },
                 {
                     username: 'vendedor@gamecreatorsadm.com',
@@ -1467,7 +1733,8 @@
                     role: 'vendedor',
                     unit: 'Shopping Conjunto Nacional',
                     xp: 2100,
-                    level: 5
+                    level: 5,
+                    permissions: DEFAULT_PERMISSIONS.vendedor
                 },
                 {
                     username: 'assistente@gamecreatorsadm.com',
@@ -1476,7 +1743,8 @@
                     role: 'assistente',
                     unit: 'Shopping Conjunto Nacional',
                     xp: 1200,
-                    level: 3
+                    level: 3,
+                    permissions: DEFAULT_PERMISSIONS.assistente
                 }
             ];
 
@@ -1490,6 +1758,13 @@
 
             saveGameData();
             console.log('✅ Usuários padrão criados');
+        }
+
+        // Função para verificar permissões
+        function hasPermission(permission) {
+            if (!currentUser) return false;
+            if (currentUser.role === 'admin') return true; // Admin tem todas as permissões
+            return currentUser.permissions && currentUser.permissions.includes(permission);
         }
 
         // Sistema de login
@@ -1604,20 +1879,36 @@
 
         function createNavigation() {
             const navTabs = document.getElementById('navTabs');
-            const tabs = [
-                { id: 'dashboard', name: '📊 Dashboard', roles: ['admin', 'gerente', 'vendedor', 'assistente'] },
-                { id: 'gamificacao', name: '🎮 Gamificação', roles: ['admin', 'gerente', 'vendedor', 'assistente'] },
-                { id: 'visitas', name: '👥 Visitas', roles: ['admin', 'gerente', 'vendedor', 'assistente'] },
-                { id: 'matriculas', name: '📚 Matrículas', roles: ['admin', 'gerente', 'vendedor', 'assistente'] },
-                { id: 'equipe', name: '👥 Equipe', roles: ['admin', 'gerente'] },
-                { id: 'ranking', name: '🏆 Ranking', roles: ['admin', 'gerente', 'vendedor', 'assistente'] },
-                { id: 'relatorios', name: '📊 Relatórios', roles: ['admin', 'gerente'] },
-                { id: 'chat', name: '💬 Chat', roles: ['admin', 'gerente', 'vendedor', 'assistente'] },
-                { id: 'admin', name: '⚙️ Admin', roles: ['admin'] }
+            const defaultTabs = [
+                { id: 'dashboard', name: '📊 Dashboard', permission: PERMISSIONS.DASHBOARD },
+                { id: 'gamificacao', name: '🎮 Gamificação', permission: PERMISSIONS.GAMIFICACAO },
+                { id: 'visitas', name: '👥 Visitas', permission: PERMISSIONS.VISITAS },
+                { id: 'matriculas', name: '📚 Matrículas', permission: PERMISSIONS.MATRICULAS },
+                { id: 'equipe', name: '👥 Equipe', permission: PERMISSIONS.EQUIPE },
+                { id: 'ranking', name: '🏆 Ranking', permission: PERMISSIONS.RANKING },
+                { id: 'relatorios', name: '📊 Relatórios', permission: PERMISSIONS.RELATORIOS },
+                { id: 'chat', name: '💬 Chat', permission: PERMISSIONS.CHAT },
+                { id: 'admin', name: '⚙️ Admin', permission: PERMISSIONS.ADMIN }
             ];
 
-            navTabs.innerHTML = tabs
-                .filter(tab => tab.roles.includes(currentUser.role))
+            // Filtrar abas baseado nas permissões
+            const allowedTabs = defaultTabs.filter(tab => hasPermission(tab.permission));
+            
+            // Adicionar abas personalizadas se o usuário tem permissão
+            if (gameData.customTabs) {
+                gameData.customTabs.forEach(customTab => {
+                    if (hasPermission(customTab.permission) || !customTab.permission) {
+                        allowedTabs.push({
+                            id: customTab.id,
+                            name: `${customTab.icon} ${customTab.name}`,
+                            permission: customTab.permission,
+                            isCustom: true
+                        });
+                    }
+                });
+            }
+
+            navTabs.innerHTML = allowedTabs
                 .map(tab => `
                     <button class="tab-button ${tab.id === 'dashboard' ? 'active' : ''}" 
                             onclick="switchTab('${tab.id}')">
@@ -1633,7 +1924,18 @@
 
             // Ativar tab selecionada
             document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+            
+            // Verificar se é aba personalizada
+            const customTab = gameData.customTabs?.find(tab => tab.id === tabId);
+            if (customTab) {
+                showCustomTab(customTab);
+                return;
+            }
+            
+            const tabElement = document.getElementById(tabId);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
 
             // Carregar conteúdo específico da tab
             switch(tabId) {
@@ -1665,6 +1967,47 @@
                     updateAdminTab();
                     break;
             }
+        }
+
+        function showCustomTab(customTab) {
+            // Ocultar todas as abas padrão
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Remover aba personalizada anterior se existir
+            const existingCustomTab = document.getElementById('customTabContent');
+            if (existingCustomTab) {
+                existingCustomTab.remove();
+            }
+            
+            // Criar conteúdo da aba personalizada
+            const customTabContent = document.createElement('div');
+            customTabContent.id = 'customTabContent';
+            customTabContent.className = 'tab-content active';
+            customTabContent.style.padding = '30px';
+            
+            customTabContent.innerHTML = `
+                <div class="stat-card">
+                    <h2>${customTab.icon} ${customTab.name}</h2>
+                    <p style="color: #666; margin-bottom: 20px;">${customTab.description}</p>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #3182ce;">
+                        <h4 style="margin-bottom: 15px;">📋 Conteúdo da Aba</h4>
+                        <div id="customTabMainContent">
+                            ${customTab.content || '<p>Esta aba ainda não tem conteúdo definido.</p>'}
+                        </div>
+                        
+                        ${hasPermission(PERMISSIONS.ADMIN) ? `
+                            <hr style="margin: 20px 0;">
+                            <div style="text-align: center;">
+                                <button class="btn btn-warning btn-sm" onclick="editCustomTab('${customTab.id}')">✏️ Editar Aba</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCustomTab('${customTab.id}')">🗑️ Excluir Aba</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.querySelector('.main-container').appendChild(customTabContent);
         }
 
         // Dashboard
@@ -2665,8 +3008,15 @@
                                 <td>
                                     <div class="action-buttons">
                                         <button class="btn btn-info btn-sm" onclick="viewMatricula('${matricula.id}')">👁️ Ver</button>
-                                        <button class="btn btn-warning btn-sm" onclick="editMatricula('${matricula.id}')">✏️ Editar</button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteMatricula('${matricula.id}')">🗑️</button>
+                                        ${hasPermission(PERMISSIONS.MATRICULAS_EDIT) ? 
+                                            `<button class="btn btn-warning btn-sm" onclick="editMatricula('${matricula.id}')">✏️ Editar</button>` : ''
+                                        }
+                                        ${hasPermission(PERMISSIONS.COMISSOES_EDIT) ? 
+                                            `<button class="btn btn-primary btn-sm" onclick="editComissoes('${matricula.id}')">💰 Comissões</button>` : ''
+                                        }
+                                        ${hasPermission(PERMISSIONS.MATRICULAS_DELETE) ? 
+                                            `<button class="btn btn-danger btn-sm" onclick="deleteMatricula('${matricula.id}')">🗑️</button>` : ''
+                                        }
                                     </div>
                                 </td>
                             </tr>
@@ -2728,6 +3078,243 @@
                 loadMatriculasList();
                 updateDashboard();
             }
+        }
+
+        // SISTEMA DE EDIÇÃO DE COMISSÕES (APENAS ADMIN)
+        function editComissoes(matriculaId) {
+            if (!hasPermission(PERMISSIONS.COMISSOES_EDIT)) {
+                showNotification('Você não tem permissão para editar comissões', 'error');
+                return;
+            }
+            
+            const matricula = gameData.matriculas.find(m => m.id === matriculaId);
+            if (!matricula) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3>💰 Editar Comissões - ${matricula.nome}</h3>
+                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <p><strong>📅 Data:</strong> ${new Date(matricula.data).toLocaleDateString()}</p>
+                        <p><strong>💰 Valor Total:</strong> R$ ${matricula.valorTotal?.toFixed(2)}</p>
+                        <p><strong>📊 Tipo:</strong> ${matricula.tipo}</p>
+                    </div>
+
+                    <div class="commission-breakdown">
+                        <h4 style="margin-bottom: 15px; color: #38a169;">💰 Editar Valores das Comissões</h4>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div class="form-group">
+                                <label>👨‍💼 Comissão Vendedor (R$):</label>
+                                <input type="number" id="editComissaoVendedor" step="0.01" value="${matricula.comissaoVendedor || 0}">
+                            </div>
+                            <div class="form-group">
+                                <label>👔 Comissão Gerente (R$):</label>
+                                <input type="number" id="editComissaoGerente" step="0.01" value="${matricula.comissaoGerente || 0}">
+                            </div>
+                            <div class="form-group">
+                                <label>👩‍💻 Comissão Assistente (R$):</label>
+                                <input type="number" id="editComissaoAssistente" step="0.01" value="${matricula.comissaoAssistente || 0}">
+                            </div>
+                            <div class="form-group">
+                                <label>🎁 Bônus Diário Vendedor (R$):</label>
+                                <input type="number" id="editBonusVendedor" step="0.01" value="${matricula.bonusDiarioVendedor || 0}">
+                            </div>
+                            <div class="form-group">
+                                <label>🎁 Bônus Diário Assistente (R$):</label>
+                                <input type="number" id="editBonusAssistente" step="0.01" value="${matricula.bonusDiarioAssistente || 0}">
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <label style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="recalcularComissoes" checked>
+                                <span>🔄 Recalcular automaticamente baseado nas regras oficiais</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 25px;">
+                        <button class="btn btn-success" onclick="saveComissoes('${matricula.id}')">💾 Salvar Alterações</button>
+                        <button class="btn btn-warning" onclick="recalcularComissoesMatricula('${matricula.id}')">🔄 Recalcular</button>
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">❌ Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function saveComissoes(matriculaId) {
+            const matricula = gameData.matriculas.find(m => m.id === matriculaId);
+            if (!matricula) return;
+            
+            const shouldRecalculate = document.getElementById('recalcularComissoes').checked;
+            
+            if (shouldRecalculate) {
+                // Recalcular automaticamente
+                recalcularComissoesMatricula(matriculaId);
+            } else {
+                // Usar valores manuais
+                matricula.comissaoVendedor = parseFloat(document.getElementById('editComissaoVendedor').value) || 0;
+                matricula.comissaoGerente = parseFloat(document.getElementById('editComissaoGerente').value) || 0;
+                matricula.comissaoAssistente = parseFloat(document.getElementById('editComissaoAssistente').value) || 0;
+                matricula.bonusDiarioVendedor = parseFloat(document.getElementById('editBonusVendedor').value) || 0;
+                matricula.bonusDiarioAssistente = parseFloat(document.getElementById('editBonusAssistente').value) || 0;
+                
+                matricula.comissoesEditedManually = true;
+                matricula.lastCommissionEdit = {
+                    date: new Date().toISOString(),
+                    editedBy: currentUser.name
+                };
+                
+                saveGameData();
+                showNotification('Comissões salvas com sucesso!', 'success');
+            }
+            
+            document.querySelector('.modal').remove();
+            loadMatriculasList();
+            updateDashboard();
+        }
+
+        function recalcularComissoesMatricula(matriculaId) {
+            const matricula = gameData.matriculas.find(m => m.id === matriculaId);
+            if (!matricula) return;
+            
+            // Recalcular comissões usando as regras oficiais
+            const novasComissoes = calculateOfficialMatriculaCommissions(matricula);
+            const novosBonusDiarios = calculateDailyBonusesForDate(matricula.data, matricula);
+            
+            matricula.comissaoVendedor = novasComissoes.vendedor;
+            matricula.comissaoGerente = novasComissoes.gerente;
+            matricula.comissaoAssistente = novasComissoes.assistente;
+            matricula.bonusDiarioVendedor = novosBonusDiarios.vendedor;
+            matricula.bonusDiarioAssistente = novosBonusDiarios.assistente;
+            
+            matricula.comissoesEditedManually = false;
+            matricula.lastCommissionRecalc = {
+                date: new Date().toISOString(),
+                recalcedBy: currentUser.name
+            };
+            
+            saveGameData();
+            showNotification('Comissões recalculadas automaticamente!', 'success');
+            
+            // Atualizar campos do modal se estiver aberto
+            if (document.getElementById('editComissaoVendedor')) {
+                document.getElementById('editComissaoVendedor').value = novasComissoes.vendedor;
+                document.getElementById('editComissaoGerente').value = novasComissoes.gerente;
+                document.getElementById('editComissaoAssistente').value = novasComissoes.assistente;
+                document.getElementById('editBonusVendedor').value = novosBonusDiarios.vendedor;
+                document.getElementById('editBonusAssistente').value = novosBonusDiarios.assistente;
+            }
+        }
+
+        // SISTEMA DE ABAS PERSONALIZADAS (ADMIN)
+        function editCustomTab(tabId) {
+            const customTab = gameData.customTabs.find(tab => tab.id === tabId);
+            if (!customTab) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div class="modal-header">
+                        <h3>✏️ Editar Aba Personalizada</h3>
+                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label>📛 Nome da Aba:</label>
+                            <input type="text" id="editTabName" value="${customTab.name}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📱 Ícone:</label>
+                            <input type="text" id="editTabIcon" value="${customTab.icon}" placeholder="Ex: 📊, 🎯, 💼" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📝 Descrição:</label>
+                            <textarea id="editTabDescription" rows="2" placeholder="Breve descrição da aba...">${customTab.description || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>🔐 Permissão Necessária:</label>
+                            <select id="editTabPermission">
+                                <option value="">Todos podem ver</option>
+                                ${Object.entries(PERMISSIONS).map(([key, perm]) => 
+                                    `<option value="${perm}" ${customTab.permission === perm ? 'selected' : ''}>${key}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>📋 Conteúdo da Aba (HTML):</label>
+                        <textarea id="editTabContent" rows="8" style="font-family: monospace; font-size: 12px;" placeholder="Digite o HTML que será exibido na aba...">${customTab.content || ''}</textarea>
+                        <small style="color: #666;">💡 Você pode usar HTML básico: &lt;h3&gt;, &lt;p&gt;, &lt;div&gt;, &lt;button&gt;, etc.</small>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 25px;">
+                        <button class="btn btn-success" onclick="saveCustomTab('${tabId}')">💾 Salvar Aba</button>
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">❌ Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function deleteCustomTab(tabId) {
+            if (!hasPermission(PERMISSIONS.ADMIN_TABS)) {
+                showNotification('Você não tem permissão para excluir abas', 'error');
+                return;
+            }
+            
+            if (confirm('Tem certeza que deseja excluir esta aba personalizada?')) {
+                gameData.customTabs = gameData.customTabs.filter(tab => tab.id !== tabId);
+                saveGameData();
+                showNotification('Aba personalizada excluída', 'info');
+                
+                // Voltar ao dashboard
+                switchTab('dashboard');
+                createNavigation(); // Recriar navegação
+            }
+        }
+
+        function saveCustomTab(tabId) {
+            const tabIndex = gameData.customTabs.findIndex(tab => tab.id === tabId);
+            if (tabIndex === -1) return;
+            
+            const tabData = {
+                ...gameData.customTabs[tabIndex],
+                name: document.getElementById('editTabName').value,
+                icon: document.getElementById('editTabIcon').value,
+                description: document.getElementById('editTabDescription').value,
+                permission: document.getElementById('editTabPermission').value || null,
+                content: document.getElementById('editTabContent').value,
+                lastModified: new Date().toISOString(),
+                modifiedBy: currentUser.name
+            };
+            
+            if (!tabData.name || !tabData.icon) {
+                showNotification('Nome e ícone são obrigatórios', 'warning');
+                return;
+            }
+            
+            gameData.customTabs[tabIndex] = tabData;
+            saveGameData();
+            
+            showNotification('Aba atualizada com sucesso!', 'success');
+            document.querySelector('.modal').remove();
+            
+            // Recriar navegação e mostrar aba atualizada
+            createNavigation();
+            switchTab(tabId);
         }
 
         function exportMatriculas(format) {
@@ -3310,6 +3897,138 @@
             populateNewUserUnit();
             populateGoalUnits();
             loadCurrentGoals();
+            loadExistingCustomTabs();
+        }
+        
+        // FUNÇÕES DO SISTEMA DE PERMISSÕES
+        function updatePermissionsByRole() {
+            const role = document.getElementById('newUserRole').value;
+            const customPermissions = document.getElementById('customPermissions');
+            
+            if (role === 'custom') {
+                customPermissions.style.display = 'block';
+                clearAllPermissions();
+            } else {
+                customPermissions.style.display = 'none';
+            }
+        }
+        
+        function selectAllPermissions() {
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`perm_${permission}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        
+        function clearAllPermissions() {
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`perm_${permission}`);
+                if (checkbox) checkbox.checked = false;
+            });
+        }
+        
+        function applyRolePermissions() {
+            const role = document.getElementById('newUserRole').value;
+            if (role === 'custom') return;
+            
+            clearAllPermissions();
+            const rolePermissions = DEFAULT_PERMISSIONS[role] || [];
+            
+            rolePermissions.forEach(permission => {
+                const checkbox = document.getElementById(`perm_${permission}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        
+        function getSelectedPermissions() {
+            const selectedPermissions = [];
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`perm_${permission}`);
+                if (checkbox && checkbox.checked) {
+                    selectedPermissions.push(permission);
+                }
+            });
+            return selectedPermissions;
+        }
+
+        // FUNÇÕES DO CRIADOR DE ABAS PERSONALIZADAS
+        function createCustomTab() {
+            if (!hasPermission(PERMISSIONS.ADMIN_TABS)) {
+                showNotification('Você não tem permissão para criar abas', 'error');
+                return;
+            }
+            
+            const tabData = {
+                id: `custom_${generateId()}`,
+                name: document.getElementById('customTabName').value.trim(),
+                icon: document.getElementById('customTabIcon').value.trim(),
+                description: document.getElementById('customTabDescription').value.trim(),
+                permission: document.getElementById('customTabPermission').value || null,
+                content: document.getElementById('customTabContent').value.trim(),
+                createdAt: new Date().toISOString(),
+                createdBy: currentUser.name
+            };
+            
+            if (!tabData.name || !tabData.icon) {
+                showNotification('Nome e ícone são obrigatórios', 'warning');
+                return;
+            }
+            
+            if (!gameData.customTabs) gameData.customTabs = [];
+            
+            // Verificar se já existe aba com mesmo nome
+            if (gameData.customTabs.some(tab => tab.name === tabData.name)) {
+                showNotification('Já existe uma aba com esse nome', 'error');
+                return;
+            }
+            
+            gameData.customTabs.push(tabData);
+            saveGameData();
+            
+            showNotification('Aba personalizada criada com sucesso!', 'success');
+            
+            // Limpar formulário
+            document.getElementById('customTabName').value = '';
+            document.getElementById('customTabIcon').value = '';
+            document.getElementById('customTabDescription').value = '';
+            document.getElementById('customTabPermission').value = '';
+            document.getElementById('customTabContent').value = '';
+            
+            // Recarregar listas
+            loadExistingCustomTabs();
+            createNavigation();
+        }
+        
+        function loadExistingCustomTabs() {
+            const container = document.getElementById('existingCustomTabs');
+            if (!container) return;
+            
+            if (!gameData.customTabs || gameData.customTabs.length === 0) {
+                container.innerHTML = '<p style="color: #666;">Nenhuma aba personalizada criada ainda.</p>';
+                return;
+            }
+            
+            container.innerHTML = gameData.customTabs.map(tab => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin: 10px 0; background: white;">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 5px;">
+                            ${tab.icon} ${tab.name}
+                            ${tab.permission ? `<span style="background: rgba(102, 126, 234, 0.1); color: #667eea; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 10px;">${tab.permission}</span>` : ''}
+                        </div>
+                        <div style="font-size: 14px; color: #666;">
+                            ${tab.description || 'Sem descrição'}
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                            Criada em ${new Date(tab.createdAt).toLocaleDateString()} por ${tab.createdBy}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary btn-sm" onclick="switchTab('${tab.id}')">👁️ Ver</button>
+                        <button class="btn btn-warning btn-sm" onclick="editCustomTab('${tab.id}')">✏️ Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCustomTab('${tab.id}')">🗑️ Excluir</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function populateGoalUnits() {
@@ -3453,20 +4172,35 @@
         }
 
         function addUser() {
+            const role = document.getElementById('newUserRole').value;
+            let permissions;
+            
+            if (role === 'custom') {
+                permissions = getSelectedPermissions();
+                if (permissions.length === 0) {
+                    showNotification('Selecione pelo menos uma permissão para usuário personalizado', 'warning');
+                    return;
+                }
+            } else {
+                permissions = DEFAULT_PERMISSIONS[role] || [];
+            }
+            
             const userData = {
                 name: document.getElementById('newUserName').value.trim(),
                 username: document.getElementById('newUserUsername').value.trim(),
                 password: document.getElementById('newUserPassword').value.trim(),
-                role: document.getElementById('newUserRole').value,
+                role: role === 'custom' ? 'personalizado' : role,
                 unit: document.getElementById('newUserUnit').value,
+                permissions: permissions,
                 xp: 0,
                 level: 1,
                 id: generateId(),
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                createdBy: currentUser.name
             };
             
-            if (!userData.name || !userData.username || !userData.password || !userData.role || !userData.unit) {
-                showNotification('Preencha todos os campos', 'warning');
+            if (!userData.name || !userData.username || !userData.password || !userData.unit) {
+                showNotification('Preencha todos os campos obrigatórios', 'warning');
                 return;
             }
             
@@ -3484,6 +4218,9 @@
             document.getElementById('newUserName').value = '';
             document.getElementById('newUserUsername').value = '';
             document.getElementById('newUserPassword').value = '';
+            document.getElementById('newUserRole').value = 'vendedor';
+            document.getElementById('customPermissions').style.display = 'none';
+            clearAllPermissions();
             
             loadUserManagementTable();
         }
@@ -3500,35 +4237,252 @@
                             <th>🔑 Usuário</th>
                             <th>🏢 Unidade</th>
                             <th>💼 Tipo</th>
+                            <th>🔐 Permissões</th>
                             <th>⭐ XP</th>
                             <th>🔧 Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${users.map(user => `
-                            <tr>
-                                <td>${user.name}</td>
-                                <td>${user.username}</td>
-                                <td>${user.unit}</td>
-                                <td>
-                                    <span style="padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; background: rgba(102, 126, 234, 0.1); color: #667eea;">${user.role}</span>
-                                </td>
-                                <td>
-                                    <span style="background: var(--primary-gradient); color: white; padding: 6px 16px; border-radius: 25px; font-size: 12px; font-weight: 600;">${user.xp || 0} XP</span>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        ${user.username !== currentUser.username ? 
-                                            `<button class="btn btn-danger btn-sm" onclick="deleteUser('${user.username}')">🗑️ Remover</button>` :
-                                            '<span style="color: #666; font-size: 12px;">Próprio usuário</span>'
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
+                        ${users.map(user => {
+                            const permissionCount = user.permissions ? user.permissions.length : 0;
+                            const isCustomPermissions = user.role === 'personalizado';
+                            
+                            return `
+                                <tr>
+                                    <td>${user.name}</td>
+                                    <td style="font-size: 12px;">${user.username}</td>
+                                    <td>${user.unit}</td>
+                                    <td>
+                                        <span style="padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; background: rgba(102, 126, 234, 0.1); color: #667eea;">
+                                            ${user.role}
+                                            ${isCustomPermissions ? ' 🎛️' : ''}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 5px;">
+                                            <span style="background: ${permissionCount > 10 ? '#38a169' : permissionCount > 5 ? '#ed8936' : '#e53e3e'}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                                ${permissionCount} perm.
+                                            </span>
+                                            <button class="btn btn-info" style="padding: 4px 8px; font-size: 11px;" onclick="viewUserPermissions('${user.username}')">👁️ Ver</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span style="background: var(--primary-gradient); color: white; padding: 6px 16px; border-radius: 25px; font-size: 12px; font-weight: 600;">${user.xp || 0} XP</span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            ${user.username !== currentUser.username ? `
+                                                <button class="btn btn-warning btn-sm" onclick="editUserPermissions('${user.username}')">🔐 Permissões</button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.username}')">🗑️ Remover</button>
+                                            ` : '<span style="color: #666; font-size: 12px;">Próprio usuário</span>'}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
                     </tbody>
                 </table>
             `;
+        }
+
+        function viewUserPermissions(username) {
+            const user = gameData.users[username];
+            if (!user) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3>🔐 Permissões - ${user.name}</h3>
+                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <p><strong>👤 Usuário:</strong> ${user.username}</p>
+                        <p><strong>🏢 Unidade:</strong> ${user.unit}</p>
+                        <p><strong>💼 Cargo:</strong> ${user.role}</p>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #38a169;">
+                        <h4 style="margin-bottom: 15px;">✅ Permissões Ativas (${user.permissions ? user.permissions.length : 0})</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+                            ${user.permissions && user.permissions.length > 0 ? 
+                                user.permissions.map(perm => {
+                                    const permName = Object.keys(PERMISSIONS).find(key => PERMISSIONS[key] === perm) || perm;
+                                    return `
+                                        <div style="background: white; padding: 10px; border-radius: 8px; border-left: 3px solid #38a169; font-size: 14px;">
+                                            ✅ ${permName.replace(/_/g, ' ')}
+                                        </div>
+                                    `;
+                                }).join('') : 
+                                '<p style="color: #666;">Nenhuma permissão definida</p>'
+                            }
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-warning" onclick="this.closest('.modal').remove(); editUserPermissions('${username}')">✏️ Editar Permissões</button>
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">❌ Fechar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function editUserPermissions(username) {
+            const user = gameData.users[username];
+            if (!user) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3>✏️ Editar Permissões - ${user.name}</h3>
+                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                            <div>
+                                <h5 style="color: #38a169; margin-bottom: 10px;">📊 Funcionalidades Básicas</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_dashboard" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.DASHBOARD) ? 'checked' : ''}>
+                                    📊 Dashboard
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_gamificacao" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.GAMIFICACAO) ? 'checked' : ''}>
+                                    🎮 Gamificação
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_ranking" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.RANKING) ? 'checked' : ''}>
+                                    🏆 Ranking
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_chat" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.CHAT) ? 'checked' : ''}>
+                                    💬 Chat
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <h5 style="color: #3182ce; margin-bottom: 10px;">👥 Gestão de Visitação</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_visitas" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.VISITAS) ? 'checked' : ''}>
+                                    👥 Ver Visitas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_visitas_edit" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.VISITAS_EDIT) ? 'checked' : ''}>
+                                    ✏️ Editar Visitas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_visitas_delete" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.VISITAS_DELETE) ? 'checked' : ''}>
+                                    🗑️ Excluir Visitas
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <h5 style="color: #ed8936; margin-bottom: 10px;">📚 Gestão de Matrículas</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_matriculas" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.MATRICULAS) ? 'checked' : ''}>
+                                    📚 Ver Matrículas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_matriculas_edit" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.MATRICULAS_EDIT) ? 'checked' : ''}>
+                                    ✏️ Editar Matrículas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_matriculas_delete" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.MATRICULAS_DELETE) ? 'checked' : ''}>
+                                    🗑️ Excluir Matrículas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_comissoes_edit" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.COMISSOES_EDIT) ? 'checked' : ''}>
+                                    💰 Editar Comissões
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <h5 style="color: #e53e3e; margin-bottom: 10px;">👔 Funções Gerenciais</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_equipe" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.EQUIPE) ? 'checked' : ''}>
+                                    👥 Gestão de Equipe
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_relatorios" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.RELATORIOS) ? 'checked' : ''}>
+                                    📊 Relatórios
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_admin" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.ADMIN) ? 'checked' : ''}>
+                                    ⚙️ Painel Admin
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_admin_tabs" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.ADMIN_TABS) ? 'checked' : ''}>
+                                    📋 Gerenciar Abas
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; text-align: center;">
+                            <button class="btn btn-info btn-sm" onclick="selectAllEditPermissions()">✅ Selecionar Todas</button>
+                            <button class="btn btn-warning btn-sm" onclick="clearAllEditPermissions()">❌ Limpar Todas</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="btn btn-success" onclick="saveUserPermissions('${username}')">💾 Salvar Permissões</button>
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">❌ Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function selectAllEditPermissions() {
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`edit_perm_${permission}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        
+        function clearAllEditPermissions() {
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`edit_perm_${permission}`);
+                if (checkbox) checkbox.checked = false;
+            });
+        }
+        
+        function saveUserPermissions(username) {
+            const user = gameData.users[username];
+            if (!user) return;
+            
+            const selectedPermissions = [];
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`edit_perm_${permission}`);
+                if (checkbox && checkbox.checked) {
+                    selectedPermissions.push(permission);
+                }
+            });
+            
+            user.permissions = selectedPermissions;
+            user.role = 'personalizado'; // Marcar como personalizado se foi editado
+            user.lastPermissionUpdate = {
+                date: new Date().toISOString(),
+                updatedBy: currentUser.name
+            };
+            
+            saveGameData();
+            showNotification(`Permissões de ${user.name} atualizadas com sucesso!`, 'success');
+            
+            document.querySelector('.modal').remove();
+            loadUserManagementTable();
+            
+            // Se for o próprio usuário, atualizar a navegação
+            if (username === currentUser.username) {
+                currentUser.permissions = selectedPermissions;
+                createNavigation();
+            }
         }
 
         function deleteUser(username) {
@@ -4024,6 +4978,17 @@
         // Inicialização ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
             initializeSystem();
+            
+            // Configurar permissões nos campos se estão presentes
+            if (document.getElementById('newUserRole')) {
+                // Adicionar os eventos de permissões
+                Object.values(PERMISSIONS).forEach(permission => {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `perm_${permission}`;
+                    checkbox.style.display = 'none'; // Será mostrado quando necessário
+                });
+            }
         });
     </script>
 </body>
