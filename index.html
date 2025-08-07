@@ -1564,9 +1564,11 @@
             try {
                 localStorage.setItem('gameCreatorsData', JSON.stringify(gameData));
                 console.log('✅ Dados salvos com sucesso');
+                return true;
             } catch (error) {
                 console.error('❌ Erro ao salvar dados:', error);
                 showNotification('Erro ao salvar dados', 'error');
+                return false;
             }
         }
 
@@ -1654,8 +1656,10 @@
 
         // SISTEMA DE LOGIN CORRIGIDO
         function login() {
-            const username = document.getElementById('loginUsername').value.trim();
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value.trim();
+
+            console.log('🔐 Tentativa de login:', { username, password: '***' });
 
             // Validação básica
             if (!username || !password) {
@@ -1667,9 +1671,18 @@
                 return;
             }
 
-            // Verificar se usuário existe
-            const user = gameData.users[username];
+            // Verificar se usuário existe (busca case-insensitive)
+            let user = null;
+            const userKey = Object.keys(gameData.users).find(key => 
+                key.toLowerCase() === username.toLowerCase()
+            );
             
+            if (userKey) {
+                user = gameData.users[userKey];
+            }
+            
+            console.log('👤 Usuário encontrado:', user ? user.name : 'Nenhum');
+
             if (!user) {
                 showNotification('Usuário não encontrado', 'error');
                 document.getElementById('loginError').classList.remove('hidden');
@@ -1681,6 +1694,7 @@
 
             // Verificar senha
             if (user.password !== password) {
+                console.log('🔒 Senha incorreta. Esperada:', user.password, 'Recebida:', password);
                 showNotification('Senha incorreta', 'error');
                 document.getElementById('loginError').classList.remove('hidden');
                 setTimeout(() => {
@@ -1690,22 +1704,27 @@
             }
 
             // Login bem-sucedido
+            console.log('✅ Login bem-sucedido para:', user.name);
             performSuccessfulLogin(user);
         }
 
         function performSuccessfulLogin(user) {
-            currentUser = user;
+            currentUser = { ...user }; // Criar cópia para evitar referência direta
             currentUnit = user.unit;
             
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            // Salvar dados de sessão
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('currentUserKey', user.username);
             
             showNotification(`Bem-vindo, ${user.name}! 🎉`, 'success');
             
+            // Esconder tela de login e mostrar sistema
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainSystem').style.display = 'block';
             
+            // Inicializar interface
             initializeUserInterface();
-            console.log('✅ Login realizado com sucesso');
+            console.log('✅ Login realizado com sucesso para:', user.name);
         }
 
         // Função demo mantida mas APENAS para desenvolvimento
@@ -1752,7 +1771,9 @@
             currentUser = null;
             currentUnit = null;
             
+            // Limpar dados de sessão
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('currentUserKey');
             
             // Limpar formulários
             document.getElementById('loginUsername').value = '';
@@ -1767,14 +1788,17 @@
 
         function checkAutoLogin() {
             const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
+            const savedUserKey = localStorage.getItem('currentUserKey');
+            
+            if (savedUser && savedUserKey) {
                 try {
                     const userData = JSON.parse(savedUser);
                     
-                    // Verificar se usuário ainda existe
-                    const currentUserData = gameData.users[userData.username];
+                    // Verificar se usuário ainda existe e obter dados atualizados
+                    const currentUserData = gameData.users[savedUserKey];
                     if (currentUserData) {
-                        currentUser = currentUserData;
+                        // Usar dados atualizados do localStorage principal
+                        currentUser = { ...currentUserData };
                         currentUnit = currentUser.unit;
                         
                         document.getElementById('loginScreen').style.display = 'none';
@@ -1782,13 +1806,17 @@
                         
                         initializeUserInterface();
                         showNotification(`Bem-vindo de volta, ${currentUser.name}! 🎉`, 'success');
+                        console.log('✅ Auto-login realizado para:', currentUser.name);
                     } else {
+                        // Usuário não existe mais, limpar dados de sessão
                         localStorage.removeItem('currentUser');
+                        localStorage.removeItem('currentUserKey');
                         showNotification('Sessão expirada. Faça login novamente.', 'warning');
                     }
                 } catch (error) {
                     console.error('❌ Erro no auto-login:', error);
                     localStorage.removeItem('currentUser');
+                    localStorage.removeItem('currentUserKey');
                 }
             }
         }
@@ -2006,6 +2034,8 @@
                 createdBy: currentUser.name
             };
 
+            console.log('➕ Tentando adicionar usuário:', userData);
+
             // Validações
             if (!userData.name || !userData.username || !userData.password || !userData.unit) {
                 showNotification('Preencha todos os campos obrigatórios', 'warning');
@@ -2019,8 +2049,12 @@
                 return;
             }
 
-            // Verificar se usuário já existe
-            if (gameData.users[userData.username]) {
+            // Verificar se usuário já existe (case-insensitive)
+            const existingUser = Object.keys(gameData.users).find(key => 
+                key.toLowerCase() === userData.username.toLowerCase()
+            );
+            
+            if (existingUser) {
                 showNotification('Este email já está em uso', 'error');
                 return;
             }
@@ -2036,21 +2070,24 @@
                     return;
                 }
             } else {
-                userData.permissions = DEFAULT_PERMISSIONS[role] || [];
+                userData.permissions = [...(DEFAULT_PERMISSIONS[role] || [])]; // Criar cópia do array
             }
 
             // Salvar usuário
             gameData.users[userData.username] = userData;
-            saveGameData();
+            const saved = saveGameData();
 
-            showNotification(`Usuário ${userData.name} criado com sucesso!`, 'success');
-            
-            // Limpar formulário
-            clearUserForm();
-            
-            // Recarregar tabela
-            if (typeof loadUserManagementTable === 'function') {
+            if (saved) {
+                showNotification(`Usuário ${userData.name} criado com sucesso!`, 'success');
+                console.log('✅ Usuário criado:', userData.name, 'com', userData.permissions.length, 'permissões');
+                
+                // Limpar formulário
+                clearUserForm();
+                
+                // Recarregar tabela
                 loadUserManagementTable();
+            } else {
+                showNotification('Erro ao salvar usuário. Tente novamente.', 'error');
             }
         }
 
@@ -2059,7 +2096,9 @@
             document.getElementById('newUserUsername').value = '';
             document.getElementById('newUserPassword').value = '';
             document.getElementById('newUserRole').value = 'vendedor';
-            document.getElementById('newUserUnit').selectedIndex = 0;
+            if (document.getElementById('newUserUnit').options.length > 0) {
+                document.getElementById('newUserUnit').selectedIndex = 0;
+            }
             
             // Esconder permissões personalizadas
             const customPermissions = document.getElementById('customPermissions');
@@ -2069,6 +2108,88 @@
             
             // Limpar checkboxes
             clearAllPermissions();
+        }
+
+        // NOVA FUNCIONALIDADE: Alterar Senha de Usuário
+        function changeUserPassword(username) {
+            const user = gameData.users[username];
+            if (!user) {
+                showNotification('Usuário não encontrado', 'error');
+                return;
+            }
+            
+            // Criar modal para alteração de senha
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>🔑 Alterar Senha - ${user.name}</h3>
+                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Nova Senha:</label>
+                            <input type="password" id="newPassword" placeholder="Digite a nova senha" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmar Nova Senha:</label>
+                            <input type="password" id="confirmPassword" placeholder="Confirme a nova senha" required>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="btn btn-success" onclick="saveNewPassword('${username}')">
+                                🔑 Alterar Senha
+                            </button>
+                            <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function saveNewPassword(username) {
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            
+            // Validações
+            if (!newPassword || !confirmPassword) {
+                showNotification('Preencha ambos os campos de senha', 'warning');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showNotification('A senha deve ter pelo menos 6 caracteres', 'warning');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('As senhas não coincidem', 'error');
+                return;
+            }
+            
+            // Alterar senha
+            const user = gameData.users[username];
+            if (user) {
+                user.password = newPassword;
+                user.passwordChangedAt = new Date().toISOString();
+                user.passwordChangedBy = currentUser.name;
+                
+                const saved = saveGameData();
+                
+                if (saved) {
+                    showNotification(`Senha de ${user.name} alterada com sucesso!`, 'success');
+                    console.log('🔑 Senha alterada para usuário:', user.name);
+                    
+                    // Fechar modal
+                    document.querySelector('.modal').remove();
+                } else {
+                    showNotification('Erro ao salvar nova senha', 'error');
+                }
+            }
         }
 
         // Gamificação
@@ -3527,6 +3648,7 @@
                                     </td>
                                     <td>
                                         <div class="action-buttons">
+                                            <button class="btn btn-warning btn-sm" onclick="changeUserPassword('${user.username}')">🔑 Alterar Senha</button>
                                             ${user.username !== currentUser.username ? `
                                                 <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.username}')">🗑️ Remover</button>
                                             ` : '<span style="color: #666; font-size: 12px;">Próprio usuário</span>'}
