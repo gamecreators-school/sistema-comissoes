@@ -181,6 +181,35 @@
             margin: 2px;
         }
 
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .demo-buttons {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            display: none; /* DESABILITADO POR PADRÃO */
+        }
+
+        .demo-buttons.show {
+            display: block;
+        }
+
+        .demo-buttons small {
+            display: block;
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
         .main-container {
             background: white;
             border-radius: 20px;
@@ -494,7 +523,6 @@
             display: none !important;
         }
 
-        /* Tabelas */
         .data-table {
             width: 100%;
             background: white;
@@ -656,7 +684,6 @@
             order: 3;
         }
 
-        /* Commission breakdown card */
         .commission-breakdown {
             background: linear-gradient(135deg, #f0fff4, #e6fffa);
             border-radius: 15px;
@@ -688,7 +715,6 @@
             font-size: 16px;
         }
 
-        /* Estilo para sistema de permissões */
         .permissions-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -727,7 +753,6 @@
             transform: scale(1.1);
         }
 
-        /* Estilo para abas personalizadas */
         .custom-tab-item {
             background: white;
             padding: 15px;
@@ -740,17 +765,6 @@
         .custom-tab-item:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
         }
 
         /* Responsividade */
@@ -801,25 +815,41 @@
         <div class="login-card">
             <h1>🎮 Game Creators</h1>
             <p class="login-subtitle">Sistema Avançado de Comissões e Gamificação V2 ULTIMATE</p>
+            
             <div class="form-group">
                 <label>👤 Usuário:</label>
-                <input type="text" id="loginUsername" placeholder="Digite seu usuário" autocomplete="username">
+                <input type="text" id="loginUsername" placeholder="Digite seu usuário" autocomplete="username" required>
             </div>
+            
             <div class="form-group">
                 <label>🔒 Senha:</label>
-                <input type="password" id="loginPassword" placeholder="Digite sua senha" autocomplete="current-password">
+                <input type="password" id="loginPassword" placeholder="Digite sua senha" autocomplete="current-password" required>
             </div>
+            
             <button class="btn btn-primary" onclick="login()" style="width: 100%; margin-top: 25px;">
                 🚀 Entrar no Sistema
             </button>
-            <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;">
-                <button class="btn btn-info btn-sm" onclick="loginDemo('admin')">👑 Admin</button>
-                <button class="btn btn-success btn-sm" onclick="loginDemo('gerente')">👔 Gerente</button>
-                <button class="btn btn-warning btn-sm" onclick="loginDemo('vendedor')">👨‍💼 Vendedor</button>
-                <button class="btn btn-primary btn-sm" onclick="loginDemo('assistente')">👩‍💻 Assistente</button>
+
+            <!-- Botões de Demo (REMOVIDOS/DESABILITADOS) -->
+            <div id="demoButtons" class="demo-buttons">
+                <small>⚠️ Modo desenvolvimento (será removido em produção):</small>
+                <div style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;">
+                    <button class="btn btn-info btn-sm" onclick="loginDemo('admin')">👑 Admin</button>
+                    <button class="btn btn-success btn-sm" onclick="loginDemo('gerente')">👔 Gerente</button>
+                    <button class="btn btn-warning btn-sm" onclick="loginDemo('vendedor')">👨‍💼 Vendedor</button>
+                    <button class="btn btn-primary btn-sm" onclick="loginDemo('assistente')">👩‍💻 Assistente</button>
+                </div>
             </div>
+            
             <div id="loginError" class="notification error hidden" style="position: relative; margin-top: 20px;">
                 Usuário ou senha incorretos!
+            </div>
+
+            <!-- Toggle para mostrar/esconder demo buttons (apenas para desenvolvimento) -->
+            <div style="margin-top: 30px; text-align: center;">
+                <button id="toggleDemo" onclick="toggleDemoMode()" style="background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; font-size: 11px; color: #666; cursor: pointer;">
+                    🔧 Dev Mode
+                </button>
             </div>
         </div>
     </div>
@@ -1298,19 +1328,19 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                         <div class="form-group">
                             <label>Nome:</label>
-                            <input type="text" id="newUserName" placeholder="Nome completo">
+                            <input type="text" id="newUserName" placeholder="Nome completo" required>
                         </div>
                         <div class="form-group">
-                            <label>Usuário:</label>
-                            <input type="text" id="newUserUsername" placeholder="usuario@gamecreatorsadm.com">
+                            <label>Usuário (Email):</label>
+                            <input type="email" id="newUserUsername" placeholder="usuario@gamecreatorsadm.com" required>
                         </div>
                         <div class="form-group">
                             <label>Senha:</label>
-                            <input type="password" id="newUserPassword" placeholder="senha123">
+                            <input type="password" id="newUserPassword" placeholder="senha123" required>
                         </div>
                         <div class="form-group">
                             <label>Tipo:</label>
-                            <select id="newUserRole" onchange="updatePermissionsByRole()">
+                            <select id="newUserRole" onchange="updatePermissionsByRole()" required>
                                 <option value="vendedor">👨‍💼 Vendedor</option>
                                 <option value="gerente">👔 Gerente</option>
                                 <option value="assistente">👩‍💻 Assistente</option>
@@ -1320,7 +1350,7 @@
                         </div>
                         <div class="form-group">
                             <label>Unidade:</label>
-                            <select id="newUserUnit">
+                            <select id="newUserUnit" required>
                                 <!-- Preenchido dinamicamente -->
                             </select>
                         </div>
@@ -1435,143 +1465,11 @@
                     <button class="btn btn-success" onclick="addUser()" style="margin-top: 15px;">➕ Adicionar Usuário</button>
                 </div>
 
-                <!-- Criador de Abas Personalizadas -->
-                <div class="stat-card" style="margin: 20px 0;">
-                    <h3>📋 Gerenciar Abas Personalizadas</h3>
-                    <p style="color: #666; margin-bottom: 20px;">Crie abas personalizadas para adicionar novas funcionalidades ao sistema.</p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        <div class="form-group">
-                            <label>📛 Nome da Aba:</label>
-                            <input type="text" id="customTabName" placeholder="Ex: Relatório de Vendas" required>
-                        </div>
-                        <div class="form-group">
-                            <label>📱 Ícone:</label>
-                            <input type="text" id="customTabIcon" placeholder="Ex: 📊, 🎯, 💼" required>
-                        </div>
-                        <div class="form-group">
-                            <label>📝 Descrição:</label>
-                            <input type="text" id="customTabDescription" placeholder="Breve descrição da aba...">
-                        </div>
-                        <div class="form-group">
-                            <label>🔐 Permissão Necessária:</label>
-                            <select id="customTabPermission">
-                                <option value="">Todos podem ver</option>
-                                ${Object.entries(PERMISSIONS).map(([key, perm]) => 
-                                    `<option value="${perm}">${key}</option>`
-                                ).join('')}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label>📋 Conteúdo da Aba (HTML):</label>
-                        <textarea id="customTabContent" rows="6" style="font-family: monospace; font-size: 12px;" placeholder="Digite o HTML que será exibido na aba..."></textarea>
-                        <small style="color: #666;">💡 Você pode usar HTML básico: &lt;h3&gt;, &lt;p&gt;, &lt;div&gt;, &lt;button&gt;, etc.</small>
-                    </div>
-                    
-                    <button class="btn btn-success" onclick="createCustomTab()">➕ Criar Aba Personalizada</button>
-                    
-                    <!-- Lista de Abas Personalizadas -->
-                    <div id="customTabsList" style="margin-top: 25px;">
-                        <h4>Abas Personalizadas Existentes:</h4>
-                        <div id="existingCustomTabs">
-                            <!-- Preenchido dinamicamente -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Lista de Usuários -->
                 <div class="stat-card" style="margin: 20px 0;">
                     <h3>👥 Gerenciar Usuários</h3>
                     <div id="userManagementTable">
                         <!-- Preenchido dinamicamente -->
-                    </div>
-                </div>
-
-                <!-- Google Sheets Integration -->
-                <div class="stat-card" style="margin: 20px 0;">
-                    <h3>📊 Integração com Google Sheets</h3>
-                    <p style="color: #666; margin-bottom: 20px;">Configure a sincronização automática com planilhas do Google para backup e integração de dados.</p>
-                    
-                    <!-- Método 1: Conexão Automática por ID -->
-                    <div style="background: linear-gradient(135deg, #e3f2fd, #f0f9ff); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
-                        <h4 style="color: #1976d2; margin-bottom: 15px;">🚀 Método Rápido - Conexão por ID</h4>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Use este método se você executou o script de setup automático</p>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end;">
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label>🆔 ID da Planilha:</label>
-                                <input type="text" id="googleSheetId" placeholder="1ABC123DEF456..." style="font-family: monospace; font-size: 12px;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label>🔑 API Key:</label>
-                                <input type="password" id="googleApiKeyId" placeholder="GC_2024_SECURE_KEY...">
-                            </div>
-                            <button class="btn btn-success" onclick="connectBySpreadsheetId()">🔗 Conectar por ID</button>
-                        </div>
-                        
-                        <div style="margin-top: 15px; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 8px;">
-                            <small style="color: #1976d2;">
-                                💡 <strong>Como obter o ID:</strong> Execute a função <code>createGameCreatorsDatabase()</code> no Apps Script e copie o ID gerado
-                            </small>
-                        </div>
-                    </div>
-
-                    <!-- Método 2: Conexão Manual -->
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #6c757d;">
-                        <h4 style="color: #495057; margin-bottom: 15px;">⚙️ Método Manual - Configuração Completa</h4>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                            <div class="form-group">
-                                <label>🔗 URL da Planilha Google:</label>
-                                <input type="url" id="googleSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." style="font-size: 12px;">
-                            </div>
-                            <div class="form-group">
-                                <label>🔑 API Key do Google:</label>
-                                <input type="password" id="googleApiKey" placeholder="Sua chave API...">
-                            </div>
-                            <div class="form-group">
-                                <label>📋 Nome da Aba:</label>
-                                <input type="text" id="googleSheetTab" placeholder="Matriculas" value="Matriculas">
-                            </div>
-                        </div>
-
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-                            <button class="btn btn-primary" onclick="testGoogleConnection()">🔍 Testar Conexão</button>
-                            <button class="btn btn-success" onclick="exportToGoogleSheets()">📤 Exportar</button>
-                            <button class="btn btn-warning" onclick="importFromGoogleSheets()">📥 Importar</button>
-                            <button class="btn btn-info" onclick="syncWithGoogleSheets()">🔄 Sincronizar</button>
-                        </div>
-                    </div>
-
-                    <!-- Status da Integração -->
-                    <div id="googleSheetsStatus" style="padding: 20px; border-radius: 12px; margin-top: 20px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <h4 style="color: #1976d2; margin-bottom: 15px;">📊 Status da Integração</h4>
-                        <div id="googleConnectionStatus" style="margin: 10px 0; font-weight: 600;">
-                            <span style="color: #666;">🔴 Não Conectado</span>
-                        </div>
-                        <div id="googleConnectionDetails" style="font-size: 14px; color: #666; margin: 10px 0;">
-                            Status: Aguardando conexão
-                        </div>
-                        <div id="googleLastSync" style="font-size: 12px; color: #666;">
-                            Última sincronização: Nunca
-                        </div>
-                    </div>
-
-                    <!-- Instruções de Setup -->
-                    <div style="background: linear-gradient(135deg, #fff3e0, #fef7ed); padding: 20px; border-radius: 12px; margin-top: 20px; border-left: 4px solid #ff9800;">
-                        <h4 style="color: #e65100; margin-bottom: 15px;">📋 Instruções de Setup Automático</h4>
-                        <ol style="color: #bf360c; line-height: 1.6;">
-                            <li>Acesse <a href="https://script.google.com" target="_blank" style="color: #1976d2;">Google Apps Script</a></li>
-                            <li>Crie um novo projeto</li>
-                            <li>Cole o código de setup automático fornecido</li>
-                            <li>Mude a API_KEY na linha 8 do código</li>
-                            <li>Execute a função <code>createGameCreatorsDatabase()</code></li>
-                            <li>Copie o ID da planilha gerado</li>
-                            <li>Faça deploy como Web App (Execute as: Me, Access: Anyone)</li>
-                            <li>Use o ID aqui no sistema</li>
-                        </ol>
                     </div>
                 </div>
             </div>
@@ -1593,8 +1491,8 @@
             missions: [],
             chatMessages: [],
             unitGoals: {},
-            customTabs: [], // Abas personalizadas criadas pelo admin
-            userPermissions: {} // Permissões específicas por usuário
+            customTabs: [],
+            userPermissions: {}
         };
 
         // Sistema de permissões
@@ -1640,20 +1538,6 @@
             ]
         };
 
-        // Configuração do Google Sheets
-        let googleSheetsConfig = {
-            url: '',
-            apiKey: '',
-            tabName: 'Matriculas',
-            connected: false,
-            lastSync: null,
-            // Novos campos para conexão por ID
-            spreadsheetId: '',
-            webAppUrl: '',
-            spreadsheetName: '',
-            connectionMethod: 'manual' // 'manual' ou 'id'
-        };
-
         // Inicialização
         function initializeSystem() {
             loadGameData();
@@ -1666,7 +1550,8 @@
             try {
                 const saved = localStorage.getItem('gameCreatorsData');
                 if (saved) {
-                    gameData = { ...gameData, ...JSON.parse(saved) };
+                    const parsedData = JSON.parse(saved);
+                    gameData = { ...gameData, ...parsedData };
                 }
                 console.log('✅ Dados carregados com sucesso');
             } catch (error) {
@@ -1763,45 +1648,75 @@
         // Função para verificar permissões
         function hasPermission(permission) {
             if (!currentUser) return false;
-            if (currentUser.role === 'admin') return true; // Admin tem todas as permissões
+            if (currentUser.role === 'admin') return true;
             return currentUser.permissions && currentUser.permissions.includes(permission);
         }
 
-        // Sistema de login
+        // SISTEMA DE LOGIN CORRIGIDO
         function login() {
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
+            // Validação básica
             if (!username || !password) {
-                showNotification('Por favor, preencha todos os campos', 'warning');
-                return;
-            }
-
-            const user = gameData.users[username];
-            
-            if (user && user.password === password) {
-                currentUser = user;
-                currentUnit = user.unit;
-                
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                
-                showNotification(`Bem-vindo, ${user.name}! 🎉`, 'success');
-                
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('mainSystem').style.display = 'block';
-                
-                initializeUserInterface();
-                console.log('✅ Login realizado com sucesso');
-            } else {
+                showNotification('Por favor, preencha usuário e senha', 'warning');
                 document.getElementById('loginError').classList.remove('hidden');
                 setTimeout(() => {
                     document.getElementById('loginError').classList.add('hidden');
                 }, 3000);
-                console.log('❌ Credenciais inválidas');
+                return;
             }
+
+            // Verificar se usuário existe
+            const user = gameData.users[username];
+            
+            if (!user) {
+                showNotification('Usuário não encontrado', 'error');
+                document.getElementById('loginError').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('loginError').classList.add('hidden');
+                }, 3000);
+                return;
+            }
+
+            // Verificar senha
+            if (user.password !== password) {
+                showNotification('Senha incorreta', 'error');
+                document.getElementById('loginError').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('loginError').classList.add('hidden');
+                }, 3000);
+                return;
+            }
+
+            // Login bem-sucedido
+            performSuccessfulLogin(user);
         }
 
+        function performSuccessfulLogin(user) {
+            currentUser = user;
+            currentUnit = user.unit;
+            
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            showNotification(`Bem-vindo, ${user.name}! 🎉`, 'success');
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainSystem').style.display = 'block';
+            
+            initializeUserInterface();
+            console.log('✅ Login realizado com sucesso');
+        }
+
+        // Função demo mantida mas APENAS para desenvolvimento
         function loginDemo(role) {
+            // VERIFICAR SE ESTÁ EM MODO DEMO
+            const demoButtons = document.getElementById('demoButtons');
+            if (!demoButtons.classList.contains('show')) {
+                showNotification('Acesso demo desabilitado. Use credenciais válidas.', 'warning');
+                return;
+            }
+
             const demoUsers = {
                 'admin': 'admin@gamecreatorsadm.com',
                 'gerente': 'gerente@gamecreatorsadm.com',
@@ -1813,9 +1728,23 @@
             const user = gameData.users[username];
             
             if (user) {
-                document.getElementById('loginUsername').value = username;
-                document.getElementById('loginPassword').value = user.password;
-                login();
+                performSuccessfulLogin(user);
+            }
+        }
+
+        // Toggle para modo demo (apenas desenvolvimento)
+        function toggleDemoMode() {
+            const demoButtons = document.getElementById('demoButtons');
+            const toggleBtn = document.getElementById('toggleDemo');
+            
+            if (demoButtons.classList.contains('show')) {
+                demoButtons.classList.remove('show');
+                toggleBtn.textContent = '🔧 Dev Mode';
+                showNotification('Modo demo desabilitado', 'info');
+            } else {
+                demoButtons.classList.add('show');
+                toggleBtn.textContent = '🔒 Normal Mode';
+                showNotification('Modo demo habilitado', 'warning');
             }
         }
 
@@ -1824,6 +1753,10 @@
             currentUnit = null;
             
             localStorage.removeItem('currentUser');
+            
+            // Limpar formulários
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
             
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('mainSystem').style.display = 'none';
@@ -1836,14 +1769,23 @@
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 try {
-                    currentUser = JSON.parse(savedUser);
-                    currentUnit = currentUser.unit;
+                    const userData = JSON.parse(savedUser);
                     
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('mainSystem').style.display = 'block';
-                    
-                    initializeUserInterface();
-                    showNotification(`Bem-vindo de volta, ${currentUser.name}! 🎉`, 'success');
+                    // Verificar se usuário ainda existe
+                    const currentUserData = gameData.users[userData.username];
+                    if (currentUserData) {
+                        currentUser = currentUserData;
+                        currentUnit = currentUser.unit;
+                        
+                        document.getElementById('loginScreen').style.display = 'none';
+                        document.getElementById('mainSystem').style.display = 'block';
+                        
+                        initializeUserInterface();
+                        showNotification(`Bem-vindo de volta, ${currentUser.name}! 🎉`, 'success');
+                    } else {
+                        localStorage.removeItem('currentUser');
+                        showNotification('Sessão expirada. Faça login novamente.', 'warning');
+                    }
                 } catch (error) {
                     console.error('❌ Erro no auto-login:', error);
                     localStorage.removeItem('currentUser');
@@ -1893,20 +1835,6 @@
 
             // Filtrar abas baseado nas permissões
             const allowedTabs = defaultTabs.filter(tab => hasPermission(tab.permission));
-            
-            // Adicionar abas personalizadas se o usuário tem permissão
-            if (gameData.customTabs) {
-                gameData.customTabs.forEach(customTab => {
-                    if (hasPermission(customTab.permission) || !customTab.permission) {
-                        allowedTabs.push({
-                            id: customTab.id,
-                            name: `${customTab.icon} ${customTab.name}`,
-                            permission: customTab.permission,
-                            isCustom: true
-                        });
-                    }
-                });
-            }
 
             navTabs.innerHTML = allowedTabs
                 .map(tab => `
@@ -1924,13 +1852,6 @@
 
             // Ativar tab selecionada
             document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
-            
-            // Verificar se é aba personalizada
-            const customTab = gameData.customTabs?.find(tab => tab.id === tabId);
-            if (customTab) {
-                showCustomTab(customTab);
-                return;
-            }
             
             const tabElement = document.getElementById(tabId);
             if (tabElement) {
@@ -1967,47 +1888,6 @@
                     updateAdminTab();
                     break;
             }
-        }
-
-        function showCustomTab(customTab) {
-            // Ocultar todas as abas padrão
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            // Remover aba personalizada anterior se existir
-            const existingCustomTab = document.getElementById('customTabContent');
-            if (existingCustomTab) {
-                existingCustomTab.remove();
-            }
-            
-            // Criar conteúdo da aba personalizada
-            const customTabContent = document.createElement('div');
-            customTabContent.id = 'customTabContent';
-            customTabContent.className = 'tab-content active';
-            customTabContent.style.padding = '30px';
-            
-            customTabContent.innerHTML = `
-                <div class="stat-card">
-                    <h2>${customTab.icon} ${customTab.name}</h2>
-                    <p style="color: #666; margin-bottom: 20px;">${customTab.description}</p>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #3182ce;">
-                        <h4 style="margin-bottom: 15px;">📋 Conteúdo da Aba</h4>
-                        <div id="customTabMainContent">
-                            ${customTab.content || '<p>Esta aba ainda não tem conteúdo definido.</p>'}
-                        </div>
-                        
-                        ${hasPermission(PERMISSIONS.ADMIN) ? `
-                            <hr style="margin: 20px 0;">
-                            <div style="text-align: center;">
-                                <button class="btn btn-warning btn-sm" onclick="editCustomTab('${customTab.id}')">✏️ Editar Aba</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteCustomTab('${customTab.id}')">🗑️ Excluir Aba</button>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            
-            document.querySelector('.main-container').appendChild(customTabContent);
         }
 
         // Dashboard
@@ -2111,162 +1991,84 @@
             };
         }
 
-        // SISTEMA DE COMISSÕES OFICIAL - ATUALIZADO CONFORME DOCUMENTO
+        // SISTEMA DE ADIÇÃO DE USUÁRIOS CORRIGIDO
+        function addUser() {
+            const userData = {
+                name: document.getElementById('newUserName').value.trim(),
+                username: document.getElementById('newUserUsername').value.trim().toLowerCase(),
+                password: document.getElementById('newUserPassword').value.trim(),
+                role: document.getElementById('newUserRole').value,
+                unit: document.getElementById('newUserUnit').value,
+                xp: 0,
+                level: 1,
+                id: generateId(),
+                createdAt: new Date().toISOString(),
+                createdBy: currentUser.name
+            };
 
-        /**
-         * Calcula comissões seguindo as regras oficiais do documento
-         * @param {Object} matricula - Dados da matrícula
-         * @param {string} userRole - Papel do usuário (vendedor, gerente, assistente)
-         * @param {number} userMatriculasCount - Número de matrículas do usuário no mês
-         * @param {boolean} isFirstPayment - Se inclui primeira parcela
-         * @returns {number} Valor da comissão
-         */
-        function calculateOfficialCommissions(matricula, userRole, userMatriculasCount, isFirstPayment = true) {
-            const { tipo } = matricula;
-            
-            let commission = 0;
-            let bonus = 0;
+            // Validações
+            if (!userData.name || !userData.username || !userData.password || !userData.unit) {
+                showNotification('Preencha todos os campos obrigatórios', 'warning');
+                return;
+            }
 
-            if (userRole === 'vendedor') {
-                // VENDEDOR: A partir da 10ª matrícula
-                if (userMatriculasCount >= 10) {
-                    if (userMatriculasCount >= 41) {
-                        commission = 70;
-                    } else if (userMatriculasCount >= 31) {
-                        commission = 60;
-                    } else if (userMatriculasCount >= 21) {
-                        commission = 50;
-                    } else {
-                        commission = 35; // De 10 a 20
-                    }
-                    
-                    // Se for só matrícula (sem primeira parcela), pagar 50%
-                    if (!isFirstPayment) {
-                        commission *= 0.5;
-                    }
-                }
+            // Validar formato de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(userData.username)) {
+                showNotification('Digite um email válido para o usuário', 'warning');
+                return;
+            }
+
+            // Verificar se usuário já existe
+            if (gameData.users[userData.username]) {
+                showNotification('Este email já está em uso', 'error');
+                return;
+            }
+
+            // Definir permissões
+            const role = userData.role;
+            if (role === 'custom') {
+                userData.permissions = getSelectedPermissions();
+                userData.role = 'personalizado';
                 
-                // Bônus Blackin/Black (dividido entre vendedor e gerente)
-                if (tipo === 'Blackin') {
-                    bonus = 25; // R$ 50 dividido por 2
-                } else if (tipo === 'Black') {
-                    bonus = 50; // R$ 100 dividido por 2
+                if (userData.permissions.length === 0) {
+                    showNotification('Selecione pelo menos uma permissão para usuário personalizado', 'warning');
+                    return;
                 }
-
-            } else if (userRole === 'gerente') {
-                // GERENTE: A partir da 26ª matrícula
-                if (userMatriculasCount >= 26) {
-                    if (userMatriculasCount >= 53) {
-                        commission = 80; // De 53 a 78
-                    } else {
-                        commission = 50; // De 26 a 52
-                    }
-                    
-                    // Se for só matrícula (sem primeira parcela), pagar 50%
-                    if (!isFirstPayment) {
-                        commission *= 0.5;
-                    }
-                }
-                
-                // Bônus Blackin/Black (50% do bônus)
-                if (tipo === 'Blackin') {
-                    bonus = 25; // 50% de R$ 50
-                } else if (tipo === 'Black') {
-                    bonus = 50; // 50% de R$ 100
-                }
-
-            } else if (userRole === 'assistente') {
-                // ASSISTENTE: A partir da 10ª matrícula
-                if (userMatriculasCount >= 10) {
-                    if (userMatriculasCount >= 41) {
-                        commission = 30;
-                    } else if (userMatriculasCount >= 31) {
-                        commission = 25;
-                    } else if (userMatriculasCount >= 21) {
-                        commission = 15;
-                    } else {
-                        commission = 10; // De 10 a 20
-                    }
-                    
-                    // Se for só matrícula (sem primeira parcela), pagar 50%
-                    if (!isFirstPayment) {
-                        commission *= 0.5;
-                    }
-                }
+            } else {
+                userData.permissions = DEFAULT_PERMISSIONS[role] || [];
             }
 
-            return commission + bonus;
-        }
+            // Salvar usuário
+            gameData.users[userData.username] = userData;
+            saveGameData();
 
-        /**
-         * Calcula bônus diário oficial
-         * @param {string} userRole - Papel do usuário
-         * @param {number} dailyMatriculas - Número de matrículas no dia
-         * @returns {number} Valor do bônus diário
-         */
-        function calculateOfficialDailyBonus(userRole, dailyMatriculas) {
-            if (userRole === 'vendedor') {
-                if (dailyMatriculas >= 3) return 100;
-                if (dailyMatriculas >= 2) return 50;
-            } else if (userRole === 'assistente') {
-                if (dailyMatriculas >= 3) return 40;
-                if (dailyMatriculas >= 2) return 20;
+            showNotification(`Usuário ${userData.name} criado com sucesso!`, 'success');
+            
+            // Limpar formulário
+            clearUserForm();
+            
+            // Recarregar tabela
+            if (typeof loadUserManagementTable === 'function') {
+                loadUserManagementTable();
             }
-            return 0;
         }
 
-        /**
-         * Calcula comissão por faturamento (apenas gerente)
-         * @param {number} monthlyRevenue - Faturamento mensal
-         * @returns {number} Comissão por faturamento
-         */
-        function calculateRevenueCommission(monthlyRevenue) {
-            if (monthlyRevenue >= 80000) {
-                return monthlyRevenue * 0.03; // 3%
-            } else if (monthlyRevenue >= 49054.20) {
-                return monthlyRevenue * 0.02; // 2%
-            } else if (monthlyRevenue >= 31445) {
-                return monthlyRevenue * 0.01; // 1%
+        function clearUserForm() {
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserUsername').value = '';
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('newUserRole').value = 'vendedor';
+            document.getElementById('newUserUnit').selectedIndex = 0;
+            
+            // Esconder permissões personalizadas
+            const customPermissions = document.getElementById('customPermissions');
+            if (customPermissions) {
+                customPermissions.style.display = 'none';
             }
-            return 0;
-        }
-
-        /**
-         * Verifica se a unidade ganhou bônus por atingir ambas as metas
-         * @param {string} unit - Nome da unidade
-         * @returns {boolean} Se ganhou o bônus de R$ 1.000
-         */
-        function checkUnitBonus(unit) {
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
             
-            const unitGoal = gameData.unitGoals[unit] || { matriculas: 50, faturamento: 80000 };
-            
-            const unitMatriculas = gameData.matriculas.filter(m => {
-                const date = new Date(m.data);
-                return date.getMonth() === currentMonth && 
-                       date.getFullYear() === currentYear &&
-                       m.unidade === unit;
-            });
-            
-            const currentMatriculas = unitMatriculas.length;
-            const currentFaturamento = unitMatriculas.reduce((sum, m) => sum + (m.valorTotal || 0), 0);
-            
-            return currentMatriculas >= unitGoal.matriculas && currentFaturamento >= unitGoal.faturamento;
-        }
-
-        function calculateMonthlyRevenue(unit) {
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            
-            return gameData.matriculas
-                .filter(m => {
-                    const date = new Date(m.data);
-                    return date.getMonth() === currentMonth && 
-                           date.getFullYear() === currentYear &&
-                           m.unidade === unit;
-                })
-                .reduce((sum, m) => sum + (m.valorTotal || 0), 0);
+            // Limpar checkboxes
+            clearAllPermissions();
         }
 
         // Gamificação
@@ -2735,16 +2537,11 @@
                 return;
             }
 
-            // Calcular comissões com sistema oficial
-            const comissoes = calculateOfficialMatriculaCommissions(matriculaData);
+            // Calcular comissões simplificadas
+            const comissoes = calculateSimpleCommissions(matriculaData);
             matriculaData.comissaoVendedor = comissoes.vendedor;
             matriculaData.comissaoGerente = comissoes.gerente;
             matriculaData.comissaoAssistente = comissoes.assistente;
-
-            // Calcular bônus diário
-            const bonusDiario = calculateDailyBonusesForDate(matriculaData.data, matriculaData);
-            matriculaData.bonusDiarioVendedor = bonusDiario.vendedor;
-            matriculaData.bonusDiarioAssistente = bonusDiario.assistente;
 
             gameData.matriculas.push(matriculaData);
             
@@ -2757,141 +2554,38 @@
 
             showNotification('Matrícula adicionada com sucesso!', 'success');
             
-            // Exibir comissões calculadas
-            showCommissionBreakdown(comissoes, bonusDiario);
-
             clearMatriculaForm();
             loadMatriculasList();
             updateDashboard();
         }
 
-        function calculateOfficialMatriculaCommissions(matricula) {
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            const matriculaDate = new Date(matricula.data);
-            
-            // Contar matrículas do mês para cada função
-            const vendedorMatriculas = gameData.matriculas.filter(m => {
-                const date = new Date(m.data);
-                return date.getMonth() === currentMonth && 
-                       date.getFullYear() === currentYear &&
-                       m.vendedor === matricula.vendedor;
-            }).length + 1; // +1 para incluir a atual
-            
-            const gerenteMatriculas = gameData.matriculas.filter(m => {
-                const date = new Date(m.data);
-                return date.getMonth() === currentMonth && 
-                       date.getFullYear() === currentYear &&
-                       m.gerente === matricula.gerente;
-            }).length + 1;
-            
-            const assistenteMatriculas = gameData.matriculas.filter(m => {
-                const date = new Date(m.data);
-                return date.getMonth() === currentMonth && 
-                       date.getFullYear() === currentYear &&
-                       m.assistente === matricula.assistente;
-            }).length + 1;
+        function calculateSimpleCommissions(matricula) {
+            // Sistema simplificado de comissões
+            let vendedorCommission = 35;
+            let gerenteCommission = 50;
+            let assistenteCommission = 20;
 
-            const vendedorCommission = calculateOfficialCommissions(matricula, 'vendedor', vendedorMatriculas, matricula.hasFirstPayment);
-            const gerenteCommission = calculateOfficialCommissions(matricula, 'gerente', gerenteMatriculas, matricula.hasFirstPayment);
-            const assistenteCommission = calculateOfficialCommissions(matricula, 'assistente', assistenteMatriculas, matricula.hasFirstPayment);
+            // Bônus por tipo
+            if (matricula.tipo === 'Blackin') {
+                vendedorCommission += 25;
+                gerenteCommission += 25;
+            } else if (matricula.tipo === 'Black') {
+                vendedorCommission += 50;
+                gerenteCommission += 50;
+            }
 
-            // Adicionar comissão por faturamento para gerente
-            let gerenteRevenueCommission = 0;
-            if (matricula.gerente) {
-                const monthlyRevenue = calculateMonthlyRevenue(matricula.unidade);
-                gerenteRevenueCommission = calculateRevenueCommission(monthlyRevenue + matricula.valorTotal);
+            // Se não inclui primeira parcela, reduzir 50%
+            if (!matricula.hasFirstPayment) {
+                vendedorCommission *= 0.5;
+                gerenteCommission *= 0.5;
+                assistenteCommission *= 0.5;
             }
 
             return {
                 vendedor: vendedorCommission,
-                gerente: gerenteCommission + gerenteRevenueCommission,
+                gerente: gerenteCommission,
                 assistente: assistenteCommission
             };
-        }
-
-        function calculateDailyBonusesForDate(dataMatricula, newMatricula) {
-            const targetDate = new Date(dataMatricula).toDateString();
-            
-            // Contar matrículas do dia (incluindo a nova)
-            const dailyMatriculas = gameData.matriculas.filter(m => 
-                new Date(m.data).toDateString() === targetDate
-            );
-            
-            // Adicionar a nova matrícula à contagem
-            dailyMatriculas.push(newMatricula);
-
-            // Agrupar por vendedor e assistente
-            const vendedorCount = {};
-            const assistenteCount = {};
-            
-            dailyMatriculas.forEach(m => {
-                vendedorCount[m.vendedor] = (vendedorCount[m.vendedor] || 0) + 1;
-                assistenteCount[m.assistente] = (assistenteCount[m.assistente] || 0) + 1;
-            });
-
-            return {
-                vendedor: calculateOfficialDailyBonus('vendedor', vendedorCount[newMatricula.vendedor] || 0),
-                assistente: calculateOfficialDailyBonus('assistente', assistenteCount[newMatricula.assistente] || 0)
-            };
-        }
-
-        function showCommissionBreakdown(comissoes, bonusDiario) {
-            const totalVendedor = comissoes.vendedor + bonusDiario.vendedor;
-            const totalGerente = comissoes.gerente;
-            const totalAssistente = comissoes.assistente + bonusDiario.assistente;
-
-            const breakdownHtml = `
-                <div class="commission-breakdown">
-                    <h4 style="margin-bottom: 15px; color: #38a169;">💰 Detalhamento das Comissões</h4>
-                    
-                    <div class="commission-item">
-                        <span class="commission-type">👨‍💼 Vendedor</span>
-                        <div>
-                            <span class="commission-value">R$ ${totalVendedor.toFixed(2)}</span>
-                            ${bonusDiario.vendedor > 0 ? `<br><small style="color: #ed8936;">+ R$ ${bonusDiario.vendedor.toFixed(2)} (bônus diário)</small>` : ''}
-                        </div>
-                    </div>
-                    
-                    <div class="commission-item">
-                        <span class="commission-type">👔 Gerente</span>
-                        <span class="commission-value">R$ ${totalGerente.toFixed(2)}</span>
-                    </div>
-                    
-                    <div class="commission-item">
-                        <span class="commission-type">👩‍💻 Assistente</span>
-                        <div>
-                            <span class="commission-value">R$ ${totalAssistente.toFixed(2)}</span>
-                            ${bonusDiario.assistente > 0 ? `<br><small style="color: #ed8936;">+ R$ ${bonusDiario.assistente.toFixed(2)} (bônus diário)</small>` : ''}
-                        </div>
-                    </div>
-                    
-                    <div style="border-top: 2px solid #38a169; margin-top: 15px; padding-top: 15px;">
-                        <div class="commission-item">
-                            <span class="commission-type" style="font-size: 18px;">💵 TOTAL GERAL</span>
-                            <span class="commission-value" style="font-size: 20px;">R$ ${(totalVendedor + totalGerente + totalAssistente).toFixed(2)}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Mostrar modal com breakdown
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'flex';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 500px;">
-                    <div class="modal-header">
-                        <h3>📊 Comissões Calculadas</h3>
-                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
-                    </div>
-                    ${breakdownHtml}
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button class="btn btn-success" onclick="this.closest('.modal').remove()">✅ Entendi</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
         }
 
         function awardXP(userName, xpAmount) {
@@ -3008,12 +2702,6 @@
                                 <td>
                                     <div class="action-buttons">
                                         <button class="btn btn-info btn-sm" onclick="viewMatricula('${matricula.id}')">👁️ Ver</button>
-                                        ${hasPermission(PERMISSIONS.MATRICULAS_EDIT) ? 
-                                            `<button class="btn btn-warning btn-sm" onclick="editMatricula('${matricula.id}')">✏️ Editar</button>` : ''
-                                        }
-                                        ${hasPermission(PERMISSIONS.COMISSOES_EDIT) ? 
-                                            `<button class="btn btn-primary btn-sm" onclick="editComissoes('${matricula.id}')">💰 Comissões</button>` : ''
-                                        }
                                         ${hasPermission(PERMISSIONS.MATRICULAS_DELETE) ? 
                                             `<button class="btn btn-danger btn-sm" onclick="deleteMatricula('${matricula.id}')">🗑️</button>` : ''
                                         }
@@ -3058,16 +2746,10 @@
                         <p><strong>💰 Comissão Vendedor:</strong> R$ ${(matricula.comissaoVendedor || 0).toFixed(2)}</p>
                         <p><strong>💰 Comissão Gerente:</strong> R$ ${(matricula.comissaoGerente || 0).toFixed(2)}</p>
                         <p><strong>💰 Comissão Assistente:</strong> R$ ${(matricula.comissaoAssistente || 0).toFixed(2)}</p>
-                        ${(matricula.bonusDiarioVendedor || 0) > 0 ? `<p><strong>🎁 Bônus Diário Vendedor:</strong> R$ ${matricula.bonusDiarioVendedor.toFixed(2)}</p>` : ''}
-                        ${(matricula.bonusDiarioAssistente || 0) > 0 ? `<p><strong>🎁 Bônus Diário Assistente:</strong> R$ ${matricula.bonusDiarioAssistente.toFixed(2)}</p>` : ''}
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
-        }
-
-        function editMatricula(matriculaId) {
-            showNotification('Funcionalidade de edição em desenvolvimento', 'info');
         }
 
         function deleteMatricula(matriculaId) {
@@ -3078,243 +2760,6 @@
                 loadMatriculasList();
                 updateDashboard();
             }
-        }
-
-        // SISTEMA DE EDIÇÃO DE COMISSÕES (APENAS ADMIN)
-        function editComissoes(matriculaId) {
-            if (!hasPermission(PERMISSIONS.COMISSOES_EDIT)) {
-                showNotification('Você não tem permissão para editar comissões', 'error');
-                return;
-            }
-            
-            const matricula = gameData.matriculas.find(m => m.id === matriculaId);
-            if (!matricula) return;
-            
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'flex';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 600px;">
-                    <div class="modal-header">
-                        <h3>💰 Editar Comissões - ${matricula.nome}</h3>
-                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <p><strong>📅 Data:</strong> ${new Date(matricula.data).toLocaleDateString()}</p>
-                        <p><strong>💰 Valor Total:</strong> R$ ${matricula.valorTotal?.toFixed(2)}</p>
-                        <p><strong>📊 Tipo:</strong> ${matricula.tipo}</p>
-                    </div>
-
-                    <div class="commission-breakdown">
-                        <h4 style="margin-bottom: 15px; color: #38a169;">💰 Editar Valores das Comissões</h4>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                            <div class="form-group">
-                                <label>👨‍💼 Comissão Vendedor (R$):</label>
-                                <input type="number" id="editComissaoVendedor" step="0.01" value="${matricula.comissaoVendedor || 0}">
-                            </div>
-                            <div class="form-group">
-                                <label>👔 Comissão Gerente (R$):</label>
-                                <input type="number" id="editComissaoGerente" step="0.01" value="${matricula.comissaoGerente || 0}">
-                            </div>
-                            <div class="form-group">
-                                <label>👩‍💻 Comissão Assistente (R$):</label>
-                                <input type="number" id="editComissaoAssistente" step="0.01" value="${matricula.comissaoAssistente || 0}">
-                            </div>
-                            <div class="form-group">
-                                <label>🎁 Bônus Diário Vendedor (R$):</label>
-                                <input type="number" id="editBonusVendedor" step="0.01" value="${matricula.bonusDiarioVendedor || 0}">
-                            </div>
-                            <div class="form-group">
-                                <label>🎁 Bônus Diário Assistente (R$):</label>
-                                <input type="number" id="editBonusAssistente" step="0.01" value="${matricula.bonusDiarioAssistente || 0}">
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 20px;">
-                            <label style="display: flex; align-items: center; gap: 10px;">
-                                <input type="checkbox" id="recalcularComissoes" checked>
-                                <span>🔄 Recalcular automaticamente baseado nas regras oficiais</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 25px;">
-                        <button class="btn btn-success" onclick="saveComissoes('${matricula.id}')">💾 Salvar Alterações</button>
-                        <button class="btn btn-warning" onclick="recalcularComissoesMatricula('${matricula.id}')">🔄 Recalcular</button>
-                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">❌ Cancelar</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
-
-        function saveComissoes(matriculaId) {
-            const matricula = gameData.matriculas.find(m => m.id === matriculaId);
-            if (!matricula) return;
-            
-            const shouldRecalculate = document.getElementById('recalcularComissoes').checked;
-            
-            if (shouldRecalculate) {
-                // Recalcular automaticamente
-                recalcularComissoesMatricula(matriculaId);
-            } else {
-                // Usar valores manuais
-                matricula.comissaoVendedor = parseFloat(document.getElementById('editComissaoVendedor').value) || 0;
-                matricula.comissaoGerente = parseFloat(document.getElementById('editComissaoGerente').value) || 0;
-                matricula.comissaoAssistente = parseFloat(document.getElementById('editComissaoAssistente').value) || 0;
-                matricula.bonusDiarioVendedor = parseFloat(document.getElementById('editBonusVendedor').value) || 0;
-                matricula.bonusDiarioAssistente = parseFloat(document.getElementById('editBonusAssistente').value) || 0;
-                
-                matricula.comissoesEditedManually = true;
-                matricula.lastCommissionEdit = {
-                    date: new Date().toISOString(),
-                    editedBy: currentUser.name
-                };
-                
-                saveGameData();
-                showNotification('Comissões salvas com sucesso!', 'success');
-            }
-            
-            document.querySelector('.modal').remove();
-            loadMatriculasList();
-            updateDashboard();
-        }
-
-        function recalcularComissoesMatricula(matriculaId) {
-            const matricula = gameData.matriculas.find(m => m.id === matriculaId);
-            if (!matricula) return;
-            
-            // Recalcular comissões usando as regras oficiais
-            const novasComissoes = calculateOfficialMatriculaCommissions(matricula);
-            const novosBonusDiarios = calculateDailyBonusesForDate(matricula.data, matricula);
-            
-            matricula.comissaoVendedor = novasComissoes.vendedor;
-            matricula.comissaoGerente = novasComissoes.gerente;
-            matricula.comissaoAssistente = novasComissoes.assistente;
-            matricula.bonusDiarioVendedor = novosBonusDiarios.vendedor;
-            matricula.bonusDiarioAssistente = novosBonusDiarios.assistente;
-            
-            matricula.comissoesEditedManually = false;
-            matricula.lastCommissionRecalc = {
-                date: new Date().toISOString(),
-                recalcedBy: currentUser.name
-            };
-            
-            saveGameData();
-            showNotification('Comissões recalculadas automaticamente!', 'success');
-            
-            // Atualizar campos do modal se estiver aberto
-            if (document.getElementById('editComissaoVendedor')) {
-                document.getElementById('editComissaoVendedor').value = novasComissoes.vendedor;
-                document.getElementById('editComissaoGerente').value = novasComissoes.gerente;
-                document.getElementById('editComissaoAssistente').value = novasComissoes.assistente;
-                document.getElementById('editBonusVendedor').value = novosBonusDiarios.vendedor;
-                document.getElementById('editBonusAssistente').value = novosBonusDiarios.assistente;
-            }
-        }
-
-        // SISTEMA DE ABAS PERSONALIZADAS (ADMIN)
-        function editCustomTab(tabId) {
-            const customTab = gameData.customTabs.find(tab => tab.id === tabId);
-            if (!customTab) return;
-            
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'flex';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 700px;">
-                    <div class="modal-header">
-                        <h3>✏️ Editar Aba Personalizada</h3>
-                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <div class="form-group">
-                            <label>📛 Nome da Aba:</label>
-                            <input type="text" id="editTabName" value="${customTab.name}" required>
-                        </div>
-                        <div class="form-group">
-                            <label>📱 Ícone:</label>
-                            <input type="text" id="editTabIcon" value="${customTab.icon}" placeholder="Ex: 📊, 🎯, 💼" required>
-                        </div>
-                        <div class="form-group">
-                            <label>📝 Descrição:</label>
-                            <textarea id="editTabDescription" rows="2" placeholder="Breve descrição da aba...">${customTab.description || ''}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>🔐 Permissão Necessária:</label>
-                            <select id="editTabPermission">
-                                <option value="">Todos podem ver</option>
-                                ${Object.entries(PERMISSIONS).map(([key, perm]) => 
-                                    `<option value="${perm}" ${customTab.permission === perm ? 'selected' : ''}>${key}</option>`
-                                ).join('')}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label>📋 Conteúdo da Aba (HTML):</label>
-                        <textarea id="editTabContent" rows="8" style="font-family: monospace; font-size: 12px;" placeholder="Digite o HTML que será exibido na aba...">${customTab.content || ''}</textarea>
-                        <small style="color: #666;">💡 Você pode usar HTML básico: &lt;h3&gt;, &lt;p&gt;, &lt;div&gt;, &lt;button&gt;, etc.</small>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 25px;">
-                        <button class="btn btn-success" onclick="saveCustomTab('${tabId}')">💾 Salvar Aba</button>
-                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">❌ Cancelar</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
-
-        function deleteCustomTab(tabId) {
-            if (!hasPermission(PERMISSIONS.ADMIN_TABS)) {
-                showNotification('Você não tem permissão para excluir abas', 'error');
-                return;
-            }
-            
-            if (confirm('Tem certeza que deseja excluir esta aba personalizada?')) {
-                gameData.customTabs = gameData.customTabs.filter(tab => tab.id !== tabId);
-                saveGameData();
-                showNotification('Aba personalizada excluída', 'info');
-                
-                // Voltar ao dashboard
-                switchTab('dashboard');
-                createNavigation(); // Recriar navegação
-            }
-        }
-
-        function saveCustomTab(tabId) {
-            const tabIndex = gameData.customTabs.findIndex(tab => tab.id === tabId);
-            if (tabIndex === -1) return;
-            
-            const tabData = {
-                ...gameData.customTabs[tabIndex],
-                name: document.getElementById('editTabName').value,
-                icon: document.getElementById('editTabIcon').value,
-                description: document.getElementById('editTabDescription').value,
-                permission: document.getElementById('editTabPermission').value || null,
-                content: document.getElementById('editTabContent').value,
-                lastModified: new Date().toISOString(),
-                modifiedBy: currentUser.name
-            };
-            
-            if (!tabData.name || !tabData.icon) {
-                showNotification('Nome e ícone são obrigatórios', 'warning');
-                return;
-            }
-            
-            gameData.customTabs[tabIndex] = tabData;
-            saveGameData();
-            
-            showNotification('Aba atualizada com sucesso!', 'success');
-            document.querySelector('.modal').remove();
-            
-            // Recriar navegação e mostrar aba atualizada
-            createNavigation();
-            switchTab(tabId);
         }
 
         function exportMatriculas(format) {
@@ -3450,9 +2895,9 @@
 
             const comissao = matriculas.reduce((sum, m) => {
                 let userCommission = 0;
-                if (m.vendedor === user.name) userCommission += (m.comissaoVendedor || 0) + (m.bonusDiarioVendedor || 0);
+                if (m.vendedor === user.name) userCommission += m.comissaoVendedor || 0;
                 if (m.gerente === user.name) userCommission += m.comissaoGerente || 0;
-                if (m.assistente === user.name) userCommission += (m.comissaoAssistente || 0) + (m.bonusDiarioAssistente || 0);
+                if (m.assistente === user.name) userCommission += m.comissaoAssistente || 0;
                 return sum + userCommission;
             }, 0);
 
@@ -3699,12 +3144,8 @@
                 
                 gameData.units.forEach(unit => {
                     const unitUsers = Object.values(gameData.users).filter(user => user.unit === unit);
-                    const unitMatriculas = gameData.matriculas.filter(m => 
-                        unitUsers.some(user => user.name === m.vendedor || user.name === m.gerente || user.name === m.assistente)
-                    );
-                    const unitVisitas = gameData.visitas.filter(v => 
-                        unitUsers.some(user => user.name === v.atendente)
-                    );
+                    const unitMatriculas = gameData.matriculas.filter(m => m.unidade === unit);
+                    const unitVisitas = gameData.visitas.filter(v => v.unidade === unit);
                     
                     const unitGoal = gameData.unitGoals[unit] || { matriculas: 50, faturamento: 80000 };
                     const currentFaturamento = unitMatriculas.reduce((sum, m) => sum + (m.valorTotal || 0), 0);
@@ -3778,63 +3219,15 @@
         }
 
         function gerarRelatorioMetas() {
-            showLoadingOverlay('Gerando relatório de metas...');
-            
-            setTimeout(() => {
-                const relatorio = `
-                    <div class="stat-card">
-                        <h3>🎯 Relatório de Metas vs Realizado - ${new Date().toLocaleDateString()}</h3>
-                        <p>Relatório de metas em desenvolvimento. Em breve!</p>
-                        <div style="margin-top: 20px; text-align: center;">
-                            <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir Relatório</button>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('relatorioResultado').innerHTML = relatorio;
-                hideLoadingOverlay();
-                showNotification('Relatório de metas gerado!', 'success');
-            }, 1500);
+            showNotification('Relatório de metas em desenvolvimento', 'info');
         }
 
         function gerarRelatorioTendencias() {
-            showLoadingOverlay('Gerando análise de tendências...');
-            
-            setTimeout(() => {
-                const relatorio = `
-                    <div class="stat-card">
-                        <h3>📈 Análise de Tendências - ${new Date().toLocaleDateString()}</h3>
-                        <p>Análise de tendências em desenvolvimento. Em breve!</p>
-                        <div style="margin-top: 20px; text-align: center;">
-                            <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir Relatório</button>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('relatorioResultado').innerHTML = relatorio;
-                hideLoadingOverlay();
-                showNotification('Análise de tendências gerada!', 'success');
-            }, 1500);
+            showNotification('Análise de tendências em desenvolvimento', 'info');
         }
 
         function gerarRelatorioPrevisao() {
-            showLoadingOverlay('Gerando previsão de vendas...');
-            
-            setTimeout(() => {
-                const relatorio = `
-                    <div class="stat-card">
-                        <h3>🔮 Previsão de Vendas - ${new Date().toLocaleDateString()}</h3>
-                        <p>Previsão de vendas em desenvolvimento. Em breve!</p>
-                        <div style="margin-top: 20px; text-align: center;">
-                            <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir Relatório</button>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('relatorioResultado').innerHTML = relatorio;
-                hideLoadingOverlay();
-                showNotification('Previsão de vendas gerada!', 'success');
-            }, 1500);
+            showNotification('Previsão de vendas em desenvolvimento', 'info');
         }
 
         // Sistema de chat
@@ -3897,10 +3290,8 @@
             populateNewUserUnit();
             populateGoalUnits();
             loadCurrentGoals();
-            loadExistingCustomTabs();
         }
-        
-        // FUNÇÕES DO SISTEMA DE PERMISSÕES
+
         function updatePermissionsByRole() {
             const role = document.getElementById('newUserRole').value;
             const customPermissions = document.getElementById('customPermissions');
@@ -3912,21 +3303,21 @@
                 customPermissions.style.display = 'none';
             }
         }
-        
+
         function selectAllPermissions() {
             Object.values(PERMISSIONS).forEach(permission => {
                 const checkbox = document.getElementById(`perm_${permission}`);
                 if (checkbox) checkbox.checked = true;
             });
         }
-        
+
         function clearAllPermissions() {
             Object.values(PERMISSIONS).forEach(permission => {
                 const checkbox = document.getElementById(`perm_${permission}`);
                 if (checkbox) checkbox.checked = false;
             });
         }
-        
+
         function applyRolePermissions() {
             const role = document.getElementById('newUserRole').value;
             if (role === 'custom') return;
@@ -3939,7 +3330,7 @@
                 if (checkbox) checkbox.checked = true;
             });
         }
-        
+
         function getSelectedPermissions() {
             const selectedPermissions = [];
             Object.values(PERMISSIONS).forEach(permission => {
@@ -3949,86 +3340,6 @@
                 }
             });
             return selectedPermissions;
-        }
-
-        // FUNÇÕES DO CRIADOR DE ABAS PERSONALIZADAS
-        function createCustomTab() {
-            if (!hasPermission(PERMISSIONS.ADMIN_TABS)) {
-                showNotification('Você não tem permissão para criar abas', 'error');
-                return;
-            }
-            
-            const tabData = {
-                id: `custom_${generateId()}`,
-                name: document.getElementById('customTabName').value.trim(),
-                icon: document.getElementById('customTabIcon').value.trim(),
-                description: document.getElementById('customTabDescription').value.trim(),
-                permission: document.getElementById('customTabPermission').value || null,
-                content: document.getElementById('customTabContent').value.trim(),
-                createdAt: new Date().toISOString(),
-                createdBy: currentUser.name
-            };
-            
-            if (!tabData.name || !tabData.icon) {
-                showNotification('Nome e ícone são obrigatórios', 'warning');
-                return;
-            }
-            
-            if (!gameData.customTabs) gameData.customTabs = [];
-            
-            // Verificar se já existe aba com mesmo nome
-            if (gameData.customTabs.some(tab => tab.name === tabData.name)) {
-                showNotification('Já existe uma aba com esse nome', 'error');
-                return;
-            }
-            
-            gameData.customTabs.push(tabData);
-            saveGameData();
-            
-            showNotification('Aba personalizada criada com sucesso!', 'success');
-            
-            // Limpar formulário
-            document.getElementById('customTabName').value = '';
-            document.getElementById('customTabIcon').value = '';
-            document.getElementById('customTabDescription').value = '';
-            document.getElementById('customTabPermission').value = '';
-            document.getElementById('customTabContent').value = '';
-            
-            // Recarregar listas
-            loadExistingCustomTabs();
-            createNavigation();
-        }
-        
-        function loadExistingCustomTabs() {
-            const container = document.getElementById('existingCustomTabs');
-            if (!container) return;
-            
-            if (!gameData.customTabs || gameData.customTabs.length === 0) {
-                container.innerHTML = '<p style="color: #666;">Nenhuma aba personalizada criada ainda.</p>';
-                return;
-            }
-            
-            container.innerHTML = gameData.customTabs.map(tab => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; margin: 10px 0; background: white;">
-                    <div>
-                        <div style="font-weight: bold; margin-bottom: 5px;">
-                            ${tab.icon} ${tab.name}
-                            ${tab.permission ? `<span style="background: rgba(102, 126, 234, 0.1); color: #667eea; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 10px;">${tab.permission}</span>` : ''}
-                        </div>
-                        <div style="font-size: 14px; color: #666;">
-                            ${tab.description || 'Sem descrição'}
-                        </div>
-                        <div style="font-size: 12px; color: #999; margin-top: 5px;">
-                            Criada em ${new Date(tab.createdAt).toLocaleDateString()} por ${tab.createdBy}
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-primary btn-sm" onclick="switchTab('${tab.id}')">👁️ Ver</button>
-                        <button class="btn btn-warning btn-sm" onclick="editCustomTab('${tab.id}')">✏️ Editar</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteCustomTab('${tab.id}')">🗑️ Excluir</button>
-                    </div>
-                </div>
-            `).join('');
         }
 
         function populateGoalUnits() {
@@ -4171,60 +3482,6 @@
             }
         }
 
-        function addUser() {
-            const role = document.getElementById('newUserRole').value;
-            let permissions;
-            
-            if (role === 'custom') {
-                permissions = getSelectedPermissions();
-                if (permissions.length === 0) {
-                    showNotification('Selecione pelo menos uma permissão para usuário personalizado', 'warning');
-                    return;
-                }
-            } else {
-                permissions = DEFAULT_PERMISSIONS[role] || [];
-            }
-            
-            const userData = {
-                name: document.getElementById('newUserName').value.trim(),
-                username: document.getElementById('newUserUsername').value.trim(),
-                password: document.getElementById('newUserPassword').value.trim(),
-                role: role === 'custom' ? 'personalizado' : role,
-                unit: document.getElementById('newUserUnit').value,
-                permissions: permissions,
-                xp: 0,
-                level: 1,
-                id: generateId(),
-                createdAt: new Date().toISOString(),
-                createdBy: currentUser.name
-            };
-            
-            if (!userData.name || !userData.username || !userData.password || !userData.unit) {
-                showNotification('Preencha todos os campos obrigatórios', 'warning');
-                return;
-            }
-            
-            if (gameData.users[userData.username]) {
-                showNotification('Este usuário já existe', 'error');
-                return;
-            }
-            
-            gameData.users[userData.username] = userData;
-            saveGameData();
-            
-            showNotification(`Usuário ${userData.name} criado com sucesso!`, 'success');
-            
-            // Limpar formulário
-            document.getElementById('newUserName').value = '';
-            document.getElementById('newUserUsername').value = '';
-            document.getElementById('newUserPassword').value = '';
-            document.getElementById('newUserRole').value = 'vendedor';
-            document.getElementById('customPermissions').style.display = 'none';
-            clearAllPermissions();
-            
-            loadUserManagementTable();
-        }
-
         function loadUserManagementTable() {
             const tableDiv = document.getElementById('userManagementTable');
             const users = Object.values(gameData.users);
@@ -4234,7 +3491,7 @@
                     <thead>
                         <tr>
                             <th>👤 Nome</th>
-                            <th>🔑 Usuário</th>
+                            <th>🔑 Email</th>
                             <th>🏢 Unidade</th>
                             <th>💼 Tipo</th>
                             <th>🔐 Permissões</th>
@@ -4263,7 +3520,6 @@
                                             <span style="background: ${permissionCount > 10 ? '#38a169' : permissionCount > 5 ? '#ed8936' : '#e53e3e'}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">
                                                 ${permissionCount} perm.
                                             </span>
-                                            <button class="btn btn-info" style="padding: 4px 8px; font-size: 11px;" onclick="viewUserPermissions('${user.username}')">👁️ Ver</button>
                                         </div>
                                     </td>
                                     <td>
@@ -4272,7 +3528,6 @@
                                     <td>
                                         <div class="action-buttons">
                                             ${user.username !== currentUser.username ? `
-                                                <button class="btn btn-warning btn-sm" onclick="editUserPermissions('${user.username}')">🔐 Permissões</button>
                                                 <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.username}')">🗑️ Remover</button>
                                             ` : '<span style="color: #666; font-size: 12px;">Próprio usuário</span>'}
                                         </div>
@@ -4283,206 +3538,6 @@
                     </tbody>
                 </table>
             `;
-        }
-
-        function viewUserPermissions(username) {
-            const user = gameData.users[username];
-            if (!user) return;
-            
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'flex';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 600px;">
-                    <div class="modal-header">
-                        <h3>🔐 Permissões - ${user.name}</h3>
-                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <p><strong>👤 Usuário:</strong> ${user.username}</p>
-                        <p><strong>🏢 Unidade:</strong> ${user.unit}</p>
-                        <p><strong>💼 Cargo:</strong> ${user.role}</p>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #38a169;">
-                        <h4 style="margin-bottom: 15px;">✅ Permissões Ativas (${user.permissions ? user.permissions.length : 0})</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
-                            ${user.permissions && user.permissions.length > 0 ? 
-                                user.permissions.map(perm => {
-                                    const permName = Object.keys(PERMISSIONS).find(key => PERMISSIONS[key] === perm) || perm;
-                                    return `
-                                        <div style="background: white; padding: 10px; border-radius: 8px; border-left: 3px solid #38a169; font-size: 14px;">
-                                            ✅ ${permName.replace(/_/g, ' ')}
-                                        </div>
-                                    `;
-                                }).join('') : 
-                                '<p style="color: #666;">Nenhuma permissão definida</p>'
-                            }
-                        </div>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button class="btn btn-warning" onclick="this.closest('.modal').remove(); editUserPermissions('${username}')">✏️ Editar Permissões</button>
-                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">❌ Fechar</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
-
-        function editUserPermissions(username) {
-            const user = gameData.users[username];
-            if (!user) return;
-            
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'flex';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 800px;">
-                    <div class="modal-header">
-                        <h3>✏️ Editar Permissões - ${user.name}</h3>
-                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #667eea; margin-bottom: 20px;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-                            <div>
-                                <h5 style="color: #38a169; margin-bottom: 10px;">📊 Funcionalidades Básicas</h5>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_dashboard" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.DASHBOARD) ? 'checked' : ''}>
-                                    📊 Dashboard
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_gamificacao" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.GAMIFICACAO) ? 'checked' : ''}>
-                                    🎮 Gamificação
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_ranking" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.RANKING) ? 'checked' : ''}>
-                                    🏆 Ranking
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_chat" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.CHAT) ? 'checked' : ''}>
-                                    💬 Chat
-                                </label>
-                            </div>
-                            
-                            <div>
-                                <h5 style="color: #3182ce; margin-bottom: 10px;">👥 Gestão de Visitação</h5>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_visitas" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.VISITAS) ? 'checked' : ''}>
-                                    👥 Ver Visitas
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_visitas_edit" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.VISITAS_EDIT) ? 'checked' : ''}>
-                                    ✏️ Editar Visitas
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_visitas_delete" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.VISITAS_DELETE) ? 'checked' : ''}>
-                                    🗑️ Excluir Visitas
-                                </label>
-                            </div>
-                            
-                            <div>
-                                <h5 style="color: #ed8936; margin-bottom: 10px;">📚 Gestão de Matrículas</h5>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_matriculas" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.MATRICULAS) ? 'checked' : ''}>
-                                    📚 Ver Matrículas
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_matriculas_edit" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.MATRICULAS_EDIT) ? 'checked' : ''}>
-                                    ✏️ Editar Matrículas
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_matriculas_delete" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.MATRICULAS_DELETE) ? 'checked' : ''}>
-                                    🗑️ Excluir Matrículas
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_comissoes_edit" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.COMISSOES_EDIT) ? 'checked' : ''}>
-                                    💰 Editar Comissões
-                                </label>
-                            </div>
-                            
-                            <div>
-                                <h5 style="color: #e53e3e; margin-bottom: 10px;">👔 Funções Gerenciais</h5>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_equipe" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.EQUIPE) ? 'checked' : ''}>
-                                    👥 Gestão de Equipe
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_relatorios" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.RELATORIOS) ? 'checked' : ''}>
-                                    📊 Relatórios
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_admin" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.ADMIN) ? 'checked' : ''}>
-                                    ⚙️ Painel Admin
-                                </label>
-                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
-                                    <input type="checkbox" id="edit_perm_admin_tabs" style="margin-right: 10px;" ${user.permissions?.includes(PERMISSIONS.ADMIN_TABS) ? 'checked' : ''}>
-                                    📋 Gerenciar Abas
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 15px; text-align: center;">
-                            <button class="btn btn-info btn-sm" onclick="selectAllEditPermissions()">✅ Selecionar Todas</button>
-                            <button class="btn btn-warning btn-sm" onclick="clearAllEditPermissions()">❌ Limpar Todas</button>
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button class="btn btn-success" onclick="saveUserPermissions('${username}')">💾 Salvar Permissões</button>
-                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">❌ Cancelar</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
-
-        function selectAllEditPermissions() {
-            Object.values(PERMISSIONS).forEach(permission => {
-                const checkbox = document.getElementById(`edit_perm_${permission}`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-        
-        function clearAllEditPermissions() {
-            Object.values(PERMISSIONS).forEach(permission => {
-                const checkbox = document.getElementById(`edit_perm_${permission}`);
-                if (checkbox) checkbox.checked = false;
-            });
-        }
-        
-        function saveUserPermissions(username) {
-            const user = gameData.users[username];
-            if (!user) return;
-            
-            const selectedPermissions = [];
-            Object.values(PERMISSIONS).forEach(permission => {
-                const checkbox = document.getElementById(`edit_perm_${permission}`);
-                if (checkbox && checkbox.checked) {
-                    selectedPermissions.push(permission);
-                }
-            });
-            
-            user.permissions = selectedPermissions;
-            user.role = 'personalizado'; // Marcar como personalizado se foi editado
-            user.lastPermissionUpdate = {
-                date: new Date().toISOString(),
-                updatedBy: currentUser.name
-            };
-            
-            saveGameData();
-            showNotification(`Permissões de ${user.name} atualizadas com sucesso!`, 'success');
-            
-            document.querySelector('.modal').remove();
-            loadUserManagementTable();
-            
-            // Se for o próprio usuário, atualizar a navegação
-            if (username === currentUser.username) {
-                currentUser.permissions = selectedPermissions;
-                createNavigation();
-            }
         }
 
         function deleteUser(username) {
@@ -4500,358 +3555,6 @@
                 
                 showNotification(`Usuário ${user.name} removido`, 'info');
                 loadUserManagementTable();
-            }
-        }
-
-        // Google Sheets Integration
-        function connectBySpreadsheetId() {
-            const spreadsheetId = document.getElementById('googleSheetId').value.trim();
-            const apiKey = document.getElementById('googleApiKeyId').value.trim();
-            
-            if (!spreadsheetId || !apiKey) {
-                showNotification('Preencha o ID da planilha e a API Key', 'warning');
-                return;
-            }
-
-            showLoadingOverlay('Conectando com Google Sheets...');
-            document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #ed8936;">🟡 Conectando...</span>';
-            document.getElementById('googleConnectionDetails').innerHTML = 'Verificando planilha e configurações...';
-
-            // Construir URL da Web App (será fornecida após deploy)
-            const webAppUrl = prompt('Cole a URL da Web App aqui (obtenha após fazer deploy no Apps Script):');
-            
-            if (!webAppUrl) {
-                hideLoadingOverlay();
-                showNotification('URL da Web App é necessária', 'warning');
-                return;
-            }
-
-            // Fazer requisição para conectar por ID
-            const requestData = {
-                action: 'connect_by_id',
-                spreadsheetId: spreadsheetId,
-                apiKey: apiKey
-            };
-
-            fetch(webAppUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                hideLoadingOverlay();
-                
-                if (data.success) {
-                    googleSheetsConfig.connected = true;
-                    googleSheetsConfig.spreadsheetId = spreadsheetId;
-                    googleSheetsConfig.apiKey = apiKey;
-                    googleSheetsConfig.webAppUrl = webAppUrl;
-                    googleSheetsConfig.spreadsheetUrl = data.spreadsheetUrl;
-                    googleSheetsConfig.spreadsheetName = data.spreadsheetName;
-                    googleSheetsConfig.connectionMethod = 'id';
-                    
-                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #38a169;">✅ Conectado com sucesso!</span>';
-                    document.getElementById('googleConnectionDetails').innerHTML = `
-                        <strong>📊 Planilha:</strong> ${data.spreadsheetName}<br>
-                        <strong>🆔 ID:</strong> ${spreadsheetId}<br>
-                        <strong>📋 Abas:</strong> ${data.sheets.join(', ')}<br>
-                        <strong>⚙️ Configurada:</strong> ${data.isConfigured ? '✅ Sim' : '⚠️ Parcial'}
-                    `;
-                    
-                    if (!data.isConfigured && data.missingSheets.length > 0) {
-                        showNotification(`Planilha conectada, mas faltam abas: ${data.missingSheets.join(', ')}`, 'warning');
-                    } else {
-                        showNotification('Conexão estabelecida com sucesso! Planilha totalmente configurada.', 'success');
-                    }
-                    
-                    saveGoogleSheetsConfig();
-                } else {
-                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #e53e3e;">❌ Erro na conexão</span>';
-                    document.getElementById('googleConnectionDetails').innerHTML = `Erro: ${data.error}`;
-                    showNotification(`Erro: ${data.error}`, 'error');
-                }
-            })
-            .catch(error => {
-                hideLoadingOverlay();
-                document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #e53e3e;">❌ Erro de rede</span>';
-                document.getElementById('googleConnectionDetails').innerHTML = `Erro de conexão: ${error.message}`;
-                showNotification('Erro de rede. Verifique a URL da Web App.', 'error');
-                console.error('Erro na conexão:', error);
-            });
-        }
-
-        function testGoogleConnection() {
-            const apiKey = document.getElementById('googleApiKey').value;
-            const url = document.getElementById('googleSheetUrl').value;
-            
-            if (!apiKey || !url) {
-                showNotification('Preencha a URL da planilha e a API Key primeiro', 'warning');
-                return;
-            }
-
-            showLoadingOverlay('Testando conexão com Google Sheets...');
-            document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #ed8936;">🟡 Testando conexão...</span>';
-
-            // Simular teste de conexão (substituir por chamada real à Web App)
-            setTimeout(() => {
-                const success = Math.random() > 0.3; // 70% chance de sucesso para demo
-                
-                hideLoadingOverlay();
-                
-                if (success) {
-                    googleSheetsConfig.connected = true;
-                    googleSheetsConfig.url = url;
-                    googleSheetsConfig.apiKey = apiKey;
-                    googleSheetsConfig.tabName = document.getElementById('googleSheetTab').value;
-                    googleSheetsConfig.connectionMethod = 'manual';
-                    
-                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #38a169;">🟢 Conectado com sucesso!</span>';
-                    document.getElementById('googleConnectionDetails').innerHTML = 'Conexão manual estabelecida via URL';
-                    showNotification('Conexão com Google Sheets estabelecida!', 'success');
-                    
-                    saveGoogleSheetsConfig();
-                } else {
-                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #e53e3e;">🔴 Erro na conexão</span>';
-                    document.getElementById('googleConnectionDetails').innerHTML = 'Verifique a API Key e permissões';
-                    showNotification('Erro ao conectar. Verifique a API Key e permissões', 'error');
-                }
-            }, 2000);
-        }
-
-        function exportToGoogleSheets() {
-            if (!googleSheetsConfig.connected) {
-                showNotification('Configure e teste a conexão primeiro', 'warning');
-                return;
-            }
-
-            showLoadingOverlay('Exportando dados para Google Sheets...');
-            
-            const exportData = {
-                action: 'export',
-                apiKey: googleSheetsConfig.apiKey,
-                matriculas: gameData.matriculas,
-                visitas: gameData.visitas,
-                users: gameData.users
-            };
-
-            // Se conectado por ID, usar Web App URL
-            if (googleSheetsConfig.webAppUrl) {
-                fetch(googleSheetsConfig.webAppUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(exportData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    hideLoadingOverlay();
-                    
-                    if (data.success) {
-                        googleSheetsConfig.lastSync = new Date().toISOString();
-                        document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                        showNotification(`${data.recordsExported} registros exportados com sucesso!`, 'success');
-                        saveGoogleSheetsConfig();
-                    } else {
-                        showNotification(`Erro na exportação: ${data.error}`, 'error');
-                    }
-                })
-                .catch(error => {
-                    hideLoadingOverlay();
-                    showNotification('Erro de rede na exportação', 'error');
-                    console.error('Erro na exportação:', error);
-                });
-            } else {
-                // Simulação para conexão manual
-                setTimeout(() => {
-                    const exportCount = gameData.matriculas.length + gameData.visitas.length;
-                    
-                    googleSheetsConfig.lastSync = new Date().toISOString();
-                    document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                    
-                    hideLoadingOverlay();
-                    showNotification(`${exportCount} registros exportados com sucesso!`, 'success');
-                    saveGoogleSheetsConfig();
-                }, 3000);
-            }
-        }
-
-        function importFromGoogleSheets() {
-            if (!googleSheetsConfig.connected) {
-                showNotification('Configure e teste a conexão primeiro', 'warning');
-                return;
-            }
-
-            showLoadingOverlay('Importando dados do Google Sheets...');
-            
-            const requestData = {
-                action: 'import',
-                apiKey: googleSheetsConfig.apiKey
-            };
-
-            // Se conectado por ID, usar Web App URL
-            if (googleSheetsConfig.webAppUrl) {
-                fetch(googleSheetsConfig.webAppUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    hideLoadingOverlay();
-                    
-                    if (data.success) {
-                        // Mesclar dados importados
-                        if (data.data.matriculas) {
-                            gameData.matriculas = [...gameData.matriculas, ...data.data.matriculas];
-                        }
-                        if (data.data.visitas) {
-                            gameData.visitas = [...gameData.visitas, ...data.data.visitas];
-                        }
-                        
-                        saveGameData();
-                        
-                        googleSheetsConfig.lastSync = new Date().toISOString();
-                        document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                        
-                        showNotification(`${data.recordsImported} registros importados com sucesso!`, 'success');
-                        updateDashboard();
-                        saveGoogleSheetsConfig();
-                    } else {
-                        showNotification(`Erro na importação: ${data.error}`, 'error');
-                    }
-                })
-                .catch(error => {
-                    hideLoadingOverlay();
-                    showNotification('Erro de rede na importação', 'error');
-                    console.error('Erro na importação:', error);
-                });
-            } else {
-                // Simulação para conexão manual
-                setTimeout(() => {
-                    const importCount = Math.floor(Math.random() * 10) + 5;
-                    
-                    googleSheetsConfig.lastSync = new Date().toISOString();
-                    document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                    
-                    hideLoadingOverlay();
-                    showNotification(`${importCount} registros importados com sucesso!`, 'success');
-                    updateDashboard();
-                    saveGoogleSheetsConfig();
-                }, 3000);
-            }
-        }
-
-        function syncWithGoogleSheets() {
-            if (!googleSheetsConfig.connected) {
-                showNotification('Configure e teste a conexão primeiro', 'warning');
-                return;
-            }
-
-            showLoadingOverlay('Sincronizando dados...');
-            
-            const syncData = {
-                action: 'sync',
-                apiKey: googleSheetsConfig.apiKey,
-                matriculas: gameData.matriculas,
-                visitas: gameData.visitas,
-                users: gameData.users
-            };
-
-            // Se conectado por ID, usar Web App URL
-            if (googleSheetsConfig.webAppUrl) {
-                fetch(googleSheetsConfig.webAppUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(syncData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    hideLoadingOverlay();
-                    
-                    if (data.success) {
-                        googleSheetsConfig.lastSync = new Date().toISOString();
-                        document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                        showNotification('Sincronização concluída com sucesso!', 'success');
-                        saveGoogleSheetsConfig();
-                    } else {
-                        showNotification(`Erro na sincronização: ${data.error}`, 'error');
-                    }
-                })
-                .catch(error => {
-                    hideLoadingOverlay();
-                    showNotification('Erro de rede na sincronização', 'error');
-                    console.error('Erro na sincronização:', error);
-                });
-            } else {
-                // Simulação para conexão manual
-                setTimeout(() => {
-                    googleSheetsConfig.lastSync = new Date().toISOString();
-                    document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date().toLocaleString()}`;
-                    
-                    hideLoadingOverlay();
-                    showNotification('Sincronização concluída!', 'success');
-                    saveGoogleSheetsConfig();
-                }, 4000);
-            }
-        }
-
-        function saveGoogleSheetsConfig() {
-            localStorage.setItem('googleSheetsConfig', JSON.stringify(googleSheetsConfig));
-        }
-
-        function loadGoogleSheetsConfig() {
-            const saved = localStorage.getItem('googleSheetsConfig');
-            if (saved) {
-                googleSheetsConfig = { ...googleSheetsConfig, ...JSON.parse(saved) };
-                
-                // Preencher campos da conexão manual
-                if (document.getElementById('googleSheetUrl')) {
-                    document.getElementById('googleSheetUrl').value = googleSheetsConfig.url || '';
-                }
-                if (document.getElementById('googleApiKey')) {
-                    document.getElementById('googleApiKey').value = googleSheetsConfig.apiKey || '';
-                }
-                if (document.getElementById('googleSheetTab')) {
-                    document.getElementById('googleSheetTab').value = googleSheetsConfig.tabName || 'Matriculas';
-                }
-                
-                // Preencher campos da conexão por ID
-                if (document.getElementById('googleSheetId')) {
-                    document.getElementById('googleSheetId').value = googleSheetsConfig.spreadsheetId || '';
-                }
-                if (document.getElementById('googleApiKeyId')) {
-                    document.getElementById('googleApiKeyId').value = googleSheetsConfig.apiKey || '';
-                }
-                
-                // Atualizar status da conexão
-                if (googleSheetsConfig.connected) {
-                    document.getElementById('googleConnectionStatus').innerHTML = '<span style="color: #38a169;">🟢 Conectado</span>';
-                    
-                    let details = 'Conexão ativa';
-                    if (googleSheetsConfig.spreadsheetName) {
-                        details = `📊 ${googleSheetsConfig.spreadsheetName}`;
-                        if (googleSheetsConfig.connectionMethod === 'id') {
-                            details += `<br>🆔 Conectado por ID`;
-                        }
-                    }
-                    
-                    if (document.getElementById('googleConnectionDetails')) {
-                        document.getElementById('googleConnectionDetails').innerHTML = details;
-                    }
-                }
-                
-                // Atualizar última sincronização
-                if (googleSheetsConfig.lastSync && document.getElementById('googleLastSync')) {
-                    document.getElementById('googleLastSync').textContent = `Última sincronização: ${new Date(googleSheetsConfig.lastSync).toLocaleString()}`;
-                }
             }
         }
 
@@ -4946,8 +3649,6 @@
                     themeButton.textContent = currentTheme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Escuro';
                 }
             }
-            
-            loadGoogleSheetsConfig();
         }
 
         function setupEventListeners() {
@@ -4959,11 +3660,13 @@
             });
 
             // Enter para chat
-            document.getElementById('chatMessage').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendChatMessage();
-                }
-            });
+            if (document.getElementById('chatMessage')) {
+                document.getElementById('chatMessage').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendChatMessage();
+                    }
+                });
+            }
 
             // Escape para fechar modais
             document.addEventListener('keydown', function(e) {
@@ -4978,17 +3681,6 @@
         // Inicialização ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
             initializeSystem();
-            
-            // Configurar permissões nos campos se estão presentes
-            if (document.getElementById('newUserRole')) {
-                // Adicionar os eventos de permissões
-                Object.values(PERMISSIONS).forEach(permission => {
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.id = `perm_${permission}`;
-                    checkbox.style.display = 'none'; // Será mostrado quando necessário
-                });
-            }
         });
     </script>
 </body>
