@@ -144,6 +144,18 @@
             box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);
         }
 
+        .btn-warning {
+            background: var(--warning-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+        }
+
         .btn-sm {
             padding: 8px 16px;
             font-size: 12px;
@@ -293,6 +305,101 @@
             display: block;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .login-card {
@@ -304,6 +411,11 @@
                 max-width: calc(100vw - 40px);
                 right: 20px;
                 left: 20px;
+            }
+
+            .modal-content {
+                margin: 20px;
+                width: calc(100% - 40px);
             }
         }
     </style>
@@ -367,7 +479,7 @@
         </div>
     </div>
 
-    <!-- Sistema Principal (simplificado para demo do login) -->
+    <!-- Sistema Principal -->
     <div id="mainSystem" class="main-container">
         <div class="page-header">
             <div>
@@ -385,53 +497,159 @@
             </div>
         </div>
 
-        <!-- Seção de Admin para Criar Usuários -->
+        <!-- Navegação por Abas -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('users')">👥 Usuários</button>
+            <button class="nav-tab" onclick="switchTab('commissions')">💰 Comissões</button>
+        </div>
+
+        <!-- Conteúdo das Abas -->
         <div style="padding: 30px;">
-            <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
-                <h3>➕ Criar Novo Usuário</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
-                    <div class="form-group">
-                        <label>Nome Completo:</label>
-                        <input type="text" id="newUserName" placeholder="Ex: João Silva" required>
+            <!-- Aba Usuários -->
+            <div id="usersTab" class="tab-content active">
+                <!-- Seção de Admin para Criar Usuários -->
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+                    <h3>➕ Criar Novo Usuário</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                        <div class="form-group">
+                            <label>Nome Completo:</label>
+                            <input type="text" id="newUserName" placeholder="Ex: João Silva" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email (será o usuário de login):</label>
+                            <input type="email" id="newUserEmail" placeholder="joao@gamecreatorsadm.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Senha:</label>
+                            <input type="password" id="newUserPassword" placeholder="Min. 6 caracteres" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cargo:</label>
+                            <select id="newUserRole" required>
+                                <option value="vendedor">👨‍💼 Vendedor</option>
+                                <option value="gerente">👔 Gerente</option>
+                                <option value="assistente">👩‍💻 Assistente</option>
+                                <option value="admin">🔧 Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Unidade:</label>
+                            <select id="newUserUnit" required>
+                                <option value="Shopping Conjunto Nacional">Shopping Conjunto Nacional</option>
+                                <option value="Shopping Eldorado">Shopping Eldorado</option>
+                                <option value="Shopping Morumbi">Shopping Morumbi</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Email (será o usuário de login):</label>
-                        <input type="email" id="newUserEmail" placeholder="joao@gamecreatorsadm.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Senha:</label>
-                        <input type="password" id="newUserPassword" placeholder="Min. 6 caracteres" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Cargo:</label>
-                        <select id="newUserRole" required>
-                            <option value="vendedor">👨‍💼 Vendedor</option>
-                            <option value="gerente">👔 Gerente</option>
-                            <option value="assistente">👩‍💻 Assistente</option>
-                            <option value="admin">🔧 Admin</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Unidade:</label>
-                        <select id="newUserUnit" required>
-                            <option value="Shopping Conjunto Nacional">Shopping Conjunto Nacional</option>
-                            <option value="Shopping Eldorado">Shopping Eldorado</option>
-                            <option value="Shopping Morumbi">Shopping Morumbi</option>
-                        </select>
+                    
+                    <button class="btn btn-success" onclick="createNewUser()" style="margin-top: 15px;">
+                        ➕ Criar Usuário
+                    </button>
+                </div>
+
+                <!-- Lista de Usuários Cadastrados -->
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: var(--shadow-sm);">
+                    <h3>👥 Usuários Cadastrados</h3>
+                    <div id="usersList" style="margin-top: 20px;">
+                        <!-- Preenchido dinamicamente -->
                     </div>
                 </div>
-                
-                <button class="btn btn-success" onclick="createNewUser()" style="margin-top: 15px;">
-                    ➕ Criar Usuário
-                </button>
             </div>
 
-            <!-- Lista de Usuários Cadastrados -->
-            <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: var(--shadow-sm);">
-                <h3>👥 Usuários Cadastrados</h3>
-                <div id="usersList" style="margin-top: 20px;">
-                    <!-- Preenchido dinamicamente -->
+            <!-- Aba Comissões -->
+            <div id="commissionsTab" class="tab-content">
+                <!-- Seção para Criar Nova Comissão -->
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+                    <h3>💰 Criar Nova Comissão</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                        <div class="form-group">
+                            <label>Vendedor:</label>
+                            <select id="newCommissionSeller" required>
+                                <option value="">Selecione um vendedor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Cliente:</label>
+                            <input type="text" id="newCommissionClient" placeholder="Nome do cliente" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor da Venda (R$):</label>
+                            <input type="number" id="newCommissionSaleValue" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Percentual de Comissão (%):</label>
+                            <input type="number" id="newCommissionPercentage" placeholder="5.0" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Produto/Serviço:</label>
+                            <input type="text" id="newCommissionProduct" placeholder="Descrição do produto" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Data da Venda:</label>
+                            <input type="date" id="newCommissionDate" required>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="createNewCommission()" style="margin-top: 15px;">
+                        💰 Registrar Comissão
+                    </button>
                 </div>
+
+                <!-- Lista de Comissões -->
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: var(--shadow-sm);">
+                    <h3>💰 Comissões Registradas</h3>
+                    <div id="commissionsList" style="margin-top: 20px;">
+                        <!-- Preenchido dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Comissão -->
+    <div id="editCommissionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Editar Comissão</h3>
+                <button class="modal-close" onclick="closeEditCommissionModal()">&times;</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div class="form-group">
+                    <label>Vendedor:</label>
+                    <select id="editCommissionSeller" required>
+                        <option value="">Selecione um vendedor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cliente:</label>
+                    <input type="text" id="editCommissionClient" placeholder="Nome do cliente" required>
+                </div>
+                <div class="form-group">
+                    <label>Valor da Venda (R$):</label>
+                    <input type="number" id="editCommissionSaleValue" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Percentual de Comissão (%):</label>
+                    <input type="number" id="editCommissionPercentage" placeholder="5.0" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label>Produto/Serviço:</label>
+                    <input type="text" id="editCommissionProduct" placeholder="Descrição do produto" required>
+                </div>
+                <div class="form-group">
+                    <label>Data da Venda:</label>
+                    <input type="date" id="editCommissionDate" required>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+                <button class="btn btn-primary" onclick="saveCommissionEdit()">
+                    💾 Salvar Alterações
+                </button>
+                <button class="btn" onclick="closeEditCommissionModal()" style="background: #e2e8f0; color: #4a5568;">
+                    ❌ Cancelar
+                </button>
             </div>
         </div>
     </div>
@@ -439,8 +657,10 @@
     <script>
         // Variáveis globais
         let currentUser = null;
+        let currentEditingCommission = null;
         let gameData = {
             users: {},
+            commissions: [],
             matriculas: [],
             visitas: []
         };
@@ -461,6 +681,10 @@
             setupEventListeners();
             updateDebugInfo();
             checkAutoLogin();
+            
+            // Definir data atual como padrão
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('newCommissionDate').value = today;
         }
 
         function loadGameData() {
@@ -469,6 +693,12 @@
                 if (saved) {
                     const parsedData = JSON.parse(saved);
                     gameData = { ...gameData, ...parsedData };
+                    
+                    // Garantir que commissions existe
+                    if (!gameData.commissions) {
+                        gameData.commissions = [];
+                    }
+                    
                     console.log('✅ Dados carregados:', gameData);
                 } else {
                     console.log('ℹ️ Nenhum dado salvo encontrado, criando estrutura inicial');
@@ -476,7 +706,7 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar dados:', error);
                 showNotification('Erro ao carregar dados. Reinicializando...', 'warning');
-                gameData = { users: {}, matriculas: [], visitas: [] };
+                gameData = { users: {}, commissions: [], matriculas: [], visitas: [] };
             }
         }
 
@@ -617,6 +847,8 @@
             // Atualizar interface
             updateUserInterface();
             loadUsersList();
+            loadCommissionsList();
+            loadSellersDropdowns();
             
             console.log('✅ Interface atualizada para:', user.name);
         }
@@ -677,6 +909,8 @@
                         
                         updateUserInterface();
                         loadUsersList();
+                        loadCommissionsList();
+                        loadSellersDropdowns();
                         showNotification(`Bem-vindo de volta, ${currentUser.name}! 🎉`, 'success');
                         console.log('✅ Auto-login realizado para:', currentUser.name);
                     } else {
@@ -689,6 +923,25 @@
                     localStorage.removeItem('currentUser');
                     localStorage.removeItem('currentUserKey');
                 }
+            }
+        }
+
+        // SISTEMA DE NAVEGAÇÃO POR ABAS
+        function switchTab(tabName) {
+            // Remover classe active de todas as abas
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Ativar a aba selecionada
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Carregar dados específicos da aba
+            if (tabName === 'commissions') {
+                loadCommissionsList();
+                loadSellersDropdowns();
+            } else if (tabName === 'users') {
+                loadUsersList();
             }
         }
 
@@ -750,6 +1003,7 @@
                 
                 // Recarregar lista
                 loadUsersList();
+                loadSellersDropdowns();
                 updateDebugInfo('Usuário criado: ' + userData.name);
             } else {
                 showNotification('Erro ao salvar usuário. Tente novamente.', 'error');
@@ -779,8 +1033,191 @@
                 
                 showNotification(`Usuário ${user.name} removido`, 'info');
                 loadUsersList();
+                loadSellersDropdowns();
                 updateDebugInfo('Usuário removido: ' + user.name);
             }
+        }
+
+        // SISTEMA DE COMISSÕES
+        function createNewCommission() {
+            const commissionData = {
+                id: generateId(),
+                sellerId: document.getElementById('newCommissionSeller').value,
+                client: document.getElementById('newCommissionClient').value.trim(),
+                saleValue: parseFloat(document.getElementById('newCommissionSaleValue').value),
+                percentage: parseFloat(document.getElementById('newCommissionPercentage').value),
+                product: document.getElementById('newCommissionProduct').value.trim(),
+                date: document.getElementById('newCommissionDate').value,
+                createdAt: new Date().toISOString(),
+                createdBy: currentUser ? currentUser.name : 'System'
+            };
+
+            console.log('💰 Criando nova comissão:', commissionData);
+
+            // Validações
+            if (!commissionData.sellerId || !commissionData.client || !commissionData.saleValue || 
+                !commissionData.percentage || !commissionData.product || !commissionData.date) {
+                showNotification('Preencha todos os campos obrigatórios', 'warning');
+                return;
+            }
+
+            if (commissionData.saleValue <= 0) {
+                showNotification('O valor da venda deve ser maior que zero', 'warning');
+                return;
+            }
+
+            if (commissionData.percentage <= 0 || commissionData.percentage > 100) {
+                showNotification('O percentual deve estar entre 0.1 e 100', 'warning');
+                return;
+            }
+
+            // Calcular valor da comissão
+            commissionData.commissionValue = (commissionData.saleValue * commissionData.percentage) / 100;
+
+            // Buscar dados do vendedor
+            const seller = Object.values(gameData.users).find(user => user.id === commissionData.sellerId);
+            if (seller) {
+                commissionData.sellerName = seller.name;
+                commissionData.sellerEmail = seller.email;
+            }
+
+            // Salvar comissão
+            if (!gameData.commissions) {
+                gameData.commissions = [];
+            }
+            
+            gameData.commissions.push(commissionData);
+            const saved = saveGameData();
+
+            if (saved) {
+                showNotification(`Comissão de R$ ${commissionData.commissionValue.toFixed(2)} registrada com sucesso!`, 'success');
+                console.log('✅ Comissão criada:', commissionData);
+                
+                // Limpar formulário
+                clearCommissionForm();
+                
+                // Recarregar lista
+                loadCommissionsList();
+                updateDebugInfo('Comissão criada para: ' + commissionData.sellerName);
+            } else {
+                showNotification('Erro ao salvar comissão. Tente novamente.', 'error');
+            }
+        }
+
+        function clearCommissionForm() {
+            document.getElementById('newCommissionSeller').value = '';
+            document.getElementById('newCommissionClient').value = '';
+            document.getElementById('newCommissionSaleValue').value = '';
+            document.getElementById('newCommissionPercentage').value = '';
+            document.getElementById('newCommissionProduct').value = '';
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('newCommissionDate').value = today;
+        }
+
+        function editCommission(commissionId) {
+            const commission = gameData.commissions.find(c => c.id === commissionId);
+            if (!commission) {
+                showNotification('Comissão não encontrada', 'error');
+                return;
+            }
+
+            currentEditingCommission = commission;
+
+            // Preencher formulário de edição
+            document.getElementById('editCommissionSeller').value = commission.sellerId;
+            document.getElementById('editCommissionClient').value = commission.client;
+            document.getElementById('editCommissionSaleValue').value = commission.saleValue;
+            document.getElementById('editCommissionPercentage').value = commission.percentage;
+            document.getElementById('editCommissionProduct').value = commission.product;
+            document.getElementById('editCommissionDate').value = commission.date;
+
+            // Carregar vendedores no dropdown de edição
+            loadSellersDropdown('editCommissionSeller');
+
+            // Mostrar modal
+            document.getElementById('editCommissionModal').classList.add('show');
+        }
+
+        function saveCommissionEdit() {
+            if (!currentEditingCommission) return;
+
+            const updatedData = {
+                sellerId: document.getElementById('editCommissionSeller').value,
+                client: document.getElementById('editCommissionClient').value.trim(),
+                saleValue: parseFloat(document.getElementById('editCommissionSaleValue').value),
+                percentage: parseFloat(document.getElementById('editCommissionPercentage').value),
+                product: document.getElementById('editCommissionProduct').value.trim(),
+                date: document.getElementById('editCommissionDate').value
+            };
+
+            // Validações
+            if (!updatedData.sellerId || !updatedData.client || !updatedData.saleValue || 
+                !updatedData.percentage || !updatedData.product || !updatedData.date) {
+                showNotification('Preencha todos os campos obrigatórios', 'warning');
+                return;
+            }
+
+            if (updatedData.saleValue <= 0) {
+                showNotification('O valor da venda deve ser maior que zero', 'warning');
+                return;
+            }
+
+            if (updatedData.percentage <= 0 || updatedData.percentage > 100) {
+                showNotification('O percentual deve estar entre 0.1 e 100', 'warning');
+                return;
+            }
+
+            // Calcular novo valor da comissão
+            updatedData.commissionValue = (updatedData.saleValue * updatedData.percentage) / 100;
+
+            // Buscar dados do vendedor
+            const seller = Object.values(gameData.users).find(user => user.id === updatedData.sellerId);
+            if (seller) {
+                updatedData.sellerName = seller.name;
+                updatedData.sellerEmail = seller.email;
+            }
+
+            // Atualizar comissão
+            const commissionIndex = gameData.commissions.findIndex(c => c.id === currentEditingCommission.id);
+            if (commissionIndex !== -1) {
+                gameData.commissions[commissionIndex] = {
+                    ...currentEditingCommission,
+                    ...updatedData,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentUser ? currentUser.name : 'System'
+                };
+
+                const saved = saveGameData();
+
+                if (saved) {
+                    showNotification('Comissão atualizada com sucesso!', 'success');
+                    closeEditCommissionModal();
+                    loadCommissionsList();
+                    updateDebugInfo('Comissão editada para: ' + updatedData.sellerName);
+                } else {
+                    showNotification('Erro ao salvar alterações. Tente novamente.', 'error');
+                }
+            }
+        }
+
+        function deleteCommission(commissionId) {
+            const commission = gameData.commissions.find(c => c.id === commissionId);
+            if (!commission) return;
+            
+            if (confirm(`Tem certeza que deseja remover a comissão de "${commission.sellerName}" no valor de R$ ${commission.commissionValue.toFixed(2)}?`)) {
+                gameData.commissions = gameData.commissions.filter(c => c.id !== commissionId);
+                saveGameData();
+                
+                showNotification('Comissão removida com sucesso', 'info');
+                loadCommissionsList();
+                updateDebugInfo('Comissão removida: ' + commission.sellerName);
+            }
+        }
+
+        function closeEditCommissionModal() {
+            document.getElementById('editCommissionModal').classList.remove('show');
+            currentEditingCommission = null;
         }
 
         // Interface do usuário
@@ -814,7 +1251,7 @@
                             </div>
                             <div>
                                 ${user.email !== currentUser?.userKey ? `
-                                    <button class="btn btn-sm" onclick="deleteUser('${user.email}')" style="background: #e53e3e; color: white;">
+                                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.email}')">
                                         🗑️ Remover
                                     </button>
                                 ` : '<span style="color: #666; font-size: 12px;">Usuário atual</span>'}
@@ -823,6 +1260,73 @@
                     `).join('')}
                 </div>
             `;
+        }
+
+        function loadCommissionsList() {
+            const commissionsListDiv = document.getElementById('commissionsList');
+            
+            if (!gameData.commissions || gameData.commissions.length === 0) {
+                commissionsListDiv.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Nenhuma comissão registrada</p>';
+                return;
+            }
+
+            const sortedCommissions = gameData.commissions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            commissionsListDiv.innerHTML = `
+                <div style="display: grid; gap: 15px;">
+                    ${sortedCommissions.map(commission => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8f9fa;">
+                            <div style="flex: 1;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                                    <div>
+                                        <div style="font-weight: bold; margin-bottom: 5px; color: #2d3748;">👨‍💼 ${commission.sellerName}</div>
+                                        <div style="font-size: 12px; color: #666;">📧 ${commission.sellerEmail}</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 14px; margin-bottom: 5px;"><strong>👤 Cliente:</strong> ${commission.client}</div>
+                                        <div style="font-size: 12px; color: #666;">📦 ${commission.product}</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 14px; margin-bottom: 5px;"><strong>💰 Venda:</strong> R$ ${commission.saleValue.toFixed(2)}</div>
+                                        <div style="font-size: 12px; color: #666;">📊 ${commission.percentage}% de comissão</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 16px; font-weight: bold; color: #38a169; margin-bottom: 5px;">💵 R$ ${commission.commissionValue.toFixed(2)}</div>
+                                        <div style="font-size: 12px; color: #666;">📅 ${new Date(commission.date).toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-left: 20px;">
+                                <button class="btn btn-sm btn-warning" onclick="editCommission('${commission.id}')" title="Editar comissão">
+                                    ✏️ Editar
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCommission('${commission.id}')" title="Excluir comissão">
+                                    🗑️ Excluir
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function loadSellersDropdowns() {
+            loadSellersDropdown('newCommissionSeller');
+            loadSellersDropdown('editCommissionSeller');
+        }
+
+        function loadSellersDropdown(selectId) {
+            const selectElement = document.getElementById(selectId);
+            if (!selectElement) return;
+
+            const sellers = Object.values(gameData.users).filter(user => 
+                user.role === 'vendedor' || user.role === 'gerente' || user.role === 'admin'
+            );
+
+            selectElement.innerHTML = '<option value="">Selecione um vendedor</option>' +
+                sellers.map(seller => 
+                    `<option value="${seller.id}">${seller.name} (${seller.role})</option>`
+                ).join('');
         }
 
         // Funções auxiliares
@@ -877,8 +1381,9 @@
             
             if (debugUsersSpan) {
                 const userCount = Object.keys(gameData.users || {}).length;
+                const commissionCount = (gameData.commissions || []).length;
                 const userEmails = Object.keys(gameData.users || {}).join(', ') || 'Nenhum';
-                debugUsersSpan.innerHTML = `${userCount} usuários: ${userEmails}`;
+                debugUsersSpan.innerHTML = `${userCount} usuários, ${commissionCount} comissões: ${userEmails}`;
             }
             
             if (debugActionSpan && action) {
@@ -906,6 +1411,13 @@
                     }
                 });
             }
+
+            // Fechar modal ao clicar fora
+            document.getElementById('editCommissionModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeEditCommissionModal();
+                }
+            });
         }
 
         // Inicialização ao carregar a página
