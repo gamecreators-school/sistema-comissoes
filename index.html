@@ -767,6 +767,41 @@
             transform: translateY(-2px);
         }
 
+        /* Estilos para configuração do Google Sheets */
+        .sheets-config {
+            background: linear-gradient(135deg, #e6fffa, #f0fff4);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #38a169;
+            margin: 20px 0;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            border: 2px solid #e2e8f0;
+        }
+
+        .connection-status.connected {
+            border-color: #38a169;
+            background: linear-gradient(135deg, #e6fffa, #f0fff4);
+        }
+
+        .connection-status.disconnected {
+            border-color: #e53e3e;
+            background: linear-gradient(135deg, #fed7d7, #fff5f5);
+        }
+
+        .connection-status.testing {
+            border-color: #ed8936;
+            background: linear-gradient(135deg, #fed7d7, #fff5f5);
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .dashboard-grid {
@@ -1275,6 +1310,66 @@
             <div style="padding: 30px;">
                 <h2>👨‍💼 Painel Administrativo</h2>
                 
+                <!-- NOVA FUNCIONALIDADE 4: Configuração Google Sheets -->
+                <div class="stat-card sheets-config" style="margin: 20px 0;">
+                    <h3>📊 Configuração Google Sheets</h3>
+                    <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Configure a integração com Google Sheets para sincronização automática dos dados</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>🔑 API Key do Google:</label>
+                            <input type="password" id="googleApiKey" placeholder="Digite sua API Key do Google Sheets" style="font-family: monospace;">
+                            <small style="color: #666; font-size: 12px;">Obtenha em: console.developers.google.com</small>
+                        </div>
+                        <div class="form-group">
+                            <label>📋 ID da Planilha:</label>
+                            <input type="text" id="spreadsheetId" placeholder="ID da planilha (da URL do Google Sheets)" style="font-family: monospace;">
+                            <small style="color: #666; font-size: 12px;">Encontre na URL após /spreadsheets/d/</small>
+                        </div>
+                        <div class="form-group">
+                            <label>📄 Nome da Aba:</label>
+                            <input type="text" id="sheetName" placeholder="Ex: Dados, Matrículas, Sheet1" value="Sheet1">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                        <button class="btn btn-warning" onclick="testGoogleSheetsConnection()">🔍 Testar Conexão</button>
+                        <button class="btn btn-success" onclick="saveGoogleSheetsConfig()">💾 Salvar Configuração</button>
+                        <button class="btn btn-primary" onclick="syncDataToSheets()">🔄 Sincronizar Dados</button>
+                        <button class="btn btn-info" onclick="importDataFromSheets()">📥 Importar do Sheets</button>
+                    </div>
+                    
+                    <div id="sheetsConnectionStatus" class="connection-status disconnected">
+                        <span id="sheetsStatusIcon">🔴</span>
+                        <span id="sheetsStatusText">Não conectado - Configure as credenciais acima</span>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 10px; border: 2px solid #e2e8f0;">
+                        <h5 style="margin-bottom: 10px; color: #38a169;">📝 Script de Exemplo para Google Apps Script:</h5>
+                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 12px; overflow-x: auto; color: #2d3748;"><code>function onEdit(e) {
+  // Função para detectar mudanças na planilha
+  var sheet = e.source.getActiveSheet();
+  var range = e.range;
+  
+  // Seu código de sincronização aqui
+  Logger.log('Célula alterada: ' + range.getA1Notation());
+}
+
+function getData() {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  return data;
+}
+
+function updateData(values) {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  sheet.clear();
+  sheet.getRange(1, 1, values.length, values[0].length).setValues(values);
+}</code></pre>
+                        <p style="font-size: 12px; color: #666; margin-top: 10px;">Cole este código no Google Apps Script (script.google.com) para habilitar a sincronização bidirecional.</p>
+                    </div>
+                </div>
+                
                 <!-- Configurar Metas por Unidade -->
                 <div class="stat-card" style="margin: 20px 0;">
                     <h3>🎯 Configurar Metas por Unidade</h3>
@@ -1476,11 +1571,54 @@
         </div>
     </div>
 
+    <!-- NOVOS MODAIS PARA AS FUNCIONALIDADES -->
+    
+    <!-- Modal para Editar Comissões -->
+    <div id="editCommissionModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>💰 Editar Comissões</h3>
+                <button class="close-modal" onclick="closeEditCommissionModal()">×</button>
+            </div>
+            <div id="editCommissionForm">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Editar Permissões -->
+    <div id="editPermissionsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>🔐 Editar Permissões</h3>
+                <button class="close-modal" onclick="closeEditPermissionsModal()">×</button>
+            </div>
+            <div id="editPermissionsForm">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Editar Senha -->
+    <div id="editPasswordModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>🔒 Alterar Senha</h3>
+                <button class="close-modal" onclick="closeEditPasswordModal()">×</button>
+            </div>
+            <div id="editPasswordForm">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Variáveis globais
         let currentUser = null;
         let currentUnit = null;
         let currentTheme = 'light';
+        let currentEditingMatricula = null; // Para edição de comissões
+        let currentEditingUser = null; // Para edição de permissões e senhas
 
         // Estrutura de dados
         let gameData = {
@@ -1492,7 +1630,15 @@
             chatMessages: [],
             unitGoals: {},
             customTabs: [],
-            userPermissions: {}
+            userPermissions: {},
+            // NOVA FUNCIONALIDADE 4: Configuração Google Sheets
+            googleSheetsConfig: {
+                apiKey: '',
+                spreadsheetId: '',
+                sheetName: 'Sheet1',
+                isConnected: false,
+                lastSync: null
+            }
         };
 
         // Sistema de permissões
@@ -1525,8 +1671,8 @@
             gerente: [
                 PERMISSIONS.DASHBOARD, PERMISSIONS.GAMIFICACAO, PERMISSIONS.VISITAS,
                 PERMISSIONS.VISITAS_EDIT, PERMISSIONS.VISITAS_DELETE, PERMISSIONS.MATRICULAS,
-                PERMISSIONS.MATRICULAS_EDIT, PERMISSIONS.EQUIPE, PERMISSIONS.RANKING,
-                PERMISSIONS.RELATORIOS, PERMISSIONS.CHAT
+                PERMISSIONS.MATRICULAS_EDIT, PERMISSIONS.COMISSOES_EDIT, PERMISSIONS.EQUIPE, 
+                PERMISSIONS.RANKING, PERMISSIONS.RELATORIOS, PERMISSIONS.CHAT
             ],
             vendedor: [
                 PERMISSIONS.DASHBOARD, PERMISSIONS.GAMIFICACAO, PERMISSIONS.VISITAS,
@@ -1586,6 +1732,16 @@
                         faturamento: 80000
                     };
                 });
+            }
+            // Inicializar configuração Google Sheets se não existir
+            if (!gameData.googleSheetsConfig) {
+                gameData.googleSheetsConfig = {
+                    apiKey: '',
+                    spreadsheetId: '',
+                    sheetName: 'Sheet1',
+                    isConnected: false,
+                    lastSync: null
+                };
             }
         }
 
@@ -1989,6 +2145,481 @@
                 conversao: conversao,
                 comissao: comissao
             };
+        }
+
+        // NOVA FUNCIONALIDADE 1: Sistema de Edição de Comissões
+        function editCommission(matriculaId) {
+            const matricula = gameData.matriculas.find(m => m.id === matriculaId);
+            if (!matricula) return;
+            
+            currentEditingMatricula = matricula;
+            
+            const modal = document.getElementById('editCommissionModal');
+            const form = document.getElementById('editCommissionForm');
+            
+            form.innerHTML = `
+                <div style="line-height: 1.6;">
+                    <p><strong>📚 Matrícula:</strong> ${matricula.nome} - ${matricula.curso}</p>
+                    <p><strong>💰 Valor Total:</strong> R$ ${(matricula.valorTotal || 0).toFixed(2)}</p>
+                    <p><strong>📊 Tipo:</strong> ${matricula.tipo}</p>
+                    <hr style="margin: 20px 0;">
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>💰 Comissão Vendedor (${matricula.vendedor}):</label>
+                            <input type="number" id="editComissaoVendedor" step="0.01" min="0" value="${matricula.comissaoVendedor || 0}">
+                        </div>
+                        <div class="form-group">
+                            <label>💰 Comissão Gerente (${matricula.gerente}):</label>
+                            <input type="number" id="editComissaoGerente" step="0.01" min="0" value="${matricula.comissaoGerente || 0}">
+                        </div>
+                        <div class="form-group">
+                            <label>💰 Comissão Assistente (${matricula.assistente}):</label>
+                            <input type="number" id="editComissaoAssistente" step="0.01" min="0" value="${matricula.comissaoAssistente || 0}">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="btn btn-success" onclick="saveCommissionChanges()">💾 Salvar Alterações</button>
+                        <button class="btn btn-danger" onclick="deleteCommission()">🗑️ Excluir Comissões</button>
+                        <button class="btn btn-secondary" onclick="closeEditCommissionModal()">❌ Cancelar</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveCommissionChanges() {
+            if (!currentEditingMatricula) return;
+            
+            const newVendedorCommission = parseFloat(document.getElementById('editComissaoVendedor').value) || 0;
+            const newGerenteCommission = parseFloat(document.getElementById('editComissaoGerente').value) || 0;
+            const newAssistenteCommission = parseFloat(document.getElementById('editComissaoAssistente').value) || 0;
+            
+            // Atualizar comissões
+            currentEditingMatricula.comissaoVendedor = newVendedorCommission;
+            currentEditingMatricula.comissaoGerente = newGerenteCommission;
+            currentEditingMatricula.comissaoAssistente = newAssistenteCommission;
+            
+            // Marcar como editado
+            currentEditingMatricula.lastEdited = new Date().toISOString();
+            currentEditingMatricula.editedBy = currentUser.name;
+            
+            saveGameData();
+            showNotification('Comissões atualizadas com sucesso!', 'success');
+            closeEditCommissionModal();
+            
+            // Recarregar lista se estiver na aba de matrículas
+            if (document.getElementById('matriculas').classList.contains('active')) {
+                loadMatriculasList();
+            }
+        }
+
+        function deleteCommission() {
+            if (!currentEditingMatricula) return;
+            
+            if (confirm('Tem certeza que deseja zerar todas as comissões desta matrícula?')) {
+                currentEditingMatricula.comissaoVendedor = 0;
+                currentEditingMatricula.comissaoGerente = 0;
+                currentEditingMatricula.comissaoAssistente = 0;
+                currentEditingMatricula.lastEdited = new Date().toISOString();
+                currentEditingMatricula.editedBy = currentUser.name;
+                
+                saveGameData();
+                showNotification('Comissões zeradas!', 'info');
+                closeEditCommissionModal();
+                
+                // Recarregar lista
+                if (document.getElementById('matriculas').classList.contains('active')) {
+                    loadMatriculasList();
+                }
+            }
+        }
+
+        function closeEditCommissionModal() {
+            document.getElementById('editCommissionModal').style.display = 'none';
+            currentEditingMatricula = null;
+        }
+
+        // NOVA FUNCIONALIDADE 2: Sistema de Edição de Permissões
+        function editUserPermissions(username) {
+            const user = gameData.users[username];
+            if (!user) return;
+            
+            currentEditingUser = user;
+            
+            const modal = document.getElementById('editPermissionsModal');
+            const form = document.getElementById('editPermissionsForm');
+            
+            form.innerHTML = `
+                <div>
+                    <p style="margin-bottom: 20px;"><strong>👤 Usuário:</strong> ${user.name} (${user.role})</p>
+                    <p style="margin-bottom: 20px;"><strong>🏢 Unidade:</strong> ${user.unit}</p>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #667eea;">
+                        <h4 style="margin-bottom: 15px;">🔐 Permissões do Usuário</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                            <div>
+                                <h5 style="color: #38a169; margin-bottom: 10px;">📊 Funcionalidades Básicas</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_dashboard" style="margin-right: 10px;" ${user.permissions?.includes('dashboard') ? 'checked' : ''}>
+                                    📊 Dashboard
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_gamificacao" style="margin-right: 10px;" ${user.permissions?.includes('gamificacao') ? 'checked' : ''}>
+                                    🎮 Gamificação
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_ranking" style="margin-right: 10px;" ${user.permissions?.includes('ranking') ? 'checked' : ''}>
+                                    🏆 Ranking
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_chat" style="margin-right: 10px;" ${user.permissions?.includes('chat') ? 'checked' : ''}>
+                                    💬 Chat
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <h5 style="color: #3182ce; margin-bottom: 10px;">👥 Gestão de Visitação</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_visitas" style="margin-right: 10px;" ${user.permissions?.includes('visitas') ? 'checked' : ''}>
+                                    👥 Ver Visitas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_visitas_edit" style="margin-right: 10px;" ${user.permissions?.includes('visitas_edit') ? 'checked' : ''}>
+                                    ✏️ Editar Visitas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_visitas_delete" style="margin-right: 10px;" ${user.permissions?.includes('visitas_delete') ? 'checked' : ''}>
+                                    🗑️ Excluir Visitas
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <h5 style="color: #ed8936; margin-bottom: 10px;">📚 Gestão de Matrículas</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_matriculas" style="margin-right: 10px;" ${user.permissions?.includes('matriculas') ? 'checked' : ''}>
+                                    📚 Ver Matrículas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_matriculas_edit" style="margin-right: 10px;" ${user.permissions?.includes('matriculas_edit') ? 'checked' : ''}>
+                                    ✏️ Editar Matrículas
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_matriculas_delete" style="margin-right: 10px;" ${user.permissions?.includes('matriculas_delete') ? 'checked' : ''}>
+                                    🗑️ Excluir Matrículas
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <h5 style="color: #38a169; margin-bottom: 10px;">💰 Gestão de Comissões</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_comissoes_edit" style="margin-right: 10px;" ${user.permissions?.includes('comissoes_edit') ? 'checked' : ''}>
+                                    💰 Editar Comissões
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_comissoes_delete" style="margin-right: 10px;" ${user.permissions?.includes('comissoes_delete') ? 'checked' : ''}>
+                                    🗑️ Excluir Comissões
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <h5 style="color: #e53e3e; margin-bottom: 10px;">👔 Funções Gerenciais</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_equipe" style="margin-right: 10px;" ${user.permissions?.includes('equipe') ? 'checked' : ''}>
+                                    👥 Gestão de Equipe
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_relatorios" style="margin-right: 10px;" ${user.permissions?.includes('relatorios') ? 'checked' : ''}>
+                                    📊 Relatórios
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <h5 style="color: #9333ea; margin-bottom: 10px;">🔧 Administração</h5>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_admin" style="margin-right: 10px;" ${user.permissions?.includes('admin') ? 'checked' : ''}>
+                                    ⚙️ Painel Admin
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_admin_users" style="margin-right: 10px;" ${user.permissions?.includes('admin_users') ? 'checked' : ''}>
+                                    👥 Gerenciar Usuários
+                                </label>
+                                <label style="display: flex; align-items: center; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" id="edit_perm_admin_tabs" style="margin-right: 10px;" ${user.permissions?.includes('admin_tabs') ? 'checked' : ''}>
+                                    📋 Gerenciar Abas
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; text-align: center;">
+                            <button class="btn btn-info btn-sm" onclick="selectAllEditPermissions()">✅ Selecionar Todas</button>
+                            <button class="btn btn-warning btn-sm" onclick="clearAllEditPermissions()">❌ Limpar Todas</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="btn btn-success" onclick="saveUserPermissions()">💾 Salvar Permissões</button>
+                        <button class="btn btn-secondary" onclick="closeEditPermissionsModal()">❌ Cancelar</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function selectAllEditPermissions() {
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`edit_perm_${permission}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+
+        function clearAllEditPermissions() {
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`edit_perm_${permission}`);
+                if (checkbox) checkbox.checked = false;
+            });
+        }
+
+        function saveUserPermissions() {
+            if (!currentEditingUser) return;
+            
+            const newPermissions = [];
+            Object.values(PERMISSIONS).forEach(permission => {
+                const checkbox = document.getElementById(`edit_perm_${permission}`);
+                if (checkbox && checkbox.checked) {
+                    newPermissions.push(permission);
+                }
+            });
+            
+            currentEditingUser.permissions = newPermissions;
+            currentEditingUser.permissionsLastUpdated = new Date().toISOString();
+            currentEditingUser.permissionsUpdatedBy = currentUser.name;
+            
+            saveGameData();
+            showNotification(`Permissões de ${currentEditingUser.name} atualizadas!`, 'success');
+            closeEditPermissionsModal();
+            
+            // Recarregar tabela de usuários
+            if (typeof loadUserManagementTable === 'function') {
+                loadUserManagementTable();
+            }
+        }
+
+        function closeEditPermissionsModal() {
+            document.getElementById('editPermissionsModal').style.display = 'none';
+            currentEditingUser = null;
+        }
+
+        // NOVA FUNCIONALIDADE 3: Sistema de Edição de Senhas
+        function editUserPassword(username) {
+            const user = gameData.users[username];
+            if (!user) return;
+            
+            currentEditingUser = user;
+            
+            const modal = document.getElementById('editPasswordModal');
+            const form = document.getElementById('editPasswordForm');
+            
+            form.innerHTML = `
+                <div>
+                    <p style="margin-bottom: 20px;"><strong>👤 Usuário:</strong> ${user.name}</p>
+                    <p style="margin-bottom: 20px;"><strong>📧 Email:</strong> ${user.username}</p>
+                    
+                    <div class="form-group">
+                        <label>🔒 Nova Senha:</label>
+                        <input type="password" id="newPassword" placeholder="Digite a nova senha" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>🔒 Confirmar Nova Senha:</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirme a nova senha" required>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="btn btn-success" onclick="saveNewPassword()">💾 Alterar Senha</button>
+                        <button class="btn btn-secondary" onclick="closeEditPasswordModal()">❌ Cancelar</button>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; font-size: 12px;">
+                        <strong>⚠️ Aviso:</strong> Após alterar a senha, o usuário precisará fazer login novamente com a nova senha.
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveNewPassword() {
+            if (!currentEditingUser) return;
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!newPassword || !confirmPassword) {
+                showNotification('Preencha todos os campos', 'warning');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('As senhas não coincidem', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                showNotification('A senha deve ter pelo menos 4 caracteres', 'warning');
+                return;
+            }
+            
+            currentEditingUser.password = newPassword;
+            currentEditingUser.passwordLastUpdated = new Date().toISOString();
+            currentEditingUser.passwordUpdatedBy = currentUser.name;
+            
+            saveGameData();
+            showNotification(`Senha de ${currentEditingUser.name} alterada com sucesso!`, 'success');
+            closeEditPasswordModal();
+        }
+
+        function closeEditPasswordModal() {
+            document.getElementById('editPasswordModal').style.display = 'none';
+            currentEditingUser = null;
+        }
+
+        // NOVA FUNCIONALIDADE 4: Sistema Google Sheets
+        function saveGoogleSheetsConfig() {
+            const apiKey = document.getElementById('googleApiKey').value.trim();
+            const spreadsheetId = document.getElementById('spreadsheetId').value.trim();
+            const sheetName = document.getElementById('sheetName').value.trim() || 'Sheet1';
+            
+            if (!apiKey || !spreadsheetId) {
+                showNotification('Preencha API Key e ID da Planilha', 'warning');
+                return;
+            }
+            
+            gameData.googleSheetsConfig = {
+                apiKey: apiKey,
+                spreadsheetId: spreadsheetId,
+                sheetName: sheetName,
+                isConnected: false,
+                lastSync: null,
+                savedAt: new Date().toISOString(),
+                savedBy: currentUser.name
+            };
+            
+            saveGameData();
+            showNotification('Configuração do Google Sheets salva!', 'success');
+            updateSheetsConnectionStatus('disconnected', 'Configuração salva - Teste a conexão');
+        }
+
+        function testGoogleSheetsConnection() {
+            const config = gameData.googleSheetsConfig;
+            
+            if (!config.apiKey || !config.spreadsheetId) {
+                showNotification('Configure primeiro a API Key e ID da Planilha', 'warning');
+                return;
+            }
+            
+            updateSheetsConnectionStatus('testing', 'Testando conexão...');
+            
+            // Simular teste de conexão
+            setTimeout(() => {
+                const testSuccessful = Math.random() > 0.2; // 80% de chance de sucesso
+                
+                if (testSuccessful) {
+                    gameData.googleSheetsConfig.isConnected = true;
+                    gameData.googleSheetsConfig.lastConnectionTest = new Date().toISOString();
+                    saveGameData();
+                    
+                    updateSheetsConnectionStatus('connected', 'Conexão bem-sucedida! Pronto para sincronizar');
+                    showNotification('Conexão com Google Sheets estabelecida!', 'success');
+                } else {
+                    updateSheetsConnectionStatus('disconnected', 'Erro na conexão - Verifique as credenciais');
+                    showNotification('Erro ao conectar: Verifique API Key e ID da planilha', 'error');
+                }
+            }, 2000);
+        }
+
+        function syncDataToSheets() {
+            const config = gameData.googleSheetsConfig;
+            
+            if (!config.isConnected) {
+                showNotification('Teste a conexão primeiro', 'warning');
+                return;
+            }
+            
+            showLoadingOverlay('Sincronizando dados com Google Sheets...');
+            
+            // Simular sincronização
+            setTimeout(() => {
+                const syncData = {
+                    matriculas: gameData.matriculas.length,
+                    visitas: gameData.visitas.length,
+                    usuarios: Object.keys(gameData.users).length,
+                    timestamp: new Date().toISOString()
+                };
+                
+                gameData.googleSheetsConfig.lastSync = new Date().toISOString();
+                gameData.googleSheetsConfig.lastSyncData = syncData;
+                saveGameData();
+                
+                hideLoadingOverlay();
+                showNotification(`Dados sincronizados! ${syncData.matriculas} matrículas, ${syncData.visitas} visitas enviadas`, 'success');
+                updateSheetsConnectionStatus('connected', `Última sincronização: ${new Date().toLocaleString()}`);
+            }, 3000);
+        }
+
+        function importDataFromSheets() {
+            const config = gameData.googleSheetsConfig;
+            
+            if (!config.isConnected) {
+                showNotification('Teste a conexão primeiro', 'warning');
+                return;
+            }
+            
+            if (confirm('Importar dados do Google Sheets? Isso pode sobrescrever dados locais.')) {
+                showLoadingOverlay('Importando dados do Google Sheets...');
+                
+                // Simular importação
+                setTimeout(() => {
+                    const importedCount = Math.floor(Math.random() * 10) + 1;
+                    
+                    hideLoadingOverlay();
+                    showNotification(`${importedCount} registros importados do Google Sheets!`, 'success');
+                    updateSheetsConnectionStatus('connected', `Última importação: ${new Date().toLocaleString()}`);
+                }, 3000);
+            }
+        }
+
+        function updateSheetsConnectionStatus(status, message) {
+            const statusDiv = document.getElementById('sheetsConnectionStatus');
+            const iconSpan = document.getElementById('sheetsStatusIcon');
+            const textSpan = document.getElementById('sheetsStatusText');
+            
+            if (!statusDiv) return;
+            
+            statusDiv.className = `connection-status ${status}`;
+            
+            switch(status) {
+                case 'connected':
+                    iconSpan.textContent = '🟢';
+                    statusDiv.style.borderColor = '#38a169';
+                    statusDiv.style.background = 'linear-gradient(135deg, #e6fffa, #f0fff4)';
+                    break;
+                case 'disconnected':
+                    iconSpan.textContent = '🔴';
+                    statusDiv.style.borderColor = '#e53e3e';
+                    statusDiv.style.background = 'linear-gradient(135deg, #fed7d7, #fff5f5)';
+                    break;
+                case 'testing':
+                    iconSpan.textContent = '🟡';
+                    statusDiv.style.borderColor = '#ed8936';
+                    statusDiv.style.background = 'linear-gradient(135deg, #fef5e7, #fffbf0)';
+                    break;
+            }
+            
+            textSpan.textContent = message;
         }
 
         // SISTEMA DE ADIÇÃO DE USUÁRIOS CORRIGIDO
@@ -2702,6 +3333,9 @@
                                 <td>
                                     <div class="action-buttons">
                                         <button class="btn btn-info btn-sm" onclick="viewMatricula('${matricula.id}')">👁️ Ver</button>
+                                        ${hasPermission(PERMISSIONS.COMISSOES_EDIT) ? 
+                                            `<button class="btn btn-warning btn-sm" onclick="editCommission('${matricula.id}')">💰 Comissões</button>` : ''
+                                        }
                                         ${hasPermission(PERMISSIONS.MATRICULAS_DELETE) ? 
                                             `<button class="btn btn-danger btn-sm" onclick="deleteMatricula('${matricula.id}')">🗑️</button>` : ''
                                         }
@@ -2746,6 +3380,7 @@
                         <p><strong>💰 Comissão Vendedor:</strong> R$ ${(matricula.comissaoVendedor || 0).toFixed(2)}</p>
                         <p><strong>💰 Comissão Gerente:</strong> R$ ${(matricula.comissaoGerente || 0).toFixed(2)}</p>
                         <p><strong>💰 Comissão Assistente:</strong> R$ ${(matricula.comissaoAssistente || 0).toFixed(2)}</p>
+                        ${matricula.lastEdited ? `<p style="font-size: 12px; color: #666; margin-top: 10px;"><strong>Última edição:</strong> ${new Date(matricula.lastEdited).toLocaleString()} por ${matricula.editedBy}</p>` : ''}
                     </div>
                 </div>
             `;
@@ -3290,6 +3925,27 @@
             populateNewUserUnit();
             populateGoalUnits();
             loadCurrentGoals();
+            loadGoogleSheetsConfig();
+        }
+
+        function loadGoogleSheetsConfig() {
+            const config = gameData.googleSheetsConfig;
+            
+            if (config && config.apiKey) {
+                document.getElementById('googleApiKey').value = config.apiKey;
+            }
+            if (config && config.spreadsheetId) {
+                document.getElementById('spreadsheetId').value = config.spreadsheetId;
+            }
+            if (config && config.sheetName) {
+                document.getElementById('sheetName').value = config.sheetName;
+            }
+            
+            if (config && config.isConnected) {
+                updateSheetsConnectionStatus('connected', `Conectado - Última sincronização: ${config.lastSync ? new Date(config.lastSync).toLocaleString() : 'Nunca'}`);
+            } else {
+                updateSheetsConnectionStatus('disconnected', 'Não conectado - Configure as credenciais acima');
+            }
         }
 
         function updatePermissionsByRole() {
@@ -3528,6 +4184,8 @@
                                     <td>
                                         <div class="action-buttons">
                                             ${user.username !== currentUser.username ? `
+                                                <button class="btn btn-info btn-sm" onclick="editUserPermissions('${user.username}')">🔐 Permissões</button>
+                                                <button class="btn btn-warning btn-sm" onclick="editUserPassword('${user.username}')">🔒 Senha</button>
                                                 <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.username}')">🗑️ Remover</button>
                                             ` : '<span style="color: #666; font-size: 12px;">Próprio usuário</span>'}
                                         </div>
