@@ -1810,7 +1810,7 @@ function updateData(values) {
 
         // SISTEMA DE LOGIN CORRIGIDO
         function login() {
-            const username = document.getElementById('loginUsername').value.trim();
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase(); // CORREÇÃO AQUI
             const password = document.getElementById('loginPassword').value.trim();
 
             // Validação básica
@@ -1927,8 +1927,8 @@ function updateData(values) {
                 try {
                     const userData = JSON.parse(savedUser);
                     
-                    // Verificar se usuário ainda existe
-                    const currentUserData = gameData.users[userData.username];
+                    // Verificar se usuário ainda existe (CORREÇÃO AQUI TAMBÉM)
+                    const currentUserData = gameData.users[userData.username.toLowerCase()];
                     if (currentUserData) {
                         currentUser = currentUserData;
                         currentUnit = currentUser.unit;
@@ -2626,7 +2626,7 @@ function updateData(values) {
         function addUser() {
             const userData = {
                 name: document.getElementById('newUserName').value.trim(),
-                username: document.getElementById('newUserUsername').value.trim().toLowerCase(),
+                username: document.getElementById('newUserUsername').value.trim().toLowerCase(), // CORREÇÃO AQUI TAMBÉM
                 password: document.getElementById('newUserPassword').value.trim(),
                 role: document.getElementById('newUserRole').value,
                 unit: document.getElementById('newUserUnit').value,
