@@ -1699,6 +1699,13 @@ function updateData(values) {
                     const parsedData = JSON.parse(saved);
                     gameData = { ...gameData, ...parsedData };
                 }
+                
+                // DEBUG: Mostrar usuários disponíveis
+                console.log('🔍 DEBUG - Usuários carregados:');
+                Object.entries(gameData.users || {}).forEach(([key, user]) => {
+                    console.log(`📧 ${key} -> ${user.name} (senha: ${user.password})`);
+                });
+                
                 console.log('✅ Dados carregados com sucesso');
             } catch (error) {
                 console.error('❌ Erro ao carregar dados:', error);
@@ -1810,7 +1817,7 @@ function updateData(values) {
 
         // SISTEMA DE LOGIN CORRIGIDO
         function login() {
-            const username = document.getElementById('loginUsername').value.trim().toLowerCase(); // CORREÇÃO AQUI
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value.trim();
 
             // Validação básica
@@ -1823,10 +1830,23 @@ function updateData(values) {
                 return;
             }
 
-            // Verificar se usuário existe
-            const user = gameData.users[username];
+            // CORREÇÃO: Buscar usuário considerando tanto a chave minúscula quanto o username original
+            let user = gameData.users[username];
+            
+            // Se não encontrou, tentar buscar por todas as chaves de usuários
+            if (!user) {
+                const userEntry = Object.entries(gameData.users).find(([key, userData]) => {
+                    return key.toLowerCase() === username || userData.username?.toLowerCase() === username;
+                });
+                
+                if (userEntry) {
+                    user = userEntry[1];
+                }
+            }
             
             if (!user) {
+                console.log('❌ Usuário não encontrado:', username);
+                console.log('🔍 Usuários disponíveis:', Object.keys(gameData.users));
                 showNotification('Usuário não encontrado', 'error');
                 document.getElementById('loginError').classList.remove('hidden');
                 setTimeout(() => {
@@ -1927,8 +1947,21 @@ function updateData(values) {
                 try {
                     const userData = JSON.parse(savedUser);
                     
-                    // Verificar se usuário ainda existe (CORREÇÃO AQUI TAMBÉM)
-                    const currentUserData = gameData.users[userData.username.toLowerCase()];
+                    // CORREÇÃO: Buscar usuário de forma mais robusta
+                    let currentUserData = gameData.users[userData.username?.toLowerCase()];
+                    
+                    // Se não encontrou, buscar em todas as entradas
+                    if (!currentUserData) {
+                        const userEntry = Object.entries(gameData.users).find(([key, user]) => {
+                            return key.toLowerCase() === userData.username?.toLowerCase() || 
+                                   user.username?.toLowerCase() === userData.username?.toLowerCase();
+                        });
+                        
+                        if (userEntry) {
+                            currentUserData = userEntry[1];
+                        }
+                    }
+                    
                     if (currentUserData) {
                         currentUser = currentUserData;
                         currentUnit = currentUser.unit;
