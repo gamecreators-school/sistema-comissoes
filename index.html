@@ -144,18 +144,6 @@
             box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);
         }
 
-        .btn-warning {
-            background: var(--warning-gradient);
-            color: white;
-            box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3);
-        }
-
-        .btn-danger {
-            background: var(--danger-gradient);
-            color: white;
-            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
-        }
-
         .btn-sm {
             padding: 8px 16px;
             font-size: 12px;
@@ -305,192 +293,6 @@
             display: block;
         }
 
-        /* Sistema de Abas */
-        .tabs-container {
-            background: white;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .tabs-nav {
-            display: flex;
-            overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .tabs-nav::-webkit-scrollbar {
-            display: none;
-        }
-
-        .tab-button {
-            padding: 15px 25px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: var(--transition);
-            white-space: nowrap;
-            min-width: fit-content;
-        }
-
-        .tab-button.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .tab-button:hover {
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.03);
-        }
-
-        .tab-content {
-            display: none;
-            padding: 30px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Comissões */
-        .commission-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-
-        .commission-card:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-
-        .commission-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .commission-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .commission-item {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: var(--transition);
-        }
-
-        .commission-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-        }
-
-        .commission-info h4 {
-            color: var(--text-primary);
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
-
-        .commission-info p {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .commission-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #38a169;
-        }
-
-        .commission-status {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-pending {
-            background: rgba(237, 137, 54, 0.1);
-            color: #dd6b20;
-        }
-
-        .status-paid {
-            background: rgba(56, 161, 105, 0.1);
-            color: #2f855a;
-        }
-
-        .status-cancelled {
-            background: rgba(229, 62, 62, 0.1);
-            color: #c53030;
-        }
-
-        .commission-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: var(--shadow-lg);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .close:hover {
-            color: #000;
-        }
-
         /* Responsividade */
         @media (max-width: 768px) {
             .login-card {
@@ -502,20 +304,6 @@
                 max-width: calc(100vw - 40px);
                 right: 20px;
                 left: 20px;
-            }
-
-            .commission-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .commission-header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: flex-start;
-            }
-
-            .commission-actions {
-                flex-wrap: wrap;
             }
         }
     </style>
@@ -579,7 +367,7 @@
         </div>
     </div>
 
-    <!-- Sistema Principal -->
+    <!-- Sistema Principal (simplificado para demo do login) -->
     <div id="mainSystem" class="main-container">
         <div class="page-header">
             <div>
@@ -597,21 +385,8 @@
             </div>
         </div>
 
-        <!-- Sistema de Abas -->
-        <div class="tabs-container">
-            <nav class="tabs-nav">
-                <button class="tab-button active" onclick="showTab('users')">👥 Usuários</button>
-                <button class="tab-button" onclick="showTab('commissions')">💰 Comissões</button>
-                <button class="tab-button" onclick="showTab('dashboard')">📊 Dashboard</button>
-                <button class="tab-button" onclick="showTab('reports')">📈 Relatórios</button>
-            </nav>
-        </div>
-
-        <!-- Conteúdo das Abas -->
-        
-        <!-- Aba Usuários -->
-        <div id="usersTab" class="tab-content active">
-            <!-- Seção de Admin para Criar Usuários -->
+        <!-- Seção de Admin para Criar Usuários -->
+        <div style="padding: 30px;">
             <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
                 <h3>➕ Criar Novo Usuário</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
@@ -659,132 +434,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Aba Comissões -->
-        <div id="commissionsTab" class="tab-content">
-            <div class="commission-card">
-                <div class="commission-header">
-                    <h3>💰 Gestão de Comissões</h3>
-                    <button class="btn btn-primary" onclick="openCommissionModal()">
-                        ➕ Nova Comissão
-                    </button>
-                </div>
-
-                <!-- Filtros -->
-                <div style="margin-bottom: 25px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
-                    <div class="form-group" style="margin: 0; min-width: 200px;">
-                        <label>Filtrar por Status:</label>
-                        <select id="statusFilter" onchange="filterCommissions()">
-                            <option value="">Todos</option>
-                            <option value="pending">Pendente</option>
-                            <option value="paid">Pago</option>
-                            <option value="cancelled">Cancelado</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="margin: 0; min-width: 200px;">
-                        <label>Filtrar por Vendedor:</label>
-                        <select id="userFilter" onchange="filterCommissions()">
-                            <option value="">Todos</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Lista de Comissões -->
-                <div id="commissionsList">
-                    <!-- Preenchido dinamicamente -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Aba Dashboard -->
-        <div id="dashboardTab" class="tab-content">
-            <div class="commission-card">
-                <h3>📊 Dashboard</h3>
-                <p>Dashboard em desenvolvimento...</p>
-            </div>
-        </div>
-
-        <!-- Aba Relatórios -->
-        <div id="reportsTab" class="tab-content">
-            <div class="commission-card">
-                <h3>📈 Relatórios</h3>
-                <p>Relatórios em desenvolvimento...</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Comissão -->
-    <div id="commissionModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeCommissionModal()">&times;</span>
-            <h3 id="modalTitle">➕ Nova Comissão</h3>
-            
-            <form id="commissionForm" style="margin-top: 20px;">
-                <input type="hidden" id="editCommissionId">
-                
-                <div class="commission-grid">
-                    <div class="form-group">
-                        <label>Vendedor:</label>
-                        <select id="commissionVendedor" required>
-                            <option value="">Selecione...</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Cliente:</label>
-                        <input type="text" id="commissionCliente" placeholder="Nome do cliente" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Produto/Serviço:</label>
-                        <input type="text" id="commissionProduto" placeholder="Produto vendido" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Valor da Venda (R$):</label>
-                        <input type="number" id="commissionValorVenda" placeholder="0.00" step="0.01" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>% Comissão:</label>
-                        <input type="number" id="commissionPercentual" placeholder="10" step="0.01" min="0" max="100" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Bônus (R$):</label>
-                        <input type="number" id="commissionBonus" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Status:</label>
-                        <select id="commissionStatus" required>
-                            <option value="pending">Pendente</option>
-                            <option value="paid">Pago</option>
-                            <option value="cancelled">Cancelado</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Data da Venda:</label>
-                        <input type="date" id="commissionData" required>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Observações:</label>
-                    <textarea id="commissionObservacoes" placeholder="Observações sobre a venda..." rows="3"></textarea>
-                </div>
-                
-                <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end;">
-                    <button type="button" class="btn" onclick="closeCommissionModal()" style="background: #6c757d; color: white;">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-success">
-                        💾 Salvar Comissão
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <script>
@@ -793,15 +442,14 @@
         let gameData = {
             users: {},
             matriculas: [],
-            visitas: [],
-            commissions: []
+            visitas: []
         };
 
         // Sistema de permissões simplificado
         const DEFAULT_PERMISSIONS = {
             admin: ['all'],
-            gerente: ['dashboard', 'team', 'reports', 'commissions'],
-            vendedor: ['dashboard', 'sales', 'commissions'],
+            gerente: ['dashboard', 'team', 'reports'],
+            vendedor: ['dashboard', 'sales'],
             assistente: ['dashboard', 'support']
         };
 
@@ -813,7 +461,6 @@
             setupEventListeners();
             updateDebugInfo();
             checkAutoLogin();
-            initializeCommissions();
         }
 
         function loadGameData() {
@@ -829,7 +476,7 @@
             } catch (error) {
                 console.error('❌ Erro ao carregar dados:', error);
                 showNotification('Erro ao carregar dados. Reinicializando...', 'warning');
-                gameData = { users: {}, matriculas: [], visitas: [], commissions: [] };
+                gameData = { users: {}, matriculas: [], visitas: [] };
             }
         }
 
@@ -970,8 +617,6 @@
             // Atualizar interface
             updateUserInterface();
             loadUsersList();
-            loadCommissionsList();
-            populateUserSelects();
             
             console.log('✅ Interface atualizada para:', user.name);
         }
@@ -1032,8 +677,6 @@
                         
                         updateUserInterface();
                         loadUsersList();
-                        loadCommissionsList();
-                        populateUserSelects();
                         showNotification(`Bem-vindo de volta, ${currentUser.name}! 🎉`, 'success');
                         console.log('✅ Auto-login realizado para:', currentUser.name);
                     } else {
@@ -1107,7 +750,6 @@
                 
                 // Recarregar lista
                 loadUsersList();
-                populateUserSelects();
                 updateDebugInfo('Usuário criado: ' + userData.name);
             } else {
                 showNotification('Erro ao salvar usuário. Tente novamente.', 'error');
@@ -1137,7 +779,6 @@
                 
                 showNotification(`Usuário ${user.name} removido`, 'info');
                 loadUsersList();
-                populateUserSelects();
                 updateDebugInfo('Usuário removido: ' + user.name);
             }
         }
@@ -1182,240 +823,6 @@
                     `).join('')}
                 </div>
             `;
-        }
-
-        // SISTEMA DE ABAS
-        function showTab(tabName) {
-            // Esconder todas as abas
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            
-            // Remover classe active de todos os botões
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(button => button.classList.remove('active'));
-            
-            // Mostrar aba selecionada
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            
-            // Ativar botão correspondente
-            event.target.classList.add('active');
-            
-            console.log('🔄 Mudando para aba:', tabName);
-        }
-
-        // SISTEMA DE COMISSÕES
-        function initializeCommissions() {
-            if (!gameData.commissions) {
-                gameData.commissions = [];
-                saveGameData();
-            }
-            
-            // Data padrão para hoje
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('commissionData').value = today;
-        }
-
-        function populateUserSelects() {
-            const vendedorSelect = document.getElementById('commissionVendedor');
-            const userFilterSelect = document.getElementById('userFilter');
-            
-            if (!vendedorSelect || !userFilterSelect) return;
-            
-            // Limpar selects
-            vendedorSelect.innerHTML = '<option value="">Selecione...</option>';
-            userFilterSelect.innerHTML = '<option value="">Todos</option>';
-            
-            // Adicionar usuários
-            Object.values(gameData.users).forEach(user => {
-                if (user.role === 'vendedor' || user.role === 'gerente') {
-                    vendedorSelect.innerHTML += `<option value="${user.email}">${user.name}</option>`;
-                }
-                userFilterSelect.innerHTML += `<option value="${user.email}">${user.name}</option>`;
-            });
-        }
-
-        function openCommissionModal(commissionId = null) {
-            const modal = document.getElementById('commissionModal');
-            const form = document.getElementById('commissionForm');
-            const modalTitle = document.getElementById('modalTitle');
-            
-            if (commissionId) {
-                // Editar comissão existente
-                const commission = gameData.commissions.find(c => c.id === commissionId);
-                if (commission) {
-                    modalTitle.textContent = '✏️ Editar Comissão';
-                    document.getElementById('editCommissionId').value = commissionId;
-                    document.getElementById('commissionVendedor').value = commission.vendedor;
-                    document.getElementById('commissionCliente').value = commission.cliente;
-                    document.getElementById('commissionProduto').value = commission.produto;
-                    document.getElementById('commissionValorVenda').value = commission.valorVenda;
-                    document.getElementById('commissionPercentual').value = commission.percentual;
-                    document.getElementById('commissionBonus').value = commission.bonus || 0;
-                    document.getElementById('commissionStatus').value = commission.status;
-                    document.getElementById('commissionData').value = commission.data;
-                    document.getElementById('commissionObservacoes').value = commission.observacoes || '';
-                }
-            } else {
-                // Nova comissão
-                modalTitle.textContent = '➕ Nova Comissão';
-                form.reset();
-                document.getElementById('editCommissionId').value = '';
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('commissionData').value = today;
-            }
-            
-            modal.style.display = 'block';
-        }
-
-        function closeCommissionModal() {
-            document.getElementById('commissionModal').style.display = 'none';
-            document.getElementById('commissionForm').reset();
-        }
-
-        // Evento do formulário de comissão
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('commissionForm');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    saveCommission();
-                });
-            }
-        });
-
-        function saveCommission() {
-            const commissionId = document.getElementById('editCommissionId').value;
-            const valorVenda = parseFloat(document.getElementById('commissionValorVenda').value);
-            const percentual = parseFloat(document.getElementById('commissionPercentual').value);
-            const bonus = parseFloat(document.getElementById('commissionBonus').value) || 0;
-            
-            const commissionData = {
-                vendedor: document.getElementById('commissionVendedor').value,
-                cliente: document.getElementById('commissionCliente').value,
-                produto: document.getElementById('commissionProduto').value,
-                valorVenda: valorVenda,
-                percentual: percentual,
-                bonus: bonus,
-                valorComissao: (valorVenda * percentual / 100) + bonus,
-                status: document.getElementById('commissionStatus').value,
-                data: document.getElementById('commissionData').value,
-                observacoes: document.getElementById('commissionObservacoes').value,
-                createdBy: currentUser.name,
-                updatedAt: new Date().toISOString()
-            };
-
-            // Validações
-            if (!commissionData.vendedor || !commissionData.cliente || !commissionData.produto || 
-                !commissionData.valorVenda || !commissionData.percentual || !commissionData.data) {
-                showNotification('Preencha todos os campos obrigatórios', 'warning');
-                return;
-            }
-
-            if (commissionData.valorVenda <= 0) {
-                showNotification('Valor da venda deve ser maior que zero', 'warning');
-                return;
-            }
-
-            if (commissionData.percentual < 0 || commissionData.percentual > 100) {
-                showNotification('Percentual deve estar entre 0 e 100', 'warning');
-                return;
-            }
-
-            if (commissionId) {
-                // Editar comissão existente
-                const index = gameData.commissions.findIndex(c => c.id === commissionId);
-                if (index !== -1) {
-                    gameData.commissions[index] = { ...gameData.commissions[index], ...commissionData };
-                    showNotification('Comissão atualizada com sucesso!', 'success');
-                }
-            } else {
-                // Nova comissão
-                commissionData.id = generateId();
-                commissionData.createdAt = new Date().toISOString();
-                gameData.commissions.push(commissionData);
-                showNotification('Comissão criada com sucesso!', 'success');
-            }
-
-            saveGameData();
-            closeCommissionModal();
-            loadCommissionsList();
-        }
-
-        function loadCommissionsList() {
-            const commissionsListDiv = document.getElementById('commissionsList');
-            let commissions = [...gameData.commissions];
-            
-            // Aplicar filtros
-            const statusFilter = document.getElementById('statusFilter')?.value;
-            const userFilter = document.getElementById('userFilter')?.value;
-            
-            if (statusFilter) {
-                commissions = commissions.filter(c => c.status === statusFilter);
-            }
-            
-            if (userFilter) {
-                commissions = commissions.filter(c => c.vendedor === userFilter);
-            }
-            
-            // Ordenar por data (mais recente primeiro)
-            commissions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            
-            if (commissions.length === 0) {
-                commissionsListDiv.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Nenhuma comissão encontrada</p>';
-                return;
-            }
-
-            commissionsListDiv.innerHTML = commissions.map(commission => {
-                const vendedor = gameData.users[commission.vendedor];
-                const vendedorName = vendedor ? vendedor.name : 'Usuário não encontrado';
-                const statusClass = commission.status === 'paid' ? 'status-paid' : 
-                                  commission.status === 'cancelled' ? 'status-cancelled' : 'status-pending';
-                const statusText = commission.status === 'paid' ? 'Pago' : 
-                                 commission.status === 'cancelled' ? 'Cancelado' : 'Pendente';
-
-                return `
-                    <div class="commission-item">
-                        <div class="commission-info">
-                            <h4>${commission.cliente}</h4>
-                            <p><strong>Vendedor:</strong> ${vendedorName}</p>
-                            <p><strong>Produto:</strong> ${commission.produto}</p>
-                            <p><strong>Venda:</strong> R$ ${commission.valorVenda.toLocaleString('pt-BR', {minimumFractionDigits: 2})} | 
-                               <strong>Comissão:</strong> ${commission.percentual}% 
-                               ${commission.bonus > 0 ? `+ R$ ${commission.bonus.toLocaleString('pt-BR', {minimumFractionDigits: 2})} bônus` : ''}</p>
-                            <p><strong>Data:</strong> ${new Date(commission.data).toLocaleDateString('pt-BR')}</p>
-                            ${commission.observacoes ? `<p><strong>Obs:</strong> ${commission.observacoes}</p>` : ''}
-                        </div>
-                        <div style="text-align: center;">
-                            <div class="commission-value">R$ ${commission.valorComissao.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                            <div class="commission-status ${statusClass}">${statusText}</div>
-                        </div>
-                        <div class="commission-actions">
-                            <button class="btn btn-warning btn-sm" onclick="openCommissionModal('${commission.id}')">
-                                ✏️ Editar
-                            </button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteCommission('${commission.id}')">
-                                🗑️ Excluir
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function filterCommissions() {
-            loadCommissionsList();
-        }
-
-        function deleteCommission(commissionId) {
-            const commission = gameData.commissions.find(c => c.id === commissionId);
-            if (!commission) return;
-            
-            if (confirm(`Tem certeza que deseja excluir a comissão de ${commission.cliente}?`)) {
-                gameData.commissions = gameData.commissions.filter(c => c.id !== commissionId);
-                saveGameData();
-                showNotification('Comissão excluída com sucesso!', 'info');
-                loadCommissionsList();
-            }
         }
 
         // Funções auxiliares
@@ -1499,14 +906,6 @@
                     }
                 });
             }
-
-            // Fechar modal ao clicar fora
-            window.addEventListener('click', function(event) {
-                const modal = document.getElementById('commissionModal');
-                if (event.target === modal) {
-                    closeCommissionModal();
-                }
-            });
         }
 
         // Inicialização ao carregar a página
