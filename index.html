@@ -870,20 +870,38 @@
                 <small>⚠️ Modo desenvolvimento (será removido em produção):</small>
                 <div style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;">
                     <button class="btn btn-info btn-sm" onclick="loginDemo('admin')">👑 Admin</button>
-                    <button class="btn btn-success btn-sm" onclick="loginDemo('gerente')">👔 Gerente</button>
-                    <button class="btn btn-warning btn-sm" onclick="loginDemo('vendedor')">👨‍💼 Vendedor</button>
-                    <button class="btn btn-primary btn-sm" onclick="loginDemo('assistente')">👩‍💻 Assistente</button>
+                    <button class="btn btn-success btn-sm" onclick="loginDirectUser('gerente1@gamecreatorsadm.com')">👔 Gerente1</button>
+                    <button class="btn btn-warning btn-sm" onclick="loginDirectUser('vendedor1@gamecreatorsadm.com')">👨‍💼 Vendedor1</button>
+                    <button class="btn btn-primary btn-sm" onclick="loginDirectUser('assistente1@gamecreatorsadm.com')">👩‍💻 Assistente1</button>
+                </div>
+                
+                <!-- BOTÕES DE EMERGÊNCIA -->
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                    <small>🚨 <strong>EMERGÊNCIA - RESOLUÇÃO DE PROBLEMAS:</strong></small><br>
+                    <div style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 10px;">
+                        <button class="btn btn-danger btn-sm" onclick="forceCreateMarden()">➕ Criar MARDEN</button>
+                        <button class="btn btn-info btn-sm" onclick="showAllUsers()">👥 Ver Usuários</button>
+                        <button class="btn btn-warning btn-sm" onclick="clearStorage()">🗑️ Limpar Dados</button>
+                        <button class="btn btn-success btn-sm" onclick="createBulkUsers()">🚀 Criar Todos</button>
+                    </div>
                 </div>
             </div>
             
             <div id="loginError" class="notification error hidden" style="position: relative; margin-top: 20px;">
-                Usuário ou senha incorretos!
+                <strong>❌ Login falhou!</strong><br>
+                <small>💡 <strong>SOLUÇÕES:</strong><br>
+                1. Clique em "Dev Mode" → "Criar MARDEN"<br>
+                2. Clique em "Ver Usuários" para ver senhas<br>
+                3. Use admin@gamecreatorsadm.com / admin123</small>
             </div>
 
             <!-- Toggle para mostrar/esconder demo buttons (apenas para desenvolvimento) -->
             <div style="margin-top: 30px; text-align: center;">
                 <button id="toggleDemo" onclick="toggleDemoMode()" style="background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; font-size: 11px; color: #666; cursor: pointer;">
                     🔧 Dev Mode
+                </button>
+                <button onclick="showAllUsers(); debugListUsers();" style="background: none; border: 1px solid #ff6b6b; padding: 5px 10px; border-radius: 5px; font-size: 11px; color: #ff6b6b; cursor: pointer; margin-left: 10px;">
+                    👥 Ver Usuários
                 </button>
             </div>
         </div>
@@ -1416,6 +1434,26 @@ function updateData(values) {
                         </div>
                     </div>
                 </div>
+                
+                <!-- Criar Usuários em Massa -->
+                <div class="stat-card" style="margin: 20px 0; background: linear-gradient(135deg, #e6fffa, #f0fff4); border-left: 4px solid #38a169;">
+                    <h3>👥 Criar Usuários em Massa</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Crie automaticamente vários usuários de uma vez</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <button class="btn btn-success" onclick="createBulkUsers()">🚀 Criar Usuários Completos</button>
+                        <button class="btn btn-info" onclick="createBulkVendedores()">👨‍💼 Criar 6 Vendedores</button>
+                        <button class="btn btn-warning" onclick="createBulkAssistentes()">👩‍💻 Criar 6 Assistentes</button>
+                        <button class="btn btn-primary" onclick="createBulkGerentes()">👔 Criar 3 Gerentes</button>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px; font-size: 12px;">
+                        <strong>📝 O que será criado:</strong><br>
+                        • <strong>Usuários Completos:</strong> 1 Admin + 3 Gerentes + 6 Vendedores + 6 Assistentes<br>
+                        • <strong>Senhas padrão:</strong> admin123, gerente123, vendedor123, assistente123<br>
+                        • <strong>Distribuição:</strong> Usuários serão distribuídos entre as 3 unidades
+                    </div>
+                </div>
 
                 <!-- Adicionar Usuário -->
                 <div class="stat-card" style="margin: 20px 0;">
@@ -1599,6 +1637,19 @@ function updateData(values) {
         </div>
     </div>
     
+    <!-- Modal para Editar Usuário -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>✏️ Editar Usuário</h3>
+                <button class="close-modal" onclick="closeEditUserModal()">×</button>
+            </div>
+            <div id="editUserForm">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </div>
+    </div>
+    
     <!-- Modal para Editar Senha -->
     <div id="editPasswordModal" class="modal">
         <div class="modal-content" style="max-width: 400px;">
@@ -1686,10 +1737,24 @@ function updateData(values) {
 
         // Inicialização
         function initializeSystem() {
+            console.log('🔧 Carregando dados do localStorage...');
             loadGameData();
+            
+            console.log('🔧 Inicializando dados padrão...');
             initializeDefaultData();
+            
+            console.log('🔧 Configurando event listeners...');
             setupEventListeners();
+            
+            console.log('🔧 Verificando auto-login...');
             checkAutoLogin();
+            
+            console.log('✅ Sistema inicializado com sucesso!');
+            
+            // Mostrar usuários disponíveis no console
+            setTimeout(() => {
+                debugListUsers();
+            }, 500);
         }
 
         function loadGameData() {
@@ -1701,10 +1766,15 @@ function updateData(values) {
                 }
                 
                 // DEBUG: Mostrar usuários disponíveis
-                console.log('🔍 DEBUG - Usuários carregados:');
-                Object.entries(gameData.users || {}).forEach(([key, user]) => {
-                    console.log(`📧 ${key} -> ${user.name} (senha: ${user.password})`);
-                });
+                console.log('🔍 ===========================================');
+                console.log('🔍 CARREGANDO DADOS DO SISTEMA:');
+                console.log('🔍 ===========================================');
+                
+                if (gameData.users && Object.keys(gameData.users).length > 0) {
+                    debugListUsers();
+                } else {
+                    console.log('❌ NENHUM USUÁRIO ENCONTRADO! Criando usuários padrão...');
+                }
                 
                 console.log('✅ Dados carregados com sucesso');
             } catch (error) {
@@ -1717,16 +1787,86 @@ function updateData(values) {
             try {
                 localStorage.setItem('gameCreatorsData', JSON.stringify(gameData));
                 console.log('✅ Dados salvos com sucesso');
+                
+                // Verificar se realmente salvou
+                const savedData = localStorage.getItem('gameCreatorsData');
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    if (parsed.users) {
+                        console.log(`✅ Confirmado: ${Object.keys(parsed.users).length} usuários salvos no localStorage`);
+                    }
+                }
             } catch (error) {
                 console.error('❌ Erro ao salvar dados:', error);
                 showNotification('Erro ao salvar dados', 'error');
             }
         }
 
-        function initializeDefaultData() {
-            if (!gameData.users || Object.keys(gameData.users).length === 0) {
+        // FUNÇÃO PARA RESETAR SISTEMA (USAR EM CASO DE PROBLEMAS)
+        function resetSystem() {
+            if (confirm('🚨 ATENÇÃO: Isso vai apagar TODOS os dados e recriar o sistema do zero. Confirma?')) {
+                localStorage.removeItem('gameCreatorsData');
+                localStorage.removeItem('currentUser');
+                
+                // Reinicializar dados
+                gameData = {
+                    users: {},
+                    matriculas: [],
+                    visitas: [],
+                    units: ['Shopping Conjunto Nacional', 'Shopping Eldorado', 'Shopping Morumbi'],
+                    missions: [],
+                    chatMessages: [],
+                    unitGoals: {},
+                    customTabs: [],
+                    userPermissions: {},
+                    googleSheetsConfig: {
+                        apiKey: '',
+                        spreadsheetId: '',
+                        sheetName: 'Sheet1',
+                        isConnected: false,
+                        lastSync: null
+                    }
+                };
+                
                 createDefaultUsers();
+                saveGameData();
+                
+                showNotification('✅ Sistema resetado! Recarregando página...', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
             }
+        }
+
+        // Adicionar função no console para debug
+        window.debugGameCreators = function() {
+            console.log('🔍 ===========================================');
+            console.log('🔍 DEBUG CONSOLE - GAME CREATORS SYSTEM');
+            console.log('🔍 ===========================================');
+            debugListUsers();
+            console.log('🔧 COMANDOS DISPONÍVEIS:');
+            console.log('resetSystem() - Resetar sistema completamente');
+            console.log('debugListUsers() - Listar todos os usuários');
+            console.log('gameData - Ver todos os dados do sistema');
+            console.log('🔍 ===========================================');
+        };
+
+        function initializeDefaultData() {
+            console.log('🔧 Inicializando dados padrão...');
+            
+            // Garantir que users existe
+            if (!gameData.users) {
+                gameData.users = {};
+                console.log('📝 Objeto users criado');
+            }
+            
+            if (Object.keys(gameData.users).length === 0) {
+                console.log('👥 Criando usuários padrão...');
+                createDefaultUsers();
+            } else {
+                console.log(`✅ ${Object.keys(gameData.users).length} usuários já existem`);
+            }
+            
             if (!gameData.chatMessages) {
                 gameData.chatMessages = [];
             }
@@ -1750,10 +1890,25 @@ function updateData(values) {
                     lastSync: null
                 };
             }
+            
+            // Garantir arrays
+            if (!gameData.matriculas) gameData.matriculas = [];
+            if (!gameData.visitas) gameData.visitas = [];
+            if (!gameData.missions) gameData.missions = [];
+            if (!gameData.customTabs) gameData.customTabs = [];
+            if (!gameData.userPermissions) gameData.userPermissions = {};
+            if (!gameData.units) gameData.units = ['Shopping Conjunto Nacional', 'Shopping Eldorado', 'Shopping Morumbi'];
+            
+            console.log('✅ Dados padrão inicializados');
         }
 
         function createDefaultUsers() {
+            console.log('👥 ===========================================');
+            console.log('👥 CRIANDO USUÁRIOS PADRÃO DO SISTEMA');
+            console.log('👥 ===========================================');
+            
             const defaultUsers = [
+                // Usuários principais
                 {
                     username: 'admin@gamecreatorsadm.com',
                     password: 'admin123',
@@ -1764,8 +1919,10 @@ function updateData(values) {
                     level: 10,
                     permissions: DEFAULT_PERMISSIONS.admin
                 },
+                
+                // 3 Gerentes
                 {
-                    username: 'gerente@gamecreatorsadm.com',
+                    username: 'gerente1@gamecreatorsadm.com',
                     password: 'gerente123',
                     name: 'Carlos Manager',
                     role: 'gerente',
@@ -1775,7 +1932,29 @@ function updateData(values) {
                     permissions: DEFAULT_PERMISSIONS.gerente
                 },
                 {
-                    username: 'vendedor@gamecreatorsadm.com',
+                    username: 'gerente2@gamecreatorsadm.com',
+                    password: 'gerente123',
+                    name: 'Maria Gerente',
+                    role: 'gerente',
+                    unit: 'Shopping Eldorado',
+                    xp: 3200,
+                    level: 6,
+                    permissions: DEFAULT_PERMISSIONS.gerente
+                },
+                {
+                    username: 'gerente3@gamecreatorsadm.com',
+                    password: 'gerente123',
+                    name: 'João Supervisor',
+                    role: 'gerente',
+                    unit: 'Shopping Morumbi',
+                    xp: 2900,
+                    level: 6,
+                    permissions: DEFAULT_PERMISSIONS.gerente
+                },
+                
+                // 6 Vendedores
+                {
+                    username: 'vendedor1@gamecreatorsadm.com',
                     password: 'vendedor123',
                     name: 'Ana Silva',
                     role: 'vendedor',
@@ -1785,7 +1964,59 @@ function updateData(values) {
                     permissions: DEFAULT_PERMISSIONS.vendedor
                 },
                 {
-                    username: 'assistente@gamecreatorsadm.com',
+                    username: 'vendedor2@gamecreatorsadm.com',
+                    password: 'vendedor123',
+                    name: 'Paulo Santos',
+                    role: 'vendedor',
+                    unit: 'Shopping Conjunto Nacional',
+                    xp: 1800,
+                    level: 4,
+                    permissions: DEFAULT_PERMISSIONS.vendedor
+                },
+                {
+                    username: 'vendedor3@gamecreatorsadm.com',
+                    password: 'vendedor123',
+                    name: 'Luciana Costa',
+                    role: 'vendedor',
+                    unit: 'Shopping Eldorado',
+                    xp: 2200,
+                    level: 5,
+                    permissions: DEFAULT_PERMISSIONS.vendedor
+                },
+                {
+                    username: 'vendedor4@gamecreatorsadm.com',
+                    password: 'vendedor123',
+                    name: 'Ricardo Alves',
+                    role: 'vendedor',
+                    unit: 'Shopping Eldorado',
+                    xp: 1900,
+                    level: 4,
+                    permissions: DEFAULT_PERMISSIONS.vendedor
+                },
+                {
+                    username: 'vendedor5@gamecreatorsadm.com',
+                    password: 'vendedor123',
+                    name: 'Fernanda Lima',
+                    role: 'vendedor',
+                    unit: 'Shopping Morumbi',
+                    xp: 2000,
+                    level: 5,
+                    permissions: DEFAULT_PERMISSIONS.vendedor
+                },
+                {
+                    username: 'vendedor6@gamecreatorsadm.com',
+                    password: 'vendedor123',
+                    name: 'Diego Oliveira',
+                    role: 'vendedor',
+                    unit: 'Shopping Morumbi',
+                    xp: 1700,
+                    level: 4,
+                    permissions: DEFAULT_PERMISSIONS.vendedor
+                },
+                
+                // 6 Assistentes
+                {
+                    username: 'assistente1@gamecreatorsadm.com',
                     password: 'assistente123',
                     name: 'João Santos',
                     role: 'assistente',
@@ -1793,35 +2024,214 @@ function updateData(values) {
                     xp: 1200,
                     level: 3,
                     permissions: DEFAULT_PERMISSIONS.assistente
+                },
+                {
+                    username: 'assistente2@gamecreatorsadm.com',
+                    password: 'assistente123',
+                    name: 'Camila Rodrigues',
+                    role: 'assistente',
+                    unit: 'Shopping Conjunto Nacional',
+                    xp: 1100,
+                    level: 3,
+                    permissions: DEFAULT_PERMISSIONS.assistente
+                },
+                {
+                    username: 'assistente3@gamecreatorsadm.com',
+                    password: 'assistente123',
+                    name: 'Bruno Pereira',
+                    role: 'assistente',
+                    unit: 'Shopping Eldorado',
+                    xp: 1300,
+                    level: 3,
+                    permissions: DEFAULT_PERMISSIONS.assistente
+                },
+                {
+                    username: 'assistente4@gamecreatorsadm.com',
+                    password: 'assistente123',
+                    name: 'Juliana Martins',
+                    role: 'assistente',
+                    unit: 'Shopping Eldorado',
+                    xp: 1000,
+                    level: 2,
+                    permissions: DEFAULT_PERMISSIONS.assistente
+                },
+                {
+                    username: 'assistente5@gamecreatorsadm.com',
+                    password: 'assistente123',
+                    name: 'Rafael Souza',
+                    role: 'assistente',
+                    unit: 'Shopping Morumbi',
+                    xp: 1150,
+                    level: 3,
+                    permissions: DEFAULT_PERMISSIONS.assistente
+                },
+                {
+                    username: 'assistente6@gamecreatorsadm.com',
+                    password: 'assistente123',
+                    name: 'Amanda Silva',
+                    role: 'assistente',
+                    unit: 'Shopping Morumbi',
+                    xp: 950,
+                    level: 2,
+                    permissions: DEFAULT_PERMISSIONS.assistente
                 }
             ];
 
             defaultUsers.forEach(user => {
-                gameData.users[user.username] = {
+                const finalUser = {
                     ...user,
                     id: generateId(),
                     createdAt: new Date().toISOString()
                 };
+                
+                // Salvar com username em minúsculas como chave
+                const key = user.username.toLowerCase();
+                gameData.users[key] = finalUser;
+                
+                console.log(`✅ Usuário criado: ${key} -> ${finalUser.name} (${finalUser.password})`);
             });
 
             saveGameData();
-            console.log('✅ Usuários padrão criados');
+            console.log('✅ Usuários padrão salvos no localStorage');
+            console.log(`📊 TOTAL DE USUÁRIOS CRIADOS: ${defaultUsers.length}`);
+            console.log('👑 1 Admin | 👔 3 Gerentes | 👨‍💼 6 Vendedores | 👩‍💻 6 Assistentes');
+            console.log('👥 ===========================================');
+            
+            // Verificar se realmente foram salvos
+            setTimeout(() => {
+                debugListUsers();
+            }, 100);
         }
 
-        // Função para verificar permissões
-        function hasPermission(permission) {
-            if (!currentUser) return false;
-            if (currentUser.role === 'admin') return true;
-            return currentUser.permissions && currentUser.permissions.includes(permission);
+        // FUNÇÕES DE EMERGÊNCIA PARA RESOLVER PROBLEMAS
+        function forceCreateMarden() {
+            console.log('🚨 CRIANDO USUÁRIO MARDEN FORÇADAMENTE...');
+            
+            // Garantir que gameData.users existe
+            if (!gameData.users) {
+                gameData.users = {};
+            }
+            
+            // Criar usuário marden diretamente
+            const mardenUser = {
+                name: 'Marden',
+                username: 'marden@gamecreatorsadm.com',
+                password: 'senha123',
+                role: 'gerente',
+                unit: 'Shopping Conjunto Nacional',
+                xp: 0,
+                level: 1,
+                id: generateId(),
+                createdAt: new Date().toISOString(),
+                createdBy: 'Sistema',
+                permissions: DEFAULT_PERMISSIONS.gerente
+            };
+            
+            // Salvar com todas as chaves possíveis
+            gameData.users['marden@gamecreatorsadm.com'] = mardenUser;
+            gameData.users['marden'] = mardenUser;
+            
+            // Forçar salvamento
+            localStorage.setItem('gameCreatorsData', JSON.stringify(gameData));
+            
+            console.log('✅ USUÁRIO MARDEN CRIADO!');
+            alert('✅ Usuário MARDEN criado!\n\nEmail: marden@gamecreatorsadm.com\nSenha: senha123\n\nTente fazer login agora!');
+            
+            // Mostrar todos os usuários
+            showAllUsers();
         }
 
-        // SISTEMA DE LOGIN CORRIGIDO
+        function showAllUsers() {
+            console.log('👥 MOSTRANDO TODOS OS USUÁRIOS...');
+            
+            let usersList = '👥 USUÁRIOS DISPONÍVEIS:\n\n';
+            
+            if (!gameData.users || Object.keys(gameData.users).length === 0) {
+                usersList += '❌ NENHUM USUÁRIO ENCONTRADO!\n\n';
+                usersList += '🔧 Clique em "Criar MARDEN" para criar um usuário de teste.';
+            } else {
+                Object.entries(gameData.users).forEach(([key, user]) => {
+                    usersList += `📧 Email: ${user.username || key}\n`;
+                    usersList += `👤 Nome: ${user.name}\n`;
+                    usersList += `🔒 Senha: ${user.password}\n`;
+                    usersList += `💼 Tipo: ${user.role}\n`;
+                    usersList += '---\n';
+                });
+            }
+            
+            alert(usersList);
+            console.log(usersList);
+        }
+
+        function clearStorage() {
+            if (confirm('🚨 ATENÇÃO!\n\nIsso vai apagar TODOS os dados salvos e reiniciar o sistema do zero.\n\nConfirma?')) {
+                localStorage.clear();
+                alert('✅ Dados limpos!\n\nA página será recarregada...');
+                location.reload();
+            }
+        }
+
+        // FUNÇÃO DEBUG PARA LISTAR USUÁRIOS
+        function debugListUsers() {
+            console.log('🔍 ===========================================');
+            console.log('🔍 DEBUG - TODOS OS USUÁRIOS DISPONÍVEIS:');
+            console.log('🔍 ===========================================');
+            
+            if (!gameData.users || Object.keys(gameData.users).length === 0) {
+                console.log('❌ NENHUM USUÁRIO ENCONTRADO!');
+                return;
+            }
+            
+            Object.entries(gameData.users).forEach(([key, user]) => {
+                console.log(`📧 CHAVE: "${key}"`);
+                console.log(`👤 NOME: "${user.name}"`);
+                console.log(`🔑 EMAIL: "${user.username}"`);
+                console.log(`🔒 SENHA: "${user.password}"`);
+                console.log(`💼 TIPO: "${user.role}"`);
+                console.log('---');
+            });
+            console.log('🔍 ===========================================');
+        }
+
+        // FUNÇÃO DE LOGIN SIMPLIFICADA PARA EMERGÊNCIA
+        function emergencyLogin(email, password) {
+            console.log(`🚨 TENTATIVA DE LOGIN DE EMERGÊNCIA: ${email} / ${password}`);
+            
+            // Buscar usuário de forma simples
+            let user = null;
+            
+            if (gameData.users) {
+                // Buscar por email exato
+                user = gameData.users[email] || gameData.users[email.toLowerCase()];
+                
+                // Se não encontrou, buscar em todos os usuários
+                if (!user) {
+                    for (const userData of Object.values(gameData.users)) {
+                        if (userData.username === email || userData.username === email.toLowerCase()) {
+                            user = userData;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (user && user.password === password) {
+                console.log('✅ LOGIN DE EMERGÊNCIA SUCESSO!');
+                performSuccessfulLogin(user);
+                return true;
+            }
+            
+            console.log('❌ LOGIN DE EMERGÊNCIA FALHOU!');
+            return false;
+        }
+
+        // SISTEMA DE LOGIN MELHORADO COM FALLBACK DE EMERGÊNCIA
         function login() {
-            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
-            const password = document.getElementById('loginPassword').value.trim();
+            const inputUsername = document.getElementById('loginUsername').value.trim();
+            const inputPassword = document.getElementById('loginPassword').value.trim();
 
             // Validação básica
-            if (!username || !password) {
+            if (!inputUsername || !inputPassword) {
                 showNotification('Por favor, preencha usuário e senha', 'warning');
                 document.getElementById('loginError').classList.remove('hidden');
                 setTimeout(() => {
@@ -1830,24 +2240,49 @@ function updateData(values) {
                 return;
             }
 
-            // CORREÇÃO: Buscar usuário considerando tanto a chave minúscula quanto o username original
-            let user = gameData.users[username];
-            
-            // Se não encontrou, tentar buscar por todas as chaves de usuários
-            if (!user) {
-                const userEntry = Object.entries(gameData.users).find(([key, userData]) => {
-                    return key.toLowerCase() === username || userData.username?.toLowerCase() === username;
-                });
-                
-                if (userEntry) {
-                    user = userEntry[1];
+            console.log('🔍 ===========================================');
+            console.log('🔍 TENTATIVA DE LOGIN:');
+            console.log(`📧 Email: "${inputUsername}"`);
+            console.log(`🔒 Senha: "${inputPassword}"`);
+            console.log('🔍 ===========================================');
+
+            // MÉTODO 1: Tentar login de emergência primeiro
+            if (emergencyLogin(inputUsername, inputPassword)) {
+                return; // Login bem-sucedido
+            }
+
+            // MÉTODO 2: Login tradicional com debug
+            debugListUsers();
+
+            // Buscar usuário de TODAS as formas possíveis
+            let foundUser = null;
+            let foundKey = null;
+
+            // Busca direta por chave (email em minúsculas)
+            const lowerEmail = inputUsername.toLowerCase();
+            if (gameData.users && gameData.users[lowerEmail]) {
+                foundUser = gameData.users[lowerEmail];
+                foundKey = lowerEmail;
+                console.log('✅ USUÁRIO ENCONTRADO - Método 1 (chave direta)');
+            }
+
+            // Busca por todas as entradas
+            if (!foundUser && gameData.users) {
+                for (const [key, user] of Object.entries(gameData.users)) {
+                    if (key.toLowerCase() === lowerEmail || 
+                        user.username?.toLowerCase() === lowerEmail ||
+                        user.name?.toLowerCase() === inputUsername.toLowerCase()) {
+                        foundUser = user;
+                        foundKey = key;
+                        console.log('✅ USUÁRIO ENCONTRADO - Método 2 (busca completa)');
+                        break;
+                    }
                 }
             }
-            
-            if (!user) {
-                console.log('❌ Usuário não encontrado:', username);
-                console.log('🔍 Usuários disponíveis:', Object.keys(gameData.users));
-                showNotification('Usuário não encontrado', 'error');
+
+            if (!foundUser) {
+                console.log('❌ USUÁRIO NÃO ENCONTRADO!');
+                showNotification(`❌ Usuário "${inputUsername}" não encontrado.\n\n💡 Dica: Clique em "Dev Mode" e depois "Ver Usuários" para ver todos os usuários disponíveis.`, 'error');
                 document.getElementById('loginError').classList.remove('hidden');
                 setTimeout(() => {
                     document.getElementById('loginError').classList.add('hidden');
@@ -1856,8 +2291,9 @@ function updateData(values) {
             }
 
             // Verificar senha
-            if (user.password !== password) {
-                showNotification('Senha incorreta', 'error');
+            if (foundUser.password !== inputPassword) {
+                console.log(`❌ SENHA INCORRETA! Esperado: "${foundUser.password}", Recebido: "${inputPassword}"`);
+                showNotification(`❌ Senha incorreta para ${foundUser.name}.\n\n💡 Senha esperada: "${foundUser.password}"`, 'error');
                 document.getElementById('loginError').classList.remove('hidden');
                 setTimeout(() => {
                     document.getElementById('loginError').classList.add('hidden');
@@ -1866,7 +2302,15 @@ function updateData(values) {
             }
 
             // Login bem-sucedido
-            performSuccessfulLogin(user);
+            console.log('✅ LOGIN BEM-SUCEDIDO!');
+            performSuccessfulLogin(foundUser);
+        }
+
+        // Função para verificar permissões
+        function hasPermission(permission) {
+            if (!currentUser) return false;
+            if (currentUser.role === 'admin') return true;
+            return currentUser.permissions && currentUser.permissions.includes(permission);
         }
 
         function performSuccessfulLogin(user) {
@@ -1894,10 +2338,7 @@ function updateData(values) {
             }
 
             const demoUsers = {
-                'admin': 'admin@gamecreatorsadm.com',
-                'gerente': 'gerente@gamecreatorsadm.com',
-                'vendedor': 'vendedor@gamecreatorsadm.com',
-                'assistente': 'assistente@gamecreatorsadm.com'
+                'admin': 'admin@gamecreatorsadm.com'
             };
             
             const username = demoUsers[role];
@@ -1908,20 +2349,38 @@ function updateData(values) {
             }
         }
 
-        // Toggle para modo demo (apenas desenvolvimento)
+        // Nova função para login direto com email
+        function loginDirectUser(email) {
+            const demoButtons = document.getElementById('demoButtons');
+            if (!demoButtons.classList.contains('show')) {
+                showNotification('Acesso demo desabilitado. Use credenciais válidas.', 'warning');
+                return;
+            }
+
+            const user = gameData.users[email.toLowerCase()] || gameData.users[email];
+            
+            if (user) {
+                performSuccessfulLogin(user);
+            } else {
+                showNotification(`Usuário ${email} não encontrado. Clique em "Criar Todos" primeiro.`, 'warning');
+            }
+        }
+
+        // Toggle para modo demo - SEMPRE ATIVAR
         function toggleDemoMode() {
             const demoButtons = document.getElementById('demoButtons');
             const toggleBtn = document.getElementById('toggleDemo');
             
-            if (demoButtons.classList.contains('show')) {
+            // SEMPRE mostrar (forçar ativação)
+            demoButtons.classList.add('show');
+            toggleBtn.textContent = '🔒 Fechar Dev Mode';
+            toggleBtn.onclick = function() {
                 demoButtons.classList.remove('show');
                 toggleBtn.textContent = '🔧 Dev Mode';
-                showNotification('Modo demo desabilitado', 'info');
-            } else {
-                demoButtons.classList.add('show');
-                toggleBtn.textContent = '🔒 Normal Mode';
-                showNotification('Modo demo habilitado', 'warning');
-            }
+                toggleBtn.onclick = toggleDemoMode;
+            };
+            
+            showNotification('🔧 Modo desenvolvedor ativado! Use os botões de emergência.', 'info');
         }
 
         function logout() {
@@ -2515,6 +2974,199 @@ function updateData(values) {
             closeEditPasswordModal();
         }
 
+        // NOVA FUNCIONALIDADE: Sistema de Edição de Usuários
+        function editUser(username) {
+            const user = gameData.users[username];
+            if (!user) return;
+            
+            currentEditingUser = user;
+            
+            const modal = document.getElementById('editUserModal');
+            const form = document.getElementById('editUserForm');
+            
+            form.innerHTML = `
+                <div>
+                    <p style="margin-bottom: 20px;"><strong>📧 Email:</strong> ${user.username}</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>👤 Nome:</label>
+                            <input type="text" id="editUserName" value="${user.name}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>💼 Tipo:</label>
+                            <select id="editUserRole" required>
+                                <option value="vendedor" ${user.role === 'vendedor' ? 'selected' : ''}>👨‍💼 Vendedor</option>
+                                <option value="gerente" ${user.role === 'gerente' ? 'selected' : ''}>👔 Gerente</option>
+                                <option value="assistente" ${user.role === 'assistente' ? 'selected' : ''}>👩‍💻 Assistente</option>
+                                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>🔧 Admin</option>
+                                <option value="personalizado" ${user.role === 'personalizado' ? 'selected' : ''}>🎛️ Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>🏢 Unidade:</label>
+                            <select id="editUserUnit" required>
+                                ${gameData.units.map(unit => 
+                                    `<option value="${unit}" ${user.unit === unit ? 'selected' : ''}>${unit}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>⭐ XP:</label>
+                            <input type="number" id="editUserXP" value="${user.xp || 0}" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>🎮 Nível:</label>
+                            <input type="number" id="editUserLevel" value="${user.level || 1}" min="1" max="50">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="btn btn-success" onclick="saveUserEdit()">💾 Salvar Alterações</button>
+                        <button class="btn btn-secondary" onclick="closeEditUserModal()">❌ Cancelar</button>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; font-size: 12px;">
+                        <strong>💡 Dica:</strong> Alterar o tipo do usuário automaticamente ajustará suas permissões.
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveUserEdit() {
+            if (!currentEditingUser) return;
+            
+            const newName = document.getElementById('editUserName').value.trim();
+            const newRole = document.getElementById('editUserRole').value;
+            const newUnit = document.getElementById('editUserUnit').value;
+            const newXP = parseInt(document.getElementById('editUserXP').value) || 0;
+            const newLevel = parseInt(document.getElementById('editUserLevel').value) || 1;
+            
+            if (!newName || !newRole || !newUnit) {
+                showNotification('Preencha todos os campos obrigatórios', 'warning');
+                return;
+            }
+            
+            // Atualizar dados do usuário
+            currentEditingUser.name = newName;
+            currentEditingUser.role = newRole;
+            currentEditingUser.unit = newUnit;
+            currentEditingUser.xp = newXP;
+            currentEditingUser.level = newLevel;
+            currentEditingUser.lastEdited = new Date().toISOString();
+            currentEditingUser.editedBy = currentUser.name;
+            
+            // Atualizar permissões baseado no novo tipo
+            if (DEFAULT_PERMISSIONS[newRole]) {
+                currentEditingUser.permissions = DEFAULT_PERMISSIONS[newRole];
+            }
+            
+            saveGameData();
+            showNotification(`Usuário ${newName} atualizado com sucesso!`, 'success');
+            closeEditUserModal();
+            
+            // Recarregar tabela de usuários
+            loadUserManagementTable();
+            
+            // Se editou o próprio usuário, atualizar interface
+            if (currentEditingUser.username === currentUser.username) {
+                currentUser = currentEditingUser;
+                updateUserInfo();
+            }
+        }
+
+        // FUNÇÕES PARA CRIAR USUÁRIOS EM MASSA
+        function createBulkUsers() {
+            if (confirm('🚀 Criar todos os usuários do sistema?\n\n👑 1 Admin\n👔 3 Gerentes\n👨‍💼 6 Vendedores\n👩‍💻 6 Assistentes\n\nTotal: 16 usuários')) {
+                const existingCount = Object.keys(gameData.users || {}).length;
+                
+                createDefaultUsers();
+                
+                const newCount = Object.keys(gameData.users).length;
+                const created = newCount - existingCount;
+                
+                showNotification(`✅ Criação concluída!\n\n📊 Usuários criados: ${created}\n📊 Total no sistema: ${newCount}`, 'success');
+                loadUserManagementTable();
+            }
+        }
+
+        function createBulkVendedores() {
+            if (confirm('👨‍💼 Criar 6 vendedores?\n\nVendedor1 a Vendedor6\nSenha: vendedor123')) {
+                createSpecificUsers('vendedor', 6);
+            }
+        }
+
+        function createBulkAssistentes() {
+            if (confirm('👩‍💻 Criar 6 assistentes?\n\nAssistente1 a Assistente6\nSenha: assistente123')) {
+                createSpecificUsers('assistente', 6);
+            }
+        }
+
+        function createBulkGerentes() {
+            if (confirm('👔 Criar 3 gerentes?\n\nGerente1 a Gerente3\nSenha: gerente123')) {
+                createSpecificUsers('gerente', 3);
+            }
+        }
+
+        function createSpecificUsers(role, count) {
+            if (!gameData.users) {
+                gameData.users = {};
+            }
+
+            const units = gameData.units;
+            let created = 0;
+            
+            const roleNames = {
+                vendedor: ['Ana Silva', 'Paulo Santos', 'Luciana Costa', 'Ricardo Alves', 'Fernanda Lima', 'Diego Oliveira'],
+                gerente: ['Carlos Manager', 'Maria Gerente', 'João Supervisor'],
+                assistente: ['João Santos', 'Camila Rodrigues', 'Bruno Pereira', 'Juliana Martins', 'Rafael Souza', 'Amanda Silva']
+            };
+
+            for (let i = 1; i <= count; i++) {
+                const email = `${role}${i}@gamecreatorsadm.com`;
+                
+                // Verificar se já existe
+                if (gameData.users[email]) {
+                    console.log(`⚠️ Usuário ${email} já existe, pulando...`);
+                    continue;
+                }
+
+                const user = {
+                    username: email,
+                    password: `${role}123`,
+                    name: roleNames[role][i-1] || `${role.charAt(0).toUpperCase() + role.slice(1)} ${i}`,
+                    role: role,
+                    unit: units[(i - 1) % units.length], // Distribuir entre unidades
+                    xp: Math.floor(Math.random() * 1000) + 500,
+                    level: Math.floor(Math.random() * 3) + (role === 'gerente' ? 5 : role === 'vendedor' ? 3 : 2),
+                    id: generateId(),
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentUser.name,
+                    permissions: DEFAULT_PERMISSIONS[role] || []
+                };
+
+                gameData.users[email] = user;
+                created++;
+                console.log(`✅ Criado: ${email} -> ${user.name}`);
+            }
+
+            saveGameData();
+            
+            if (created > 0) {
+                showNotification(`✅ ${created} ${role}${created > 1 ? 's' : ''} criado${created > 1 ? 's' : ''}!`, 'success');
+                loadUserManagementTable();
+            } else {
+                showNotification(`ℹ️ Todos os ${role}s já existem no sistema`, 'info');
+            }
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+            currentEditingUser = null;
+        }
+
         function closeEditPasswordModal() {
             document.getElementById('editPasswordModal').style.display = 'none';
             currentEditingUser = null;
@@ -2719,20 +3371,30 @@ function updateData(values) {
         }
 
         function clearUserForm() {
-            document.getElementById('newUserName').value = '';
-            document.getElementById('newUserUsername').value = '';
-            document.getElementById('newUserPassword').value = '';
-            document.getElementById('newUserRole').value = 'vendedor';
-            document.getElementById('newUserUnit').selectedIndex = 0;
-            
-            // Esconder permissões personalizadas
-            const customPermissions = document.getElementById('customPermissions');
-            if (customPermissions) {
-                customPermissions.style.display = 'none';
+            try {
+                document.getElementById('newUserName').value = '';
+                document.getElementById('newUserUsername').value = '';
+                document.getElementById('newUserPassword').value = '';
+                document.getElementById('newUserRole').value = 'vendedor';
+                
+                const unitSelect = document.getElementById('newUserUnit');
+                if (unitSelect && unitSelect.options.length > 0) {
+                    unitSelect.selectedIndex = 0;
+                }
+                
+                // Esconder permissões personalizadas
+                const customPermissions = document.getElementById('customPermissions');
+                if (customPermissions) {
+                    customPermissions.style.display = 'none';
+                }
+                
+                // Limpar checkboxes
+                clearAllPermissions();
+                
+                console.log('✅ Formulário de usuário limpo');
+            } catch (error) {
+                console.error('❌ Erro ao limpar formulário:', error);
             }
-            
-            // Limpar checkboxes
-            clearAllPermissions();
         }
 
         // Gamificação
@@ -3959,6 +4621,86 @@ function updateData(values) {
             populateGoalUnits();
             loadCurrentGoals();
             loadGoogleSheetsConfig();
+            loadDebugSection();
+        }
+
+        function loadDebugSection() {
+            // Adicionar seção de debug no painel admin se não existir
+            const adminDiv = document.getElementById('admin');
+            let debugSection = document.getElementById('debugSection');
+            
+            if (!debugSection) {
+                debugSection = document.createElement('div');
+                debugSection.id = 'debugSection';
+                debugSection.className = 'stat-card';
+                debugSection.style.margin = '20px 0';
+                debugSection.style.background = 'linear-gradient(135deg, #fed7d7, #fff5f5)';
+                debugSection.style.borderLeft = '4px solid #e53e3e';
+                
+                debugSection.innerHTML = `
+                    <h3>🔧 DEBUG & MANUTENÇÃO DO SISTEMA</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Ferramentas para diagnóstico e correção de problemas</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <button class="btn btn-info" onclick="debugListUsers()">🔍 Listar Usuários</button>
+                        <button class="btn btn-warning" onclick="window.debugGameCreators()">📋 Debug Console</button>
+                        <button class="btn btn-primary" onclick="forceReloadData()">🔄 Recarregar Dados</button>
+                        <button class="btn btn-danger" onclick="resetSystem()">🚨 Resetar Sistema</button>
+                    </div>
+                    
+                    <div id="debugInfo" style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+                        <strong>STATUS DO SISTEMA:</strong><br>
+                        <span id="debugStatus">Carregando...</span>
+                    </div>
+                `;
+                
+                // Adicionar no final do painel admin
+                const adminContent = adminDiv.querySelector('div[style*="padding: 30px"]');
+                if (adminContent) {
+                    adminContent.appendChild(debugSection);
+                }
+            }
+            
+            // Atualizar informações de debug
+            updateDebugInfo();
+        }
+
+        function updateDebugInfo() {
+            const debugStatus = document.getElementById('debugStatus');
+            if (!debugStatus) return;
+            
+            const userCount = gameData.users ? Object.keys(gameData.users).length : 0;
+            const matriculasCount = gameData.matriculas ? gameData.matriculas.length : 0;
+            const visitasCount = gameData.visitas ? gameData.visitas.length : 0;
+            
+            let statusHTML = `
+                📊 <strong>DADOS CARREGADOS:</strong><br>
+                👥 Usuários: ${userCount}<br>
+                📚 Matrículas: ${matriculasCount}<br>
+                👋 Visitas: ${visitasCount}<br>
+                🏢 Unidades: ${gameData.units ? gameData.units.length : 0}<br><br>
+                
+                🔑 <strong>USUÁRIOS DISPONÍVEIS:</strong><br>
+            `;
+            
+            if (userCount > 0) {
+                Object.entries(gameData.users).forEach(([key, user]) => {
+                    statusHTML += `📧 ${key} → ${user.name} (${user.role})<br>`;
+                });
+            } else {
+                statusHTML += '❌ Nenhum usuário encontrado!<br>';
+            }
+            
+            statusHTML += `<br>⏰ <strong>ÚLTIMA ATUALIZAÇÃO:</strong> ${new Date().toLocaleString()}`;
+            
+            debugStatus.innerHTML = statusHTML;
+        }
+
+        function forceReloadData() {
+            loadGameData();
+            updateDebugInfo();
+            showNotification('Dados recarregados do localStorage', 'info');
+            debugListUsers();
         }
 
         function loadGoogleSheetsConfig() {
@@ -4217,6 +4959,7 @@ function updateData(values) {
                                     <td>
                                         <div class="action-buttons">
                                             ${user.username !== currentUser.username ? `
+                                                <button class="btn btn-primary btn-sm" onclick="editUser('${user.username}')">✏️ Editar</button>
                                                 <button class="btn btn-info btn-sm" onclick="editUserPermissions('${user.username}')">🔐 Permissões</button>
                                                 <button class="btn btn-warning btn-sm" onclick="editUserPassword('${user.username}')">🔒 Senha</button>
                                                 <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.username}')">🗑️ Remover</button>
@@ -4371,7 +5114,26 @@ function updateData(values) {
 
         // Inicialização ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            initializeSystem();
+            console.log('🚀 ===========================================');
+            console.log('🚀 INICIALIZANDO GAME CREATORS SYSTEM V2');
+            console.log('🚀 ===========================================');
+            
+            try {
+                initializeSystem();
+                
+                // Disponibilizar funções de debug globalmente
+                window.resetSystem = resetSystem;
+                window.debugListUsers = debugListUsers;
+                window.forceReloadData = forceReloadData;
+                window.gameData = gameData;
+                
+                console.log('✅ Sistema inicializado com sucesso!');
+                console.log('💡 Digite "debugGameCreators()" no console para ferramentas de debug');
+                
+            } catch (error) {
+                console.error('❌ ERRO CRÍTICO na inicialização:', error);
+                alert('Erro crítico na inicialização do sistema. Verifique o console.');
+            }
         });
     </script>
 </body>
